@@ -5,10 +5,10 @@
     "ret":1,					// 返回码，固定为1
     "apiver":9,					// Api版本，本SDK为9
     "name":"骰子机器人",	// 应用名称
-    "version":"1.0.0",			// 应用版本
-    "version_id":1,				// 应用顺序版本（每次发布时至少+1）
+    "version":"1.0.1",			// 应用版本
+    "version_id":2,				// 应用顺序版本（每次发布时至少+1）
     "author":"dynilath",			// 应用作者
-    "description":"an dicebot",
+    "description":"一个骰子机器人，访问项目github页面：http://github.com/decterous/CoolQDicebot/releases",
     "event":[
         {
             "id":2,
@@ -57,9 +57,9 @@
     ],
     "status":[
     ],
-  "auth": [
-    130,
-    101, //发送群消息			sendGroupMsg
-    103 //发送讨论组消息		sendDiscussMsg
-  ]
+    "auth":[
+		130,
+        101,  //发送群消息			sendGroupMsg
+        103  //发送讨论组消息		sendDiscussMsg
+    ]
 }
