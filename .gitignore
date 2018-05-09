@@ -206,3 +206,6 @@ FakesAssemblies/
 
 #vs2017 recovery folder
 /enc_temp_folder/
+
+#diags
+*.diagsession
