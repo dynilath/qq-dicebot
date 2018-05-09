@@ -44,13 +44,13 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
     <OutDir>..\酷Q Air\app\</OutDir>
-    <IncludePath>D:\Users\admin\Documents\Visual Studio 2017\Projects\cqsdk-vc\CQDicebot\include;$(IncludePath)</IncludePath>
-    <LibraryPath>D:\Users\admin\Documents\Visual Studio 2017\Projects\cqsdk-vc\CQDicebot\lib\Debug;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(ProjectDir)include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(ProjectDir)lib_Debug;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>D:\Users\admin\Documents\Visual Studio 2017\Projects\cqsdk-vc\CQDicebot\include;$(IncludePath)</IncludePath>
-    <LibraryPath>D:\Users\admin\Documents\Visual Studio 2017\Projects\cqsdk-vc\CQDicebot\lib\Release;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(ProjectDir)include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(ProjectDir)lib_Release;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -114,8 +114,8 @@
   </ItemGroup>
   <ItemGroup>
     <Library Include="CQP.lib" />
-    <Library Include="lib\Debug\sqlite3.lib" />
-    <Library Include="lib\Release\sqlite3.lib" />
+    <Library Include="lib_Debug\sqlite3.lib" />
+    <Library Include="lib_Release\sqlite3.lib" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\README.md" />

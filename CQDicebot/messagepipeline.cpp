@@ -11,7 +11,7 @@
 
 CQTool CQT_instance_A;
 
-std::regex regex_filter_command_identifier("^ *. *r *\\d*d\\d+ *");
+std::regex regex_filter_command_identifier("^ *. *(r|ns|n) *");
 std::regex regex_filter_full_dice("^ *. *r *(\\+|\\-)?((\\d*d\\d+((k|kl)\\d+)?)|\\d+)((\\+|\\-)((\\d*d\\d+((k|kl)\\d+)?)|\\d+))* *");
 void message_pipeline(const int32_t i_AuthCode,const char * msg, const int64_t fromGroup, const int64_t fromQQ)
 {
@@ -46,6 +46,13 @@ void message_pipeline(const int32_t i_AuthCode,const char * msg, const int64_t f
 
 	for (; iterator_sources != source_splits.end(); iterator_sources++) {
 		bool is_this_line_output = false;
+
+		std::smatch matchList_command_identifier_match;
+		std::regex_search((*iterator_sources), matchList_command_identifier_match, regex_filter_full_dice);
+		if (matchList_command_identifier_match.begin() == matchList_command_identifier_match.end()) continue;
+
+
+
 		/*
 		std::regex regex_base_filter("^ *. *[rc] *([\\+\\-]?(((\\d*d\\d+)((k|kl)\\d+)?)|(\\d+\\.?\\d*)))((\\+|\\-|\\*|/)(((\\d*d\\d+)((k|kl)\\d+)?)|(\\d+\\.?\\d*)))*");
 		//std::regex regex_base_filter("^[^\\f\\n\\r\\t\\v]*");
@@ -64,11 +71,10 @@ void message_pipeline(const int32_t i_AuthCode,const char * msg, const int64_t f
 
 		std::string str_roll_message = "";
 
-		std::smatch matchList_command_identifier_match;
-		std::regex_search((*iterator_sources), matchList_command_identifier_match, regex_filter_full_dice);
-		std::smatch::iterator iter_roll_str = matchList_command_identifier_match.begin();
-		if (iter_roll_str != matchList_command_identifier_match.end()) {
-
+		std::smatch matchList_command_dice_roll_match;
+		std::regex_search((*iterator_sources), matchList_command_dice_roll_match, regex_filter_full_dice);
+		std::smatch::iterator iter_roll_str = matchList_command_dice_roll_match.begin();
+		if (iter_roll_str != matchList_command_dice_roll_match.end()) {
 			int len = (*iter_roll_str).length();
 			str_roll_message = (*iterator_sources).substr(len, (*iterator_sources).length() - len);
 		}

@@ -80,10 +80,10 @@
     <Library Include="CQP.lib">
       <Filter>Library Files</Filter>
     </Library>
-    <Library Include="lib\Release\sqlite3.lib">
+    <Library Include="lib_Debug\sqlite3.lib">
       <Filter>Library Files</Filter>
     </Library>
-    <Library Include="lib\Debug\sqlite3.lib">
+    <Library Include="lib_Release\sqlite3.lib">
       <Filter>Library Files</Filter>
     </Library>
   </ItemGroup>
