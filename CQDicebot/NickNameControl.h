@@ -9,7 +9,7 @@ public:
 	void setNickName(const int i_AuthCode, const int64_t fromGroup, const int64_t fromQQ, const std::string &nickname);
 private:
 	sqlite3 * database;
-	std::map<int64_t, std::string> map_nickname_cache;
+	std::map<std::pair<int64_t, int64_t>, std::string> map_nickname_cache;
 	bool is_no_sql_mode;
 	bool is_my_table_exist(const std::string & table_name);
 	static int sqlite3_callback(void *data, int argc, char **argv, char **azColName);

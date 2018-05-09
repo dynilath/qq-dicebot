@@ -10,6 +10,7 @@
 #include "cqp.h"
 #include "messagepipeline.h"
 #include "NickNameControl.h"
+#include "utility.h"
 
 int32_t i_AuthCode = -1; //AuthCode 调用酷Q的方法时需要用到
 bool enabled = false;
@@ -63,6 +64,7 @@ CQEVENT(int32_t, __eventExit, 0)() {
 */
 CQEVENT(int32_t, __eventEnable, 0)() {
 	enabled = true;
+	createDir(APP_DIR);
 	nickControl = new NickNameControl();
 	return 0;
 }

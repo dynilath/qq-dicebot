@@ -9,11 +9,6 @@
 #include <regex>
 #include <iostream>
 
-#define MAX_DICE_UNIT_COUNT 10
-#define MAX_DICE_NUM 50
-#define MAX_DICE_FACE 500
-
-
 CQTool CQT_instance_A;
 
 std::regex regex_filter_command_identifier("^ *. *r *\\d*d\\d+ *");

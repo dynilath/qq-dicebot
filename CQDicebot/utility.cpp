@@ -1,6 +1,14 @@
 #include "stdafx.h"
 #include "utility.h"
 
+#ifdef WIN32
+#include <io.h>
+#include <direct.h> 
+#else
+#include <unistd.h>
+#include <sys/stat.h>
+#endif
+
 void splitLine(std::string & source, std::vector<std::string>& source_splits)
 {
 	if (source.length()>2) {
@@ -84,4 +92,24 @@ void quickSort(int * origin, int * pilot, int first, int last) {
 
 	quickSort(origin, pilot, first, right - 1);
 	quickSort(origin, pilot, left, last);
+}
+
+void createDir(char * cstr_dir_name) {
+	uint32_t dirPathLen = std::strlen(APP_DIR);
+	std::string t_path;
+	for (uint32_t i = 0; i < dirPathLen; ++i)
+	{
+		t_path.push_back(cstr_dir_name[i]);
+		if (t_path[i] == '\\' || t_path[i] == '/')
+		{
+			if (_access(t_path.c_str(), 0) != 0)
+			{
+				int32_t ret = _mkdir(t_path.c_str());
+				if (ret != 0)
+				{
+					return;
+				}
+			}
+		}
+	}
 }
