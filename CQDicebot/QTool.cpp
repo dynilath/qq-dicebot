@@ -162,3 +162,26 @@ void CQTool::AddLog(int32_t AuthCode, int32_t priority, const char *category, co
 {
 	CQ_addLog(AuthCode, priority, category, content);
 }
+
+
+bool CQTool::getDefaultName(const int32_t i_AuthCode, const int64_t uint64_fromGroupOrDiscuss, const int64_t uint64_fromQQ, std::string &str_origin_name, bool isfromGroup)
+{
+	if (isfromGroup) {
+		CQ_Type_GroupMember groupMember;
+		if (GetGroupMemberInfo(i_AuthCode, uint64_fromGroupOrDiscuss, uint64_fromQQ, groupMember)) {
+			if (groupMember.nick.length() == 0) str_origin_name = groupMember.username;
+			else str_origin_name = groupMember.nick;
+			if (str_origin_name.length() == 0) str_origin_name = std::to_string(uint64_fromQQ);
+			return true;
+		}
+	}
+	else {
+		CQ_TYPE_QQ discussMember;
+		if (GetStrangerInfo(i_AuthCode, uint64_fromQQ, discussMember)) {
+			str_origin_name = discussMember.nick;
+			if (str_origin_name.length() == 0) str_origin_name = std::to_string(uint64_fromQQ);
+			return true;
+		}
+	}
+	return false;
+}

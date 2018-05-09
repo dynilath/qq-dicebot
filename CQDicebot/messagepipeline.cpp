@@ -15,7 +15,7 @@ std::regex regex_filter_command_identifier("^ *. *(r|ns|n) *");
 std::regex regex_filter_rename("^ *. *n *");
 std::regex regex_filter_rename_silence("^ *. *ns *");
 std::regex regex_filter_full_dice("^ *. *r *(\\+|\\-)?((\\d*d\\d+((k|kl)\\d+)?)|\\d+)((\\+|\\-)((\\d*d\\d+((k|kl)\\d+)?)|\\d+))* *");
-void message_pipeline(const int32_t i_AuthCode,const char * msg, const int64_t fromGroup, const int64_t fromQQ)
+void message_pipeline(const int32_t i_AuthCode,const char * msg, const int64_t uint64_fromGroupOrDiscuss, const int64_t uint64_fromQQ,bool isfromGroup)
 {
 
 	std::string source(msg);
@@ -43,12 +43,8 @@ void message_pipeline(const int32_t i_AuthCode,const char * msg, const int64_t f
 			std::string str_new_name = matchList_command_rename_silence_match.suffix().str();
 			if (str_new_name.length() > 0) {
 				std::string str_origin_name;
-				CQ_Type_GroupMember groupMember;
-				if (CQT_instance_A.GetGroupMemberInfo(i_AuthCode, fromGroup, fromQQ, groupMember)) {
-					if (groupMember.nick.length() == 0) str_origin_name = groupMember.username;
-					else str_origin_name = groupMember.nick;
-				}
-				(NickNameControl::instance)->setNickName(i_AuthCode, fromGroup, fromQQ, str_new_name);
+				CQT_instance_A.getDefaultName(i_AuthCode, uint64_fromGroupOrDiscuss, uint64_fromQQ, str_origin_name, isfromGroup);
+				(NickNameControl::instance)->setNickName(i_AuthCode, uint64_fromGroupOrDiscuss, uint64_fromQQ, str_new_name,isfromGroup);
 			}
 			continue;
 		}
@@ -58,13 +54,9 @@ void message_pipeline(const int32_t i_AuthCode,const char * msg, const int64_t f
 		if (matchList_command_rename_match.begin() != matchList_command_rename_match.end()){
 			std::string str_new_name = matchList_command_rename_match.suffix().str();
 			if (str_new_name.length() > 0) {
-				std::string str_origin_name;
-				CQ_Type_GroupMember groupMember;
-				if (CQT_instance_A.GetGroupMemberInfo(i_AuthCode, fromGroup, fromQQ, groupMember)) {
-					if (groupMember.nick.length() == 0) str_origin_name = groupMember.username;
-					else str_origin_name = groupMember.nick;
-				}
-				(NickNameControl::instance)->setNickName(i_AuthCode, fromGroup, fromQQ, str_new_name);
+				std::string str_origin_name; 
+				CQT_instance_A.getDefaultName(i_AuthCode, uint64_fromGroupOrDiscuss, uint64_fromQQ, str_origin_name,isfromGroup);
+				(NickNameControl::instance)->setNickName(i_AuthCode, uint64_fromGroupOrDiscuss, uint64_fromQQ, str_new_name, isfromGroup);
 
 				if (does_last_line_have_output) {
 					does_last_line_have_output = false;
@@ -188,7 +180,7 @@ void message_pipeline(const int32_t i_AuthCode,const char * msg, const int64_t f
 						}
 
 						std::string nickname;
-						(NickNameControl::instance)->getNickName(i_AuthCode, fromGroup, fromQQ, nickname);
+						(NickNameControl::instance)->getNickName(i_AuthCode, uint64_fromGroupOrDiscuss, uint64_fromQQ, nickname, isfromGroup);
 						ostrs_output_stream << " * " << nickname;
 						ostrs_output_stream << " " << str_roll_message << " ÖÀ÷»: ";
 
@@ -203,7 +195,8 @@ void message_pipeline(const int32_t i_AuthCode,const char * msg, const int64_t f
 	}
 
 	if (is_output_available) {
-		CQ_sendGroupMsg(i_AuthCode, fromGroup, ostrs_output_stream.str().c_str());
+		if(isfromGroup)	CQ_sendGroupMsg(i_AuthCode, uint64_fromGroupOrDiscuss, ostrs_output_stream.str().c_str());
+		else CQ_sendDiscussMsg(i_AuthCode, uint64_fromGroupOrDiscuss, ostrs_output_stream.str().c_str());
 	}
 }
 

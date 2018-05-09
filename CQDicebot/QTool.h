@@ -39,6 +39,7 @@ public:
 
 	bool GetGroupMemberInfo(int auth, int64_t groupID, int64_t qqid, CQ_Type_GroupMember& groupMember);
 	void AddLog(int32_t AuthCode, int32_t priority, const char *category, const char *content);
+	bool getDefaultName(const int32_t i_AuthCode, const int64_t uint64_fromGroupOrDiscuss, const int64_t uint64_fromQQ, std::string & str_origin_name, bool isfromGroup);
 private:
 	bool CQ_Tools_TextToGroupMember(std::string decodeStr, CQ_Type_GroupMember& groupMember);
 	int64_t CoolQ_Tools_GetNum(int index, long length, const std::string &decodeStr);

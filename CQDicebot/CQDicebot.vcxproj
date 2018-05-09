@@ -63,6 +63,20 @@
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
+    <PreBuildEvent>
+      <Command>copy /y "$(ProjectDir)com.dynilath.coolqdicebot.json" "$(ProjectDir)..\酷Q Air\app\"</Command>
+    </PreBuildEvent>
+    <PreBuildEvent>
+      <Message>copy json file</Message>
+    </PreBuildEvent>
+    <PostBuildEvent>
+      <Command>
+      </Command>
+    </PostBuildEvent>
+    <PostBuildEvent>
+      <Message>
+      </Message>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -79,6 +93,20 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
+    <PostBuildEvent>
+      <Command>
+      </Command>
+    </PostBuildEvent>
+    <PostBuildEvent>
+      <Message>
+      </Message>
+    </PostBuildEvent>
+    <PreBuildEvent>
+      <Command>copy /y "$(ProjectDir)com.dynilath.coolqdicebot.json" "$(ProjectDir)..\酷Q Air\app\"</Command>
+    </PreBuildEvent>
+    <PreBuildEvent>
+      <Message>copy json file</Message>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="appmain.h" />
