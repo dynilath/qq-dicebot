@@ -6,8 +6,6 @@
 
 const char * cstr_file_db = APP_DIR "com.dynilath.coolqdicebot.nickname.db";
 
-CQTool CQT_instance_B;
-
 //const int i_data_database_quarry = 1;
 const int i_data_database_insert = 2;
 const int i_data_database_create = 4;
@@ -15,7 +13,7 @@ const int i_data_database_update = 8;
 
 NickNameControl * NickNameControl::instance = nullptr;
 
-NickNameControl::NickNameControl()
+NickNameControl::NickNameControl() noexcept
 {
 	int i_ret_code = sqlite3_open(cstr_file_db, &database);
 	if (i_ret_code == SQLITE_OK) {
@@ -54,7 +52,7 @@ void NickNameControl::getNickName(const int i_AuthCode, const int64_t fromGroupO
 	}
 	else {
 		if (is_no_sql_mode) {
-			if (CQT_instance_B.getDefaultName(i_AuthCode, fromGroupOrDiscuss, fromQQ, nickname, isfromGroup)) {
+			if (CQTool::getDefaultName(i_AuthCode, fromGroupOrDiscuss, fromQQ, nickname, isfromGroup)) {
 				map_nickname_cache.insert(std::pair<std::pair<int64_t, int64_t>, std::string>(std::pair<int64_t, int64_t>(fromQQ, fromGroupOrDiscuss), nickname));
 			}
 		}
@@ -70,7 +68,7 @@ void NickNameControl::getNickName(const int i_AuthCode, const int64_t fromGroupO
 					map_nickname_cache.insert(std::pair<std::pair<int64_t, int64_t>, std::string>(std::pair<int64_t, int64_t>(fromQQ, fromGroupOrDiscuss), nickname));
 				}
 				else {
-					CQT_instance_B.getDefaultName(i_AuthCode, fromGroupOrDiscuss, fromQQ, nickname, isfromGroup);
+					CQTool::getDefaultName(i_AuthCode, fromGroupOrDiscuss, fromQQ, nickname, isfromGroup);
 					setNickName(i_AuthCode, fromGroupOrDiscuss, fromQQ, nickname, isfromGroup);
 				}
 			}

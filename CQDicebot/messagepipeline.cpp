@@ -9,8 +9,6 @@
 #include <regex>
 #include <iostream>
 
-CQTool CQT_instance_A;
-
 std::regex regex_filter_command_identifier("^ *. *(r|ns|n) *");
 std::regex regex_filter_rename("^ *. *n *");
 std::regex regex_filter_rename_silence("^ *. *ns *");
@@ -43,7 +41,7 @@ void message_pipeline(const int32_t i_AuthCode,const char * msg, const int64_t u
 			std::string str_new_name = matchList_command_rename_silence_match.suffix().str();
 			if (str_new_name.length() > 0) {
 				std::string str_origin_name;
-				CQT_instance_A.getDefaultName(i_AuthCode, uint64_fromGroupOrDiscuss, uint64_fromQQ, str_origin_name, isfromGroup);
+				CQTool::getDefaultName(i_AuthCode, uint64_fromGroupOrDiscuss, uint64_fromQQ, str_origin_name, isfromGroup);
 				(NickNameControl::instance)->setNickName(i_AuthCode, uint64_fromGroupOrDiscuss, uint64_fromQQ, str_new_name,isfromGroup);
 			}
 			continue;
@@ -55,7 +53,7 @@ void message_pipeline(const int32_t i_AuthCode,const char * msg, const int64_t u
 			std::string str_new_name = matchList_command_rename_match.suffix().str();
 			if (str_new_name.length() > 0) {
 				std::string str_origin_name; 
-				CQT_instance_A.getDefaultName(i_AuthCode, uint64_fromGroupOrDiscuss, uint64_fromQQ, str_origin_name,isfromGroup);
+				CQTool::getDefaultName(i_AuthCode, uint64_fromGroupOrDiscuss, uint64_fromQQ, str_origin_name,isfromGroup);
 				(NickNameControl::instance)->setNickName(i_AuthCode, uint64_fromGroupOrDiscuss, uint64_fromQQ, str_new_name, isfromGroup);
 
 				if (does_last_line_have_output) {

@@ -4,14 +4,6 @@
 #include "Base64.h"
 #include <math.h>
 
-CQTool::CQTool()
-{
-}
-
-
-CQTool::~CQTool()
-{
-}
 
 bool CQTool::GetStrangerInfo(int auth, int64_t qqid, CQ_TYPE_QQ& StrangerInfo)
 {

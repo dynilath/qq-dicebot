@@ -3,7 +3,7 @@
 #include "utility.h"
 #include <random>
 #include <vector>
-DiceRoller::DiceRoller()
+DiceRoller::DiceRoller() noexcept
 {
 }
 

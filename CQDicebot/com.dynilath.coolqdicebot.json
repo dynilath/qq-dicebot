@@ -25,20 +25,6 @@
             "priority":30000
         },
         {
-            "id":1001,
-            "type":1001,
-            "name":"酷Q启动事件",
-            "priority":30000,
-            "function":"_eventStartup"
-        },
-        {
-            "id":1002,
-            "type":1002,
-            "name":"酷Q关闭事件",
-            "priority":30000,
-            "function":"_eventExit"
-        },
-        {
             "id":1003,
             "type":1003,
             "name":"应用已被启用",
