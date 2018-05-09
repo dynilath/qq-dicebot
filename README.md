@@ -3,7 +3,7 @@ DiceRobot kills you 3000
 Just a simple dicebot for coolq in development.<br> 
 只是一个简单的酷Q骰子机器人。<br> 
 直接从release可以获得cpk。<br> 
-<br> 
+[获取酷Q](https://cqp.cc/)<br> 
 
 使用示范
 -----
