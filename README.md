@@ -41,7 +41,7 @@ Just a simple dicebot for coolq in development.<br>
  *  测试 降祸攻击 掷骰: 2d20kl1+11 = (11 + (15)) + 11 = 22</code></pre>
 <br> 
 
-4.修改昵称（现在多行输入了，并且取消了对多行昵称的支持）<br> 
+4.修改昵称（现在支持多行输入了，并且取消了对多行昵称的支持）<br> 
 >输入
 
 <code>.n 新的名字</code><br>
