@@ -108,14 +108,14 @@ void NickNameControl::setNickName(const int i_AuthCode, const int64_t fromGroup,
 		if (ret_code == SQLITE_OK) {
 			if (str_nick_endcoded.length() > 0) {
 				std::ostringstream ostrs_sql_command_2(std::ostringstream::ate);
-				ostrs_sql_command_2.str("UPDATE " NICK_TABLE_NAME " set ");
+				ostrs_sql_command_2.str("update " NICK_TABLE_NAME " set ");
 				ostrs_sql_command_2 << " name ='" << str_encoded_nickname << "'";
 				ostrs_sql_command_2 << " where qqid =" << fromQQ << " and groupid =" << fromGroup;
 				int ret_code_2 = sqlite3_exec(database, ostrs_sql_command_2.str().c_str(), &sqlite3_callback, (void*)&i_data_database_update, &pchar_err_message);
 			}
 			else {
 				std::ostringstream ostrs_sql_command_2(std::ostringstream::ate);
-				ostrs_sql_command_2.str("INSERT " NICK_TABLE_NAME " VALUES ( ");
+				ostrs_sql_command_2.str("insert into " NICK_TABLE_NAME " values ( ");
 				ostrs_sql_command_2 << fromQQ << ", " << fromGroup << ", '" << str_encoded_nickname << "'";
 				ostrs_sql_command_2 << ");";
 				int ret_code_2 = sqlite3_exec(database, ostrs_sql_command_2.str().c_str(), &sqlite3_callback, (void*)&i_data_database_update, &pchar_err_message);
@@ -128,7 +128,7 @@ void NickNameControl::setNickName(const int i_AuthCode, const int64_t fromGroup,
 
 bool NickNameControl::is_my_table_exist(const std::string & table_name)
 {
-	std::string sql_command = "SELECT COUNT(*) FROM sqlite_master where type ='table' and name ='" + table_name + "'";
+	std::string sql_command = "select count(*) from sqlite_master where type ='table' and name ='" + table_name + "'";
 	char * pchar_err_message = nullptr;
 	int i_count_of_table = 0;
 	int ret_code = sqlite3_exec(database, sql_command.c_str(), &sqlite3_callback, (void*)&i_count_of_table, &pchar_err_message);
