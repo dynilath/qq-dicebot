@@ -24,10 +24,10 @@ Just a simple dicebot for coolq in development.<br>
 2.算式输入（仅支持加减）<br> 
 >输入
 
-<code>.r 1d20+1d6-3+4+11 破邪斩+猛力攻击</code><br>
+<pre><code>.r 1d20+1d6-3+4+11 破邪斩+猛力攻击</code></pre>
 >输出
 
-<code> *  测试 破邪斩+猛力攻击 掷骰: 1d20+1d6-3+4+11 = (19) + (6) - 3 + 4 + 11 = 37</code><br> 
+<pre><code> *  测试 破邪斩+猛力攻击 掷骰: 1d20+1d6-3+4+11 = (19) + (6) - 3 + 4 + 11 = 37</code></pre>
 <br> 
 
 3.多骰取部分<br> 
@@ -44,10 +44,10 @@ Just a simple dicebot for coolq in development.<br>
 4.修改昵称（现在支持多行输入了，并且取消了对多行昵称的支持）<br> 
 >输入
 
-<code>.n 新的名字</code><br>
+<pre><code>.n 新的名字</code></pre>
 >输出
 
-<code> * Da'Inihlus 的新名字是  新的名字</code><br> 
+<pre><code> * Da'Inihlus 的新名字是  新的名字</code></pre>
 <br> 
 
 5.无返回文字地修改昵称<br> 
