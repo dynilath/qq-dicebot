@@ -13,6 +13,7 @@ std::regex regex_filter_command_identifier("^ *. *(r|ns|n) *");
 std::regex regex_filter_rename("^ *. *n *");
 std::regex regex_filter_rename_silence("^ *. *ns *");
 std::regex regex_filter_full_dice("^ *. *r *(\\+|\\-)?((\\d*d\\d+((k|kl)\\d+)?)|\\d+)((\\+|\\-)((\\d*d\\d+((k|kl)\\d+)?)|\\d+))* *");
+std::regex regex_single_dice("(\\+|\\-)?((\\d*d\\d+((k|kl)\\d+)?)|(\\d+))");
 void message_pipeline(const int32_t i_AuthCode,const char * msg, const int64_t uint64_fromGroupOrDiscuss, const int64_t uint64_fromQQ,bool isfromGroup)
 {
 
@@ -61,8 +62,7 @@ void message_pipeline(const int32_t i_AuthCode,const char * msg, const int64_t u
 					ostrs_output_stream << std::endl;
 				}
 
-				ostrs_output_stream << " * " << str_origin_name;
-				ostrs_output_stream << " 的新名字是 " << str_new_name;
+				ostrs_output_stream << " * " << str_origin_name << " 的新名字是 " << str_new_name;
 				is_output_available = true;
 				does_last_line_have_output = true;
 			}
@@ -78,11 +78,8 @@ void message_pipeline(const int32_t i_AuthCode,const char * msg, const int64_t u
 			removeSpaceAndTab(str_roll_source);
 			if (str_roll_source.length() > 2) {
 				if (str_roll_source[0] == '.' && str_roll_source[1] == 'r') {
-					std::regex regex_single_dice("(\\d*d\\d+((k|kl)\\d+)?)|(\\d+)");
-					std::regex regex_single_dice_sign("(\\+|\\-)");
 
 					std::smatch matchList_single_dice;
-					std::smatch matchList_single_dice_sign;
 
 					std::ostringstream ostrs_dice_stream(std::ostringstream::ate);
 					ostrs_dice_stream.str(str_roll_source.substr(2, str_roll_source.length() - 2));
@@ -90,81 +87,18 @@ void message_pipeline(const int32_t i_AuthCode,const char * msg, const int64_t u
 
 					int i_dice_summary = 0;
 
-					bool is_first_signed = (str_roll_source[0] == '+' || str_roll_source[0] == '-');
-					bool is_not_first_dice = false;
-
 					bool is_this_line_output = true;
 
 					int i_max_unit_altert = 0;
 					for (; i_max_unit_altert < MAX_DICE_UNIT_COUNT; i_max_unit_altert++) {
-
-						int i_single_dice_sign = 1;
-						if (str_roll_source.length() < 1) break;
-						if (is_first_signed || is_not_first_dice) {
-							ostrs_dice_stream << " " << str_roll_source[0] << " ";
-							if (str_roll_source[0] == '-') i_single_dice_sign = -1;
-							else i_single_dice_sign = 1;
-						}
-
-						if (!std::regex_search(str_roll_source, matchList_single_dice, regex_single_dice)) break;
+						if (!std::regex_search(str_roll_source, matchList_single_dice, regex_single_dice)) { break; }
 						std::string str_single_dice = matchList_single_dice.str();
 						str_roll_source = matchList_single_dice.suffix().str();
-
-						is_not_first_dice = true;
-
-						int i_pos_of_d = str_single_dice.find('d');
-						if (i_pos_of_d == std::string::npos) {
-							int result = std::stoi(str_single_dice);
-							i_dice_summary += result * i_single_dice_sign;
-							ostrs_dice_stream << result;
-						}
-						else {
-							int i_pos_of_k = str_single_dice.find('k');
-							if (i_pos_of_k == std::string::npos) {
-								int i_num_of_die = i_pos_of_d > 0 ? std::stoi(str_single_dice.substr(0, i_pos_of_d)) : 1;
-								int i_face_of_die = std::stoi(str_single_dice.substr(i_pos_of_d + 1, str_single_dice.length() - i_pos_of_d - 1));
-								if (i_num_of_die > MAX_DICE_NUM || i_face_of_die > MAX_DICE_FACE) {
-									break;
-									is_this_line_output = false;
-								}
-								DiceRoller dr_diceRoll(i_num_of_die, i_face_of_die);
-								ostrs_dice_stream << "(";
-								ostrs_dice_stream << dr_diceRoll.str_detail_result;
-								ostrs_dice_stream << ")";
-								i_dice_summary += dr_diceRoll.i_sum_result;
-							}
-							else {
-								int i_pos_of_l = str_single_dice.find('l');
-								if (i_pos_of_l == std::string::npos) {
-									int i_num_of_die = i_pos_of_d > 0 ? std::stoi(str_single_dice.substr(0, i_pos_of_d)) : 1;
-									int i_face_of_die = std::stoi(str_single_dice.substr(i_pos_of_d + 1, i_pos_of_k - i_pos_of_d - 1));
-									int i_num_of_keep = std::stoi(str_single_dice.substr(i_pos_of_k + 1, str_single_dice.length() - i_pos_of_k - 1));
-									if (i_num_of_die > MAX_DICE_NUM || i_face_of_die > MAX_DICE_FACE) {
-										break;
-										is_this_line_output = false;
-									}
-									DiceRoller dr_diceRoll(i_num_of_die, i_face_of_die, i_num_of_keep, false);
-									ostrs_dice_stream << "(";
-									ostrs_dice_stream << dr_diceRoll.str_detail_result;
-									ostrs_dice_stream << ")";
-									i_dice_summary += dr_diceRoll.i_sum_result;
-								}
-								else {
-									int i_num_of_die = i_pos_of_d > 0 ? std::stoi(str_single_dice.substr(0, i_pos_of_d)) : 1;
-									int i_face_of_die = std::stoi(str_single_dice.substr(i_pos_of_d + 1, i_pos_of_k - i_pos_of_d - 1));
-									int i_num_of_keep = std::stoi(str_single_dice.substr(i_pos_of_l + 1, str_single_dice.length() - i_pos_of_l - 1));
-									if (i_num_of_die > MAX_DICE_NUM || i_face_of_die > MAX_DICE_FACE) {
-										break;
-										is_this_line_output = false;
-									}
-									DiceRoller dr_diceRoll(i_num_of_die, i_face_of_die, i_num_of_keep, true);
-									ostrs_dice_stream << "(";
-									ostrs_dice_stream << dr_diceRoll.str_detail_result;
-									ostrs_dice_stream << ")";
-									i_dice_summary += dr_diceRoll.i_sum_result;
-								}
-							}
-						}
+						DiceRoller dr_single_dice(str_single_dice);
+						if ((dr_single_dice.str_detail_result)->length() == 0) { is_this_line_output = false; break; }
+						i_dice_summary += dr_single_dice.i_sum_result;
+						ostrs_dice_stream << *(dr_single_dice.str_detail_result);
+						if (str_roll_source.length() == 0) break;
 					}
 					if (i_max_unit_altert == MAX_DICE_UNIT_COUNT) is_this_line_output = false;
 
@@ -179,8 +113,7 @@ void message_pipeline(const int32_t i_AuthCode,const char * msg, const int64_t u
 
 						std::string nickname;
 						(NickNameControl::instance)->getNickName(i_AuthCode, uint64_fromGroupOrDiscuss, uint64_fromQQ, nickname, isfromGroup);
-						ostrs_output_stream << " * " << nickname;
-						ostrs_output_stream << " " << str_roll_message << " 掷骰: ";
+						ostrs_output_stream << " * " << nickname << " " << str_roll_message << " 掷骰: ";
 
 						ostrs_output_stream << ostrs_dice_stream.str();
 						is_output_available = true;
