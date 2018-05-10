@@ -55,12 +55,12 @@ Just a simple dicebot for coolq in development.<br>
 
 <pre><code>.ns 迷诱魔
 .r 1d20+20
-.ns 反pal魅魔破善斩
-.r 1d20+24</code></pre> 
+.ns 反pal魅魔
+.r 1d20+24 猛力破善斩</code></pre> 
 >输出
 
-<pre><code> * 迷诱魔  掷骰: 1d20+20 = (15) + 20 = 35
- * 反pal魅魔破善斩  掷骰: 1d20+24 = (12) + 24 = 36</code></pre> 
+<pre><code> * 迷诱魔  掷骰: 1d20+20 = (14) + 20 = 34
+ * 反pal魅魔 猛力破善斩 掷骰: 1d20+24 = (6) + 24 = 30</code></pre> 
 
 
 特性
