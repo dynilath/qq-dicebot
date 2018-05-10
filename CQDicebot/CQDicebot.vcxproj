@@ -45,12 +45,12 @@
     <LinkIncremental>true</LinkIncremental>
     <OutDir>..\酷Q Air\app\</OutDir>
     <IncludePath>$(ProjectDir)include;$(IncludePath)</IncludePath>
-    <LibraryPath>$(ProjectDir)lib_Debug;$(LibraryPath)</LibraryPath>
+    <LibraryPath>$(ProjectDir)lib_$(Configuration);$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
     <IncludePath>$(ProjectDir)include;$(IncludePath)</IncludePath>
-    <LibraryPath>$(ProjectDir)lib_Release;$(LibraryPath)</LibraryPath>
+    <LibraryPath>$(ProjectDir)lib_$(Configuration);$(LibraryPath)</LibraryPath>
     <OutDir>..\酷Q Air\app\</OutDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
