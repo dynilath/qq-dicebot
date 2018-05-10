@@ -3,6 +3,13 @@
 #include "utility.h"
 #include <random>
 #include <vector>
+#include <chrono>
+
+
+bool DiceRoller::is_using_pseudo_random = false;
+unsigned long DiceRoller::ulong_prand_seed = 0;
+unsigned long DiceRoller::ulong_prand_stage = 0;
+
 DiceRoller::DiceRoller() noexcept
 {
 }
@@ -13,14 +20,21 @@ DiceRoller::~DiceRoller()
 }
 
 DiceRoller::DiceRoller(int val1_i_num_of_dice, int val2_num_of_face) {
-	std::random_device rd;
-	std::mt19937 generator(rd());
+	std::mt19937 mt_generator(ulong_prand_seed);
+	mt_generator.discard(ulong_prand_stage);
+	std::random_device rd_generator;
+
 	int i_result_sum = 0;
 	std::uniform_int_distribution<> dice(1, val2_num_of_face);
 	std::ostringstream ostrs_dice_stream(std::ostringstream::ate);
 	while (val1_i_num_of_dice > 0)
 	{
-		int i_step_result = dice(generator);
+		int i_step_result = 0;
+		if (DiceRoller::is_using_pseudo_random) {
+			i_step_result = dice(mt_generator);
+			ulong_prand_stage++;
+		}
+		else i_step_result = dice(rd_generator);
 		i_result_sum += i_step_result;
 		ostrs_dice_stream << i_step_result;
 		if ((--val1_i_num_of_dice) > 0) ostrs_dice_stream << " + ";
@@ -30,6 +44,10 @@ DiceRoller::DiceRoller(int val1_i_num_of_dice, int val2_num_of_face) {
 }
 
 DiceRoller::DiceRoller(int num_of_dice, int num_of_face, int keep, bool is_keeping_high) {
+	std::mt19937 mt_generator(ulong_prand_seed);
+	mt_generator.discard(ulong_prand_stage);
+	std::random_device rd_generator;
+
 	if (keep >= num_of_dice) {
 		DiceRoller dice(num_of_dice, num_of_face);
 		this->str_detail_result = dice.str_detail_result;
@@ -49,7 +67,12 @@ DiceRoller::DiceRoller(int num_of_dice, int num_of_face, int keep, bool is_keepi
 		std::vector<int> flagList;
 
 		for (int i_count = 0; i_count < num_of_dice; i_count++) {
-			int i_temp_result = dice(generator);
+			int i_temp_result = 0;
+			if (DiceRoller::is_using_pseudo_random) {
+				i_temp_result = dice(mt_generator);
+				ulong_prand_stage++;
+			}
+			else i_temp_result = dice(rd_generator);
 			resultList.push_back(i_temp_result);
 			sortList.push_back(i_temp_result);
 			pivotList.push_back(i_count);
@@ -80,5 +103,13 @@ DiceRoller::DiceRoller(int num_of_dice, int num_of_face, int keep, bool is_keepi
 		}
 		this->str_detail_result = ostrs_dice_stream.str();
 		this->i_sum_result = i_result_sum;
+	}
+}
+
+void DiceRoller::random_initialize()
+{
+	std::random_device rd;
+	if (rd.entropy() == 0.0) {
+		DiceRoller::is_using_pseudo_random = true;
 	}
 }

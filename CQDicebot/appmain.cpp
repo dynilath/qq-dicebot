@@ -11,6 +11,7 @@
 #include "messagepipeline.h"
 #include "NickNameControl.h"
 #include "utility.h"
+#include "diceroller.h"
 
 int32_t i_AuthCode = -1; //AuthCode 调用酷Q的方法时需要用到
 bool enabled = false;
@@ -34,28 +35,6 @@ CQEVENT(int32_t, Initialize, 4)(int32_t AuthCode) {
 	return 0;
 }
 
-
-/*
-* Type=1001 酷Q启动
-* 无论本应用是否被启用，本函数都会在酷Q启动后执行一次，请在这里执行应用初始化代码。
-* 如非必要，不建议在这里加载窗口。（可以添加菜单，让用户手动打开窗口）
-*/
-CQEVENT(int32_t, __eventStartup, 0)() {
-
-	return 0;
-}
-
-
-/*
-* Type=1002 酷Q退出
-* 无论本应用是否被启用，本函数都会在酷Q退出前执行一次，请在这里执行插件关闭代码。
-* 本函数调用完毕后，酷Q将很快关闭，请不要再通过线程等方式执行其他代码。
-*/
-CQEVENT(int32_t, __eventExit, 0)() {
-
-	return 0;
-}
-
 /*
 * Type=1003 应用已被启用
 * 当应用被启用后，将收到此事件。
@@ -64,8 +43,12 @@ CQEVENT(int32_t, __eventExit, 0)() {
 */
 CQEVENT(int32_t, __eventEnable, 0)() {
 	enabled = true;
+	
+	DiceRoller::random_initialize();
+
 	createDir(APP_DIR);
 	nickControl = new NickNameControl();
+	
 	return 0;
 }
 
