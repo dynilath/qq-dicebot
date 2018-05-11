@@ -48,7 +48,7 @@ DiceRoller::DiceRoller() noexcept
 DiceRoller::~DiceRoller()
 {
 	if (str_detail_result != nullptr)
-		free(str_detail_result);
+		delete(str_detail_result);
 }
 
 DiceRoller::DiceRoller(int val1_i_num_of_dice, int val2_num_of_face) {

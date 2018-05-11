@@ -197,10 +197,6 @@ FakesAssemblies/
 *.opt
 
 
-#sqlite3
-!/lib/Debug/
-!/lib/Release/
-
 #coolQ directory
 /酷Q Air/
 
