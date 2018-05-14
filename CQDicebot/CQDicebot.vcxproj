@@ -71,7 +71,8 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <PreBuildEvent>
-      <Command>copy /y "$(ProjectDir)com.dynilath.coolqdicebot.json" "$(ProjectDir)..\酷Q Air\app\"</Command>
+      <Command>md "$(SolutionDir)酷Q Air\app\"
+copy /y "$(ProjectDir)com.dynilath.coolqdicebot.json" "$(SolutionDir)酷Q Air\app\"</Command>
     </PreBuildEvent>
     <PreBuildEvent>
       <Message>copy json file</Message>
@@ -108,7 +109,8 @@
       </Message>
     </PostBuildEvent>
     <PreBuildEvent>
-      <Command>copy /y "$(ProjectDir)com.dynilath.coolqdicebot.json" "$(ProjectDir)..\酷Q Air\app\"</Command>
+      <Command>md "$(SolutionDir)酷Q Air\app\"
+copy /y "$(ProjectDir)com.dynilath.coolqdicebot.json" "$(SolutionDir)酷Q Air\app\"</Command>
     </PreBuildEvent>
     <PreBuildEvent>
       <Message>copy json file</Message>
