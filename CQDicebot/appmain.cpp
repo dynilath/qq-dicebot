@@ -61,7 +61,7 @@ CQEVENT(int32_t, __eventEnable, 0)() {
 */
 CQEVENT(int32_t, __eventDisable, 0)() {
 	enabled = false;
-	free(nickControl);
+	delete(nickControl);
 	return 0;
 }
 
