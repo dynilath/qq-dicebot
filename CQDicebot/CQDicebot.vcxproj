@@ -71,14 +71,13 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <PreBuildEvent>
-      <Command>md "$(SolutionDir)酷Q Air\app\"
-copy /y "$(ProjectDir)com.dynilath.coolqdicebot.json" "$(SolutionDir)酷Q Air\app\"</Command>
+      <Command>copy "$(ProjectDir)com.dynilath.coolqdicebot.json" "$(SolutionDir)酷Q Air\app\"</Command>
     </PreBuildEvent>
     <PreBuildEvent>
       <Message>copy json file</Message>
     </PreBuildEvent>
     <PostBuildEvent>
-      <Command>copy /y "$(ProjectDir)$(Configuration)\$(ProjectName).dll" "$(SolutionDir)酷Q Air\app\"</Command>
+      <Command>copy "$(ProjectDir)$(Configuration)\$(ProjectName).dll" "$(SolutionDir)酷Q Air\app\"</Command>
     </PostBuildEvent>
     <PostBuildEvent>
       <Message>
@@ -102,15 +101,14 @@ copy /y "$(ProjectDir)com.dynilath.coolqdicebot.json" "$(SolutionDir)酷Q Air\ap
       <IgnoreSpecificDefaultLibraries>MSVCRTD;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
     </Link>
     <PostBuildEvent>
-      <Command>copy /y "$(ProjectDir)$(Configuration)\$(ProjectName).dll" "$(SolutionDir)酷Q Air\app\"</Command>
+      <Command>copy "$(ProjectDir)$(Configuration)\$(ProjectName).dll" "$(SolutionDir)酷Q Air\app\"</Command>
     </PostBuildEvent>
     <PostBuildEvent>
       <Message>
       </Message>
     </PostBuildEvent>
     <PreBuildEvent>
-      <Command>md "$(SolutionDir)酷Q Air\app\"
-copy /y "$(ProjectDir)com.dynilath.coolqdicebot.json" "$(SolutionDir)酷Q Air\app\"</Command>
+      <Command>copy "$(ProjectDir)com.dynilath.coolqdicebot.json" "$(SolutionDir)酷Q Air\app\"</Command>
     </PreBuildEvent>
     <PreBuildEvent>
       <Message>copy json file</Message>
