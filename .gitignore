@@ -198,10 +198,13 @@ FakesAssemblies/
 
 
 #coolQ directory
-/酷Q Air/
+酷Q Air/
 
 #vs2017 recovery folder
-/enc_temp_folder/
+enc_temp_folder/
 
 #diags
 *.diagsession
+
+#unittest
+UnitTest/
