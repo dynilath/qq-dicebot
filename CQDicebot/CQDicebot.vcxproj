@@ -49,6 +49,7 @@
     <LibraryPath>$(ProjectDir)lib_$(Configuration);$(LibraryPath)</LibraryPath>
     <PreBuildEventUseInBuild>true</PreBuildEventUseInBuild>
     <PostBuildEventUseInBuild>true</PostBuildEventUseInBuild>
+    <OutDir>$(ProjectDir)$(Configuration)\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
@@ -56,6 +57,7 @@
     <LibraryPath>$(ProjectDir)lib_$(Configuration);$(LibraryPath)</LibraryPath>
     <PreBuildEventUseInBuild>true</PreBuildEventUseInBuild>
     <PostBuildEventUseInBuild>true</PostBuildEventUseInBuild>
+    <OutDir>$(ProjectDir)$(Configuration)\</OutDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -75,7 +77,7 @@
       <Message>copy json file</Message>
     </PreBuildEvent>
     <PostBuildEvent>
-      <Command>copy /y "$(ProjectDir)$(Configuration)\com.dynilath.coolqdicebot.dll" "$(ProjectDir)..\酷Q Air\app\"</Command>
+      <Command>copy /y "$(ProjectDir)$(Configuration)\$(ProjectName).dll" "$(SolutionDir)酷Q Air\app\"</Command>
     </PostBuildEvent>
     <PostBuildEvent>
       <Message>
@@ -99,7 +101,7 @@
       <IgnoreSpecificDefaultLibraries>MSVCRTD;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
     </Link>
     <PostBuildEvent>
-      <Command>copy /y "$(ProjectDir)$(Configuration)\com.dynilath.coolqdicebot.dll" "$(ProjectDir)..\酷Q Air\app\"</Command>
+      <Command>copy /y "$(ProjectDir)$(Configuration)\$(ProjectName).dll" "$(SolutionDir)酷Q Air\app\"</Command>
     </PostBuildEvent>
     <PostBuildEvent>
       <Message>
@@ -117,6 +119,7 @@
     <ClInclude Include="base64.h" />
     <ClInclude Include="cqp.h" />
     <ClInclude Include="diceroller.h" />
+    <ClInclude Include="diceSpliter.h" />
     <ClInclude Include="include\sqlite3.h" />
     <ClInclude Include="messagepipeline.h" />
     <ClInclude Include="NickNameControl.h" />
@@ -140,6 +143,7 @@
   <ItemGroup>
     <ClCompile Include="appmain.cpp" />
     <ClCompile Include="diceroller.cpp" />
+    <ClCompile Include="diceSpliter.cpp" />
     <ClCompile Include="dllmain.cpp" />
     <ClCompile Include="messagepipeline.cpp" />
     <ClCompile Include="NickNameControl.cpp" />
