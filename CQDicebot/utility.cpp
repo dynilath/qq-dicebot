@@ -11,7 +11,7 @@
 
 void splitLine(std::string & source, std::vector<std::string>& source_splits)
 {
-	if (source.length()>2) {
+	if (source.length() > 2) {
 		unsigned int iter_source = 0;
 		std::string spliter = "\r\n";
 		while (iter_source < source.length()) {
@@ -25,6 +25,9 @@ void splitLine(std::string & source, std::vector<std::string>& source_splits)
 				iter_source = i_target + spliter.length();
 			}
 		}
+	}
+	else if (source.length() > 0) {
+		source_splits.push_back(source);
 	}
 }
 

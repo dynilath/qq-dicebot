@@ -37,9 +37,6 @@
     <ClInclude Include="messagepipeline.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="NickNameControl.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="QTool.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -52,8 +49,14 @@
     <ClInclude Include="utility.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="nickManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="databaseManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="diceSpliter.h">
-      <Filter>Source Files</Filter>
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -84,9 +87,6 @@
     <ClCompile Include="messagepipeline.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="NickNameControl.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="QTool.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -97,6 +97,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="diceSpliter.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="nickManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="databaseManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

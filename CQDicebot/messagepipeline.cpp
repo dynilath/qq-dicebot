@@ -3,7 +3,7 @@
 #include "utility.h"
 #include "diceroller.h"
 
-#include "NickNameControl.h"
+#include "nickManager.h"
 
 #include "cqp.h"
 #include "QTool.h"
@@ -14,12 +14,17 @@
 
 #define CHECK_LASTLINE_FOR_ENDL(_Stream,_Flag) if (_Flag) {	_Flag = false;	_Stream << std::endl;}
 
-std::regex regex_filter_command_identifier("^ *. *(r|ns|n) *");
+std::regex regex_filter_command_identifier("^ *. *(c|r|ns|n) *");
 std::regex regex_filter_rename("^ *. *n *");
 std::regex regex_filter_rename_silence("^ *. *ns *");
-std::regex regex_filter_full_dice("^ *. *r *(\\+|\\-)?((\\d*d\\d+((k|kl)\\d+)?)|\\d+)((\\+|\\-|\\*|/)((\\d*d\\d+((k|kl)\\d+)?)|\\d+))* *");
+std::regex regex_filter_normaldice("^ *. *r *");
+std::regex regex_filter_cocdice("^ *. *c *");
+std::regex regex_filter_macro_dice("^ *. *m *");
+std::regex regex_filter_use_macro("^ *. *rm *");
+std::regex regex_filter_full_dice("^(\\+|\\-)?((\\d*d\\d+((k|kl)\\d+)?)|\\d+)((\\+|\\-|\\*|/)((\\d*d\\d+((k|kl)\\d+)?)|\\d+))* *");
+std::regex regex_filter_coc_full_dice("^((p|b)\\d+)* *");
 
-void message_pipeline(const int32_t i_AuthCode,const char * msg, const int64_t uint64_fromGroupOrDiscuss, const int64_t uint64_fromQQ,bool isfromGroup)
+bool group_message_pipeline(const int32_t i_AuthCode,const char * msg, const int64_t uint64_fromGroupOrDiscuss, const int64_t uint64_fromQQ,bool isfromGroup)
 {
 
 	std::string source(msg);
@@ -47,7 +52,7 @@ void message_pipeline(const int32_t i_AuthCode,const char * msg, const int64_t u
 			if (str_new_name.length() > 0) {
 				std::string str_origin_name;
 				CQTool::getDefaultName(i_AuthCode, uint64_fromGroupOrDiscuss, uint64_fromQQ, str_origin_name, isfromGroup);
-				(NickNameControl::instance)->setNickName(i_AuthCode, uint64_fromGroupOrDiscuss, uint64_fromQQ, str_new_name,isfromGroup);
+				(nickManager::instance)->setNickName(i_AuthCode, uint64_fromGroupOrDiscuss, uint64_fromQQ, str_new_name,isfromGroup);
 			}
 			continue;
 		}
@@ -59,7 +64,7 @@ void message_pipeline(const int32_t i_AuthCode,const char * msg, const int64_t u
 			if (str_new_name.length() > 0) {
 				std::string str_origin_name; 
 				CQTool::getDefaultName(i_AuthCode, uint64_fromGroupOrDiscuss, uint64_fromQQ, str_origin_name,isfromGroup);
-				(NickNameControl::instance)->setNickName(i_AuthCode, uint64_fromGroupOrDiscuss, uint64_fromQQ, str_new_name, isfromGroup);
+				(nickManager::instance)->setNickName(i_AuthCode, uint64_fromGroupOrDiscuss, uint64_fromQQ, str_new_name, isfromGroup);
 				CHECK_LASTLINE_FOR_ENDL(ostrs_output_stream, does_last_line_have_output);
 
 				ostrs_output_stream << " * " << str_origin_name << " µÄÐÂÃû×ÖÊÇ " << str_new_name;
@@ -69,32 +74,67 @@ void message_pipeline(const int32_t i_AuthCode,const char * msg, const int64_t u
 			continue;
 		}
 
-		std::smatch matchList_command_full_dice_roll_match;
-		std::regex_search((*iterator_sources), matchList_command_full_dice_roll_match, regex_filter_full_dice);
-		if (matchList_command_full_dice_roll_match.begin() != matchList_command_full_dice_roll_match.end()){
-			std::string str_roll_message = matchList_command_full_dice_roll_match.suffix().str();
-			std::string str_roll_source = matchList_command_full_dice_roll_match.str();
+		std::smatch matchList_command_normaldice_match;
+		std::regex_search((*iterator_sources), matchList_command_normaldice_match, regex_filter_normaldice);
+		if (matchList_command_normaldice_match.begin() != matchList_command_normaldice_match.end()) {
+			std::string str_full_roll_command = matchList_command_normaldice_match.suffix().str();
+			std::smatch matchList_command_full_dice_roll_match;
+			std::regex_search(str_full_roll_command, matchList_command_full_dice_roll_match, regex_filter_full_dice);
 
-			removeSpaceAndTab(str_roll_source);
-			std::string str_roll_output;
-			if(baseSplitDice(str_roll_source, str_roll_output)){
-				CHECK_LASTLINE_FOR_ENDL(ostrs_output_stream, does_last_line_have_output);
+			if (matchList_command_full_dice_roll_match.begin() != matchList_command_full_dice_roll_match.end()) {
+				std::string str_roll_message = matchList_command_full_dice_roll_match.suffix().str();
+				std::string str_roll_source = matchList_command_full_dice_roll_match.str();
+				removeSpaceAndTab(str_roll_source);
+				std::string str_roll_output;
+				if (baseSplitDice(str_roll_source, str_roll_output)) {
+					CHECK_LASTLINE_FOR_ENDL(ostrs_output_stream, does_last_line_have_output);
 
-				std::string nickname;
-				(NickNameControl::instance)->getNickName(i_AuthCode, uint64_fromGroupOrDiscuss, uint64_fromQQ, nickname, isfromGroup);
-				ostrs_output_stream << " * " << nickname << " " << str_roll_message << " ÖÀ÷»: ";
+					std::string nickname;
+					(nickManager::instance)->getNickName(i_AuthCode, uint64_fromGroupOrDiscuss, uint64_fromQQ, nickname, isfromGroup);
+					ostrs_output_stream << " * " << nickname << " " << str_roll_message << " ÖÀ÷»: ";
 
-				ostrs_output_stream << str_roll_output;
-				is_output_available = true;
-				does_last_line_have_output = true;
+					ostrs_output_stream << str_roll_output;
+					is_output_available = true;
+					does_last_line_have_output = true;
+				}
+				continue;
 			}
-			continue;
 		}
+
+		std::smatch matchList_command_cocdice_match;
+		std::regex_search((*iterator_sources), matchList_command_cocdice_match, regex_filter_cocdice);
+		if (matchList_command_cocdice_match.begin() != matchList_command_cocdice_match.end()) {
+			std::string str_full_roll_command = matchList_command_cocdice_match.suffix().str();
+			std::smatch matchList_command_coc_dice_roll_match;
+			std::regex_search(str_full_roll_command, matchList_command_coc_dice_roll_match, regex_filter_coc_full_dice);
+			if (matchList_command_coc_dice_roll_match.begin() != matchList_command_coc_dice_roll_match.end()) {
+				std::string str_roll_message = matchList_command_coc_dice_roll_match.suffix().str();
+				std::string str_roll_source = matchList_command_coc_dice_roll_match.str();
+				removeSpaceAndTab(str_roll_source);
+
+				DiceRoller diceRoll(str_roll_source, ROLL_MODE_COC_PB);
+				if (diceRoll.status == ROLL_STATUS_FINISHED) {
+					CHECK_LASTLINE_FOR_ENDL(ostrs_output_stream, does_last_line_have_output);
+
+					std::string nickname;
+					(nickManager::instance)->getNickName(i_AuthCode, uint64_fromGroupOrDiscuss, uint64_fromQQ, nickname, isfromGroup);
+					ostrs_output_stream << " * " << nickname << " " << str_roll_message << " ÖÀ÷»: ";
+
+					ostrs_output_stream << *(diceRoll.str_detail_result) << " = " << diceRoll.i_sum_result;
+					is_output_available = true;
+					does_last_line_have_output = true;
+
+				}
+				continue;
+			}
+		}
+		
 	}
 	if (is_output_available) {
 		if(isfromGroup)	CQ_sendGroupMsg(i_AuthCode, uint64_fromGroupOrDiscuss, ostrs_output_stream.str().c_str());
 		else CQ_sendDiscussMsg(i_AuthCode, uint64_fromGroupOrDiscuss, ostrs_output_stream.str().c_str());
 	}
+	return is_output_available;
 }
 
 

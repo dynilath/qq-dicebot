@@ -9,15 +9,16 @@
 
 #include "cqp.h"
 #include "messagepipeline.h"
-#include "NickNameControl.h"
+#include "databaseManager.h"
+#include "nickManager.h"
 #include "utility.h"
 #include "diceroller.h"
 
 int32_t i_AuthCode = -1; //AuthCode 调用酷Q的方法时需要用到
 bool enabled = false;
 
-NickNameControl * nickControl;
-
+nickManager * nickCtrl;
+databaseManager * dbCtrl;
 /* 
 * 返回应用的ApiVer、Appid，打包后将不会调用
 */
@@ -47,7 +48,8 @@ CQEVENT(int32_t, __eventEnable, 0)() {
 	DiceRoller::random_initialize();
 
 	createDir(APP_DIR);
-	nickControl = new NickNameControl();
+	dbCtrl = new databaseManager();
+	nickCtrl = new nickManager();
 	
 	return 0;
 }
@@ -61,7 +63,8 @@ CQEVENT(int32_t, __eventEnable, 0)() {
 */
 CQEVENT(int32_t, __eventDisable, 0)() {
 	enabled = false;
-	delete(nickControl);
+	delete(nickCtrl);
+	delete(dbCtrl);
 	return 0;
 }
 
@@ -83,7 +86,9 @@ CQEVENT(int32_t, __eventPrivateMsg, 24)(int32_t subType, int32_t msgId, int64_t 
 * Type=2 群消息
 */
 CQEVENT(int32_t, __eventGroupMsg, 36)(int32_t subType, int32_t msgId, int64_t fromGroup, int64_t fromQQ, const char *fromAnonymous, const char *msg, int32_t font) {
-	message_pipeline(i_AuthCode, msg, fromGroup, fromQQ, true);
+	if (group_message_pipeline(i_AuthCode, msg, fromGroup, fromQQ, true)) {
+		return EVENT_BLOCK;
+	}
 	return EVENT_IGNORE;
 }
 
@@ -92,7 +97,9 @@ CQEVENT(int32_t, __eventGroupMsg, 36)(int32_t subType, int32_t msgId, int64_t fr
 * Type=4 讨论组消息
 */
 CQEVENT(int32_t, __eventDiscussMsg, 32)(int32_t subType, int32_t msgId, int64_t fromDiscuss, int64_t fromQQ, const char *msg, int32_t font) {
-	message_pipeline(i_AuthCode, msg, fromDiscuss, fromQQ, false);
+	if (group_message_pipeline(i_AuthCode, msg, fromDiscuss, fromQQ, false)) {
+		return EVENT_BLOCK;
+	}
 	return EVENT_IGNORE; //关于返回值说明, 见“_eventPrivateMsg”函数
 }
 
