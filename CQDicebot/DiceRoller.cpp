@@ -145,6 +145,7 @@ DiceRoller::DiceRoller(std::string & str_single_dice,int mode)
 				if (i_next == std::string::npos) {
 					int i_p_num = std::stoi(str_single_dice.substr(1));
 					i_cal_pb += i_p_num * i_sign;
+					i_bp_count++;
 					break;
 				}
 				else {
