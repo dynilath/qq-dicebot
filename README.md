@@ -75,14 +75,16 @@ Just a simple dicebot for coolq in development.<br>
 .cp2闪避(50)
 .cp5b5b2我也不知道为什么会这样骰
 .cp5b5pd奖罚抵消
-.cb4如果个位是0</code></pre>
+.cb4如果个位是0
+.c简单一点</code></pre>
 >输出
 
 <pre><code> * goubi 闪避(50) 掷骰: d100b5 = [(5) + (9) + (5) + (3) + 0 + (5)] [4] = 4
  * goubi 夹击闪避(50) 掷骰: d100p2 = [(5) + 6 + (3)] [4] = 64
  * goubi 我也不知道为什么会这样骰 掷骰: d100p5b5b2 = d100b2 = [(9) + 0 + (2)] [9] = 9
  * goubi pd奖罚抵消 掷骰: d100p5b5 = 33
- * goubi 如果个位是0 掷骰: d100b4 = [(2) + (6) + (10) + 2 + (4)] [0] = 20</code></pre>
+ * goubi 如果个位是0 掷骰: d100b4 = [(2) + (6) + (10) + 2 + (4)] [0] = 20
+ * goubi 简单一点 掷骰: d100 = 64</code></pre>
 <br> 
 
 
