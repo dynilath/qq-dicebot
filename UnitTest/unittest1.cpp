@@ -121,7 +121,7 @@ namespace UnitTest
 		TEST_METHOD(MultiDiceTest1)
 		{
 			std::cout << ">>test 8 : baseSplitDice(\".r2*3/4\");" << std::endl;
-			std::string input(".r2*3/4");
+			std::string input("2*3/4");
 			std::string output;
 			bool avail = baseSplitDice(input, output);
 			Assert::IsTrue(avail);
@@ -132,7 +132,7 @@ namespace UnitTest
 		TEST_METHOD(MultiDiceTest2)
 		{
 			std::cout << ">>test 9 : baseSplitDice(\".r2*3/4+3*2\");" << std::endl;
-			std::string input(".r2*3/4+3*2");
+			std::string input("2*3/4+3*2");
 			std::string output;
 			bool avail = baseSplitDice(input, output);
 			Assert::IsTrue(avail);
@@ -143,7 +143,7 @@ namespace UnitTest
 		TEST_METHOD(MultiDiceTest3)
 		{
 			std::cout << ">>test 9 : baseSplitDice(\".r2*3/4+3*2\");" << std::endl;
-			std::string input(".r1+2*3/4+3*2");
+			std::string input("1+2*3/4+3*2");
 			std::string output;
 			bool avail = baseSplitDice(input, output);
 			Assert::IsTrue(avail);

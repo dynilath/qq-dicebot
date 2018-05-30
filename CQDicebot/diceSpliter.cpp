@@ -23,7 +23,7 @@ bool baseSplitDice(const std::string & str_input, std::string & str_output) {
 	std::smatch matchList_single_dice;
 
 	std::ostringstream ostrs_dice_stream(std::ostringstream::ate);
-	ostrs_dice_stream << " = ";
+	ostrs_dice_stream << str_input << " = ";
 
 	INT32 i_dice_summary = 0;
 	double d_dice_summary = 0.0;
