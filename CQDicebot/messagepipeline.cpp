@@ -3,7 +3,7 @@
 #include "utility.h"
 #include "diceroller.h"
 
-#include "NickNameControl.h"
+#include "nickManager.h"
 
 #include "cqp.h"
 #include "QTool.h"
@@ -47,7 +47,7 @@ void message_pipeline(const int32_t i_AuthCode,const char * msg, const int64_t u
 			if (str_new_name.length() > 0) {
 				std::string str_origin_name;
 				CQTool::getDefaultName(i_AuthCode, uint64_fromGroupOrDiscuss, uint64_fromQQ, str_origin_name, isfromGroup);
-				(NickNameControl::instance)->setNickName(i_AuthCode, uint64_fromGroupOrDiscuss, uint64_fromQQ, str_new_name,isfromGroup);
+				(nickManager::instance)->setNickName(i_AuthCode, uint64_fromGroupOrDiscuss, uint64_fromQQ, str_new_name,isfromGroup);
 			}
 			continue;
 		}
@@ -59,7 +59,7 @@ void message_pipeline(const int32_t i_AuthCode,const char * msg, const int64_t u
 			if (str_new_name.length() > 0) {
 				std::string str_origin_name; 
 				CQTool::getDefaultName(i_AuthCode, uint64_fromGroupOrDiscuss, uint64_fromQQ, str_origin_name,isfromGroup);
-				(NickNameControl::instance)->setNickName(i_AuthCode, uint64_fromGroupOrDiscuss, uint64_fromQQ, str_new_name, isfromGroup);
+				(nickManager::instance)->setNickName(i_AuthCode, uint64_fromGroupOrDiscuss, uint64_fromQQ, str_new_name, isfromGroup);
 				CHECK_LASTLINE_FOR_ENDL(ostrs_output_stream, does_last_line_have_output);
 
 				ostrs_output_stream << " * " << str_origin_name << " 的新名字是 " << str_new_name;
@@ -81,7 +81,7 @@ void message_pipeline(const int32_t i_AuthCode,const char * msg, const int64_t u
 				CHECK_LASTLINE_FOR_ENDL(ostrs_output_stream, does_last_line_have_output);
 
 				std::string nickname;
-				(NickNameControl::instance)->getNickName(i_AuthCode, uint64_fromGroupOrDiscuss, uint64_fromQQ, nickname, isfromGroup);
+				(nickManager::instance)->getNickName(i_AuthCode, uint64_fromGroupOrDiscuss, uint64_fromQQ, nickname, isfromGroup);
 				ostrs_output_stream << " * " << nickname << " " << str_roll_message << " 掷骰: ";
 
 				ostrs_output_stream << str_roll_output;

@@ -15,7 +15,6 @@
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>CQPSDK</RootNamespace>
     <ProjectName>com.dynilath.coolqdicebot</ProjectName>
-    <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -71,7 +70,8 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <PreBuildEvent>
-      <Command>copy "$(ProjectDir)com.dynilath.coolqdicebot.json" "$(SolutionDir)酷Q Air\app\"</Command>
+      <Command>md "$(SolutionDir)酷Q Air\app\"
+copy "$(ProjectDir)com.dynilath.coolqdicebot.json" "$(SolutionDir)酷Q Air\app\"</Command>
     </PreBuildEvent>
     <PreBuildEvent>
       <Message>copy json file</Message>
@@ -108,7 +108,8 @@
       </Message>
     </PostBuildEvent>
     <PreBuildEvent>
-      <Command>copy "$(ProjectDir)com.dynilath.coolqdicebot.json" "$(SolutionDir)酷Q Air\app\"</Command>
+      <Command>md "$(SolutionDir)酷Q Air\app\"
+copy "$(ProjectDir)com.dynilath.coolqdicebot.json" "$(SolutionDir)酷Q Air\app\"</Command>
     </PreBuildEvent>
     <PreBuildEvent>
       <Message>copy json file</Message>
@@ -118,11 +119,12 @@
     <ClInclude Include="appmain.h" />
     <ClInclude Include="base64.h" />
     <ClInclude Include="cqp.h" />
+    <ClInclude Include="databaseManager.h" />
     <ClInclude Include="diceroller.h" />
     <ClInclude Include="diceSpliter.h" />
     <ClInclude Include="include\sqlite3.h" />
     <ClInclude Include="messagepipeline.h" />
-    <ClInclude Include="NickNameControl.h" />
+    <ClInclude Include="nickManager.h" />
     <ClInclude Include="QTool.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
@@ -142,11 +144,12 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="appmain.cpp" />
+    <ClCompile Include="databaseManager.cpp" />
     <ClCompile Include="diceroller.cpp" />
     <ClCompile Include="diceSpliter.cpp" />
     <ClCompile Include="dllmain.cpp" />
     <ClCompile Include="messagepipeline.cpp" />
-    <ClCompile Include="NickNameControl.cpp" />
+    <ClCompile Include="nickManager.cpp" />
     <ClCompile Include="QTool.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>

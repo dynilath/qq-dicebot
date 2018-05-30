@@ -1,51 +1,42 @@
 #include "stdafx.h"
-#include "NickNameControl.h"
+#include "nickManager.h"
+#include "databaseManager.h"
 #include "base64.h"
 #include "QTool.h"
 #include <iostream>
 
-const char * cstr_file_db = APP_DIR "com.dynilath.coolqdicebot.nickname.db";
 
-//const int i_data_database_quarry = 1;
-const int i_data_database_insert = 2;
-const int i_data_database_create = 4;
-const int i_data_database_update = 8;
-
-NickNameControl * NickNameControl::instance = nullptr;
-
-NickNameControl::NickNameControl() noexcept
-{
-	int i_ret_code = sqlite3_open(cstr_file_db, &database);
-	if (i_ret_code == SQLITE_OK) {
-		if (!is_my_table_exist(NICK_TABLE_NAME)) {
-			char * sql_command = 
-				"create table " NICK_TABLE_NAME \
+#define NICK_TABLE_NAME "nickname"
+#define NICK_TABLE_DEFINE "create table " NICK_TABLE_NAME \
 				"(qqid      int     NOT NULL," \
 				"groupid    int     NOT NULL," \
 				"name       text    NOT NULL," \
-				"primary    key    (QQID,GROUPID));";
-			char * pchar_err_message = nullptr;
-			int i_ret_code_2 = sqlite3_exec(database, sql_command, &sqlite3_callback, (void*)&i_data_database_create, &pchar_err_message);
-			if (i_ret_code != SQLITE_OK) 
-			{
-				std::cout << pchar_err_message;
-				is_no_sql_mode = true; 
-			}
-			else is_no_sql_mode = false;
-		}
+				"primary    key    (QQID,GROUPID));"
+
+nickManager * nickManager::instance = nullptr;
+
+nickManager::nickManager() noexcept
+{
+	databaseManager * databaseControl = databaseManager::getInstance();
+	int i_ret_code = databaseControl->registerTable(NICK_TABLE_NAME, NICK_TABLE_DEFINE);
+	is_no_sql_mode = i_ret_code != SQLITE_OK;
+	if (nickManager::instance != nullptr) {
+		delete(nickManager::instance);
 	}
-	NickNameControl::instance = this;
+	else nickManager::instance = this;
 }
 
 
-NickNameControl::~NickNameControl()
+nickManager::~nickManager()
 {
-	NickNameControl::instance = nullptr;
-	sqlite3_close(database);
+	if (nickManager::instance == this) {
+		nickManager::instance = nullptr;
+	}
 }
 
-void NickNameControl::getNickName(const int i_AuthCode, const int64_t fromGroupOrDiscuss, const int64_t fromQQ, std::string & nickname,bool isfromGroup)
+void nickManager::getNickName(const int i_AuthCode, const int64_t fromGroupOrDiscuss, const int64_t fromQQ, std::string & nickname,bool isfromGroup)
 {
+	sqlite3 * database = databaseManager::getDatabase();
 	std::map<std::pair<int64_t, int64_t>, std::string>::iterator iter_map_nick =  map_nickname_cache.find(std::pair<int64_t, int64_t>(fromQQ, fromGroupOrDiscuss));
 	if (iter_map_nick != map_nickname_cache.end()) {
 		nickname = (*iter_map_nick).second;
@@ -61,7 +52,7 @@ void NickNameControl::getNickName(const int i_AuthCode, const int64_t fromGroupO
 			ostrs_sql_command << "SELECT * FROM " NICK_TABLE_NAME " where qqid =" << fromQQ << " and groupid =" << fromGroupOrDiscuss;
 			std::string str_nick_endcoded;
 			char * pchar_err_message = nullptr;
-			int ret_code = sqlite3_exec(database, ostrs_sql_command.str().c_str(), &sqlite3_callback_quarry_name, (void*)&str_nick_endcoded, &pchar_err_message);
+			int ret_code = sqlite3_exec(database, ostrs_sql_command.str().c_str(), &sqlite3_callback_query_name, (void*)&str_nick_endcoded, &pchar_err_message);
 			if (ret_code == SQLITE_OK) {
 				if (str_nick_endcoded.length() > 0) {
 					Base64::Decode(str_nick_endcoded, &nickname);
@@ -82,8 +73,9 @@ void NickNameControl::getNickName(const int i_AuthCode, const int64_t fromGroupO
 	}
 }
 
-void NickNameControl::setNickName(const int i_AuthCode, const int64_t fromGroupOrDiscuss, const int64_t fromQQ, const std::string & nickname,bool isfromGroup)
+void nickManager::setNickName(const int i_AuthCode, const int64_t fromGroupOrDiscuss, const int64_t fromQQ, const std::string & nickname,bool isfromGroup)
 {
+	sqlite3 * database = databaseManager::getDatabase();
 	std::map<std::pair<int64_t, int64_t>, std::string>::iterator iter_map_nick = map_nickname_cache.find(std::pair<int64_t, int64_t>(fromQQ, fromGroupOrDiscuss));
 	if (iter_map_nick != map_nickname_cache.end()) {
 		(*iter_map_nick).second = nickname;
@@ -99,14 +91,14 @@ void NickNameControl::setNickName(const int i_AuthCode, const int64_t fromGroupO
 		ostrs_sql_command<<"SELECT * FROM " NICK_TABLE_NAME " where qqid =" << fromQQ << " and groupid =" << fromGroupOrDiscuss;
 		std::string str_nick_endcoded;
 		char * pchar_err_message = nullptr;
-		int ret_code = sqlite3_exec(database, ostrs_sql_command.str().c_str(), &sqlite3_callback_quarry_name, (void*)&str_nick_endcoded, &pchar_err_message);
+		int ret_code = sqlite3_exec(database, ostrs_sql_command.str().c_str(), &sqlite3_callback_query_name, (void*)&str_nick_endcoded, &pchar_err_message);
 		if (ret_code == SQLITE_OK) {
 			if (str_nick_endcoded.length() > 0) {
 				std::ostringstream ostrs_sql_command_2(std::ostringstream::ate);
 				ostrs_sql_command_2.str("update " NICK_TABLE_NAME " set ");
 				ostrs_sql_command_2 << " name ='" << str_encoded_nickname << "'";
 				ostrs_sql_command_2 << " where qqid =" << fromQQ << " and groupid =" << fromGroupOrDiscuss;
-				int ret_code_2 = sqlite3_exec(database, ostrs_sql_command_2.str().c_str(), &sqlite3_callback, (void*)&i_data_database_update, &pchar_err_message);
+				int ret_code_2 = sqlite3_exec(database, ostrs_sql_command_2.str().c_str(), &databaseManager::sqlite3_callback, (void*)&i_data_database_update, &pchar_err_message);
 #ifdef _DEBUG
 				if (ret_code_2 != SQLITE_OK) {
 					std::cout << sqlite3_errmsg(database);
@@ -116,9 +108,8 @@ void NickNameControl::setNickName(const int i_AuthCode, const int64_t fromGroupO
 			else {
 				std::ostringstream ostrs_sql_command_2(std::ostringstream::ate);
 				ostrs_sql_command_2.str("insert into " NICK_TABLE_NAME " values ( ");
-				ostrs_sql_command_2 << fromQQ << ", " << fromGroupOrDiscuss << ", '" << str_encoded_nickname << "'";
-				ostrs_sql_command_2 << ");";
-				int ret_code_2 = sqlite3_exec(database, ostrs_sql_command_2.str().c_str(), &sqlite3_callback, (void*)&i_data_database_update, &pchar_err_message);
+				ostrs_sql_command_2 << fromQQ << ", " << fromGroupOrDiscuss << ", '" << str_encoded_nickname << "'" << ");";
+				int ret_code_2 = sqlite3_exec(database, ostrs_sql_command_2.str().c_str(), &databaseManager::sqlite3_callback, (void*)&i_data_database_update, &pchar_err_message);
 #ifdef _DEBUG
 				if (ret_code_2 != SQLITE_OK) {
 					std::cout << sqlite3_errmsg(database);
@@ -130,47 +121,7 @@ void NickNameControl::setNickName(const int i_AuthCode, const int64_t fromGroupO
 	}
 }
 
-bool NickNameControl::is_my_table_exist(const std::string & table_name)
-{
-	std::string sql_command = "select count(*) from sqlite_master where type ='table' and name ='" + table_name + "'";
-	char * pchar_err_message = nullptr;
-	int i_count_of_table = 0;
-	int ret_code = sqlite3_exec(database, sql_command.c_str(), &sqlite3_callback, (void*)&i_count_of_table, &pchar_err_message);
-	if (ret_code == SQLITE_OK) {
-		return i_count_of_table > 0;
-	}
-#ifdef _DEBUG
-	else{
-		std::cout << sqlite3_errmsg(database);
-	}
-#endif
-	return false;
-}
-
-int NickNameControl::sqlite3_callback(void * data, int argc, char ** argv, char ** azColName)
-{
-	int i_database_op = *((int*)data);
-	switch (i_database_op)
-	{
-	case i_data_database_create:
-		return SQLITE_OK;
-	case i_data_database_update:
-		return SQLITE_OK;
-	default:
-		return SQLITE_OK;
-	}
-}
-
-int NickNameControl::sqlite3_callback_check_table(void * data, int argc, char ** argv, char ** azColName)
-{
-	int * i_handle = (int*)data;
-	if (argc == 1) {
-		*i_handle = atoi(argv[0]);
-	}
-	return SQLITE_OK;
-}
-
-int NickNameControl::sqlite3_callback_quarry_name(void * data, int argc, char ** argv, char ** azColName)
+int nickManager::sqlite3_callback_query_name(void * data, int argc, char ** argv, char ** azColName)
 {
 	if (argc == 3) {
 		std::string * pstr_ret = (std::string *) data;

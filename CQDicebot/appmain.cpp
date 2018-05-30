@@ -9,15 +9,16 @@
 
 #include "cqp.h"
 #include "messagepipeline.h"
-#include "NickNameControl.h"
+#include "databaseManager.h"
+#include "nickManager.h"
 #include "utility.h"
 #include "diceroller.h"
 
 int32_t i_AuthCode = -1; //AuthCode 调用酷Q的方法时需要用到
 bool enabled = false;
 
-NickNameControl * nickControl;
-
+nickManager * nickCtrl;
+databaseManager * dbCtrl;
 /* 
 * 返回应用的ApiVer、Appid，打包后将不会调用
 */
@@ -47,7 +48,8 @@ CQEVENT(int32_t, __eventEnable, 0)() {
 	DiceRoller::random_initialize();
 
 	createDir(APP_DIR);
-	nickControl = new NickNameControl();
+	dbCtrl = new databaseManager();
+	nickCtrl = new nickManager();
 	
 	return 0;
 }
@@ -61,7 +63,8 @@ CQEVENT(int32_t, __eventEnable, 0)() {
 */
 CQEVENT(int32_t, __eventDisable, 0)() {
 	enabled = false;
-	delete(nickControl);
+	delete(nickCtrl);
+	delete(dbCtrl);
 	return 0;
 }
 
