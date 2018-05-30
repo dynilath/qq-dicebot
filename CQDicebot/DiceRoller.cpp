@@ -4,24 +4,29 @@
 #include <random>
 #include <vector>
 #include <chrono>
+#include <regex>
 
 #define FUNCTION_PARSE_DICE(_Str_target,_Pos_Start,_Pos_D,_Pos_K,_Pos_L) \
 int i_num_of_die = _Pos_D > 0 ? std::stoi(_Str_target.substr(_Pos_Start, _Pos_D - (_Pos_Start))) : 1;\
 int i_face_of_die = std::stoi(_Str_target.substr(_Pos_D + 1, _Pos_K - (_Pos_D + 1)));\
 int i_num_of_keep = std::stoi(_Str_target.substr(_Pos_L + 1))
 
-#define CHECK_DICE_LIMITS() if (i_face_of_die > MAX_DICE_FACE || i_num_of_keep > MAX_DICE_FACE || i_num_of_die > MAX_DICE_NUM) break
+#define CHECK_DICE_LIMITS() \
+if (i_face_of_die > MAX_DICE_FACE || i_num_of_keep > MAX_DICE_FACE || i_num_of_die > MAX_DICE_NUM) { \
+	this->status = ROLL_STATUS_DICE_NOT_AVAILABLE; \
+	break; \
+}
 
 #define CREATING_OUTPUT(_Stream,_DiceRoll,_Sign) \
 _Stream << "(" << *(_DiceRoll.str_detail_result) << ")";\
 this->i_sum_result = _DiceRoll.i_sum_result * _Sign;\
 this->str_detail_result = new std::string(_Stream.str())
 
-#define RANDOMIZE(_Max)\
+#define RANDOMIZE(_Max,_Min)\
 std::random_device rd_generator;\
 std::mt19937 mt_generator(ulong_prand_seed);\
 if (DiceRoller::is_using_pseudo_random) mt_generator.discard(ulong_prand_stage);\
-std::uniform_int_distribution<> dice(1, _Max)
+std::uniform_int_distribution<> dice(_Min, _Max + _Min - 1)
 
 #define RANDOM(_Target)\
 if (DiceRoller::is_using_pseudo_random) { _Target = dice(mt_generator); ulong_prand_stage++;}\
@@ -51,8 +56,8 @@ DiceRoller::~DiceRoller()
 		delete(str_detail_result);
 }
 
-DiceRoller::DiceRoller(int val1_i_num_of_dice, int val2_num_of_face) {
-	RANDOMIZE(val2_num_of_face);
+DiceRoller::DiceRoller(int val1_i_num_of_dice, int val2_num_of_face, int start_value) {
+	RANDOMIZE(val2_num_of_face, start_value);
 	int i_result_sum = 0;
 	std::ostringstream ostrs_dice_stream(std::ostringstream::ate);
 	while (val1_i_num_of_dice > 0)
@@ -67,14 +72,14 @@ DiceRoller::DiceRoller(int val1_i_num_of_dice, int val2_num_of_face) {
 	this->i_sum_result = i_result_sum;
 }
 
-DiceRoller::DiceRoller(int num_of_dice, int num_of_face, int keep, bool is_keeping_high) {
+DiceRoller::DiceRoller(int num_of_dice, int num_of_face, int keep, bool is_keeping_high, int start_value) {
 	if (keep >= num_of_dice) {
-		DiceRoller dice(num_of_dice, num_of_face);
+		DiceRoller dice(num_of_dice, num_of_face, start_value);
 		this->str_detail_result = new std::string(*dice.str_detail_result);
 		this->i_sum_result = dice.i_sum_result;
 	}
 	else {
-		RANDOMIZE(num_of_face);
+		RANDOMIZE(num_of_face, start_value);
 		int i_result_sum = 0;
 		std::ostringstream ostrs_dice_stream(std::ostringstream::ate);
 
@@ -120,57 +125,123 @@ DiceRoller::DiceRoller(int num_of_dice, int num_of_face, int keep, bool is_keepi
 }
 
 //inputs regex (\\+|\\-)?(\\d*d\\d+((k|kl)\\d+)?)|(\\d+)
-DiceRoller::DiceRoller(std::string & str_single_dice)
+DiceRoller::DiceRoller(std::string & str_single_dice,int mode)
 {
-	bool is_first_signed = (str_single_dice[0] == '+' || str_single_dice[0] == '-');
-	std::ostringstream ostrs_dice_stream(std::ostringstream::ate);
-	
-	int i_dice_summary = 0;
-	int i_single_dice_sign = 1;
-	int i_start_pos = 0;
+	this->status = ROLL_STATUS_UNINITIALIZED;
+	if (mode == ROLL_MODE_COC_PB) {
+		std::ostringstream ostrs_dice_stream(std::ostringstream::ate);
+		ostrs_dice_stream << "d100" << str_single_dice;
+		int i_cal_pb = 0;
+		int result = 0;
+		int i_bp_count = 0;
+		try {
+			while (str_single_dice.length() > 1) {
 
-	if (str_single_dice[0] == '+' || str_single_dice[0] == '-') {
-		ostrs_dice_stream << " " << str_single_dice[0] << " ";
-		if (str_single_dice[0] == '-') i_single_dice_sign = -1;
-		else i_single_dice_sign = 1;
-		i_start_pos = 1;
-	}
+				int i_sign = 1;
+				if (str_single_dice[0] == 'p') i_sign = -1;
+				else if (str_single_dice[0] == 'b') i_sign = 1;
 
-	do {
-		int i_pos_of_d = str_single_dice.find('d');
-		if (i_pos_of_d == std::string::npos) {
-			int result = std::stoi(str_single_dice.substr(i_start_pos));
-			this->i_sum_result = result * i_single_dice_sign;
-			ostrs_dice_stream << result;
-			this->str_detail_result = new std::string(ostrs_dice_stream.str());
-		}
-		else {
-			int i_pos_of_k = str_single_dice.find('k');
-			if (i_pos_of_k == std::string::npos) {
-				int i_num_of_die = i_pos_of_d > 0 ? std::stoi(str_single_dice.substr(i_start_pos, i_pos_of_d)) : 1;
-				int i_face_of_die = std::stoi(str_single_dice.substr(i_pos_of_d + 1));
-				int i_num_of_keep = i_num_of_die;
-				CHECK_DICE_LIMITS();
-				DiceRoller dr_diceRoll(i_num_of_die, i_face_of_die);
-				CREATING_OUTPUT(ostrs_dice_stream, dr_diceRoll, i_single_dice_sign);
-			}
-			else {
-				int i_pos_of_l = str_single_dice.find('l');
-				if (i_pos_of_l == std::string::npos) {
-					i_pos_of_l = i_pos_of_k;
-					FUNCTION_PARSE_DICE(str_single_dice, i_start_pos, i_pos_of_d, i_pos_of_k, i_pos_of_l);
-					CHECK_DICE_LIMITS();
-					DiceRoller dr_diceRoll(i_num_of_die, i_face_of_die, i_num_of_keep, false);
-					CREATING_OUTPUT(ostrs_dice_stream, dr_diceRoll, i_single_dice_sign);
+				int i_next = str_single_dice.find_first_of("bp", 1);
+				if (i_next == std::string::npos) {
+					int i_p_num = std::stoi(str_single_dice.substr(1));
+					i_cal_pb += i_p_num * i_sign;
+					break;
 				}
 				else {
-					FUNCTION_PARSE_DICE(str_single_dice, i_start_pos, i_pos_of_d, i_pos_of_k, i_pos_of_l);
-					CHECK_DICE_LIMITS();
-					DiceRoller dr_diceRoll(i_num_of_die, i_face_of_die, i_num_of_keep, true);
-					CREATING_OUTPUT(ostrs_dice_stream, dr_diceRoll, i_single_dice_sign);
+					int i_p_num = std::stoi(str_single_dice.substr(1, i_next - 1));
+					i_cal_pb += i_p_num * i_sign;
+					str_single_dice = str_single_dice.substr(i_next);
 				}
+				i_bp_count++;
+			}
+
+
+			if (i_cal_pb != 0) {
+				int i_num_of_dice = i_cal_pb > 0 ? (i_cal_pb + 1) : (1 - i_cal_pb);
+				bool is_keep_high = i_cal_pb > 0;
+				if (i_bp_count > 1) ostrs_dice_stream << " = d100" << (i_cal_pb > 0 ? "b" : "p") << (i_cal_pb > 0 ? i_cal_pb : -i_cal_pb);
+				ostrs_dice_stream << " = ";
+				DiceRoller dice_roll2(1, 10, 0);
+				int i_dec_min = dice_roll2.i_sum_result == 0 ? 1 : 0;
+				DiceRoller dice_roll1(i_num_of_dice, 10, 1, is_keep_high, i_dec_min);
+				ostrs_dice_stream << "[" << *(dice_roll1.str_detail_result) << "] ";
+				ostrs_dice_stream << "[" << *(dice_roll2.str_detail_result) << "]";
+				result = dice_roll1.i_sum_result * 10 + dice_roll2.i_sum_result;
+			}
+			else {
+				DiceRoller dice_roll(1, 100);
+				result = dice_roll.i_sum_result;
+				//ostrs_dice_stream << *(dice_roll.str_detail_result);
 			}
 		}
-	} while (false);
+		catch (const std::invalid_argument& ia) {
+			this->status = ROLL_STATUS_DICE_NOT_AVAILABLE;
+		}
+		this->i_sum_result = result;
+		this->str_detail_result = new std::string(ostrs_dice_stream.str());
+		if (this->status == ROLL_STATUS_UNINITIALIZED) this->status = ROLL_STATUS_FINISHED;
+	}
+	else if (mode == ROLL_MODE_DND_DK) {
+		bool is_first_signed = (str_single_dice[0] == '+' || str_single_dice[0] == '-');
+		std::ostringstream ostrs_dice_stream(std::ostringstream::ate);
+
+		int i_dice_summary = 0;
+		int i_single_dice_sign = 1;
+		int i_start_pos = 0;
+
+		if (str_single_dice[0] == '+' || str_single_dice[0] == '-') {
+			ostrs_dice_stream << " " << str_single_dice[0] << " ";
+			if (str_single_dice[0] == '-') i_single_dice_sign = -1;
+			else i_single_dice_sign = 1;
+			i_start_pos = 1;
+		}
+
+		do {
+			try {
+				int i_pos_of_d = str_single_dice.find('d');
+				if (i_pos_of_d == std::string::npos) {
+					int result = std::stoi(str_single_dice.substr(i_start_pos));
+					this->i_sum_result = result * i_single_dice_sign;
+					ostrs_dice_stream << result;
+					this->str_detail_result = new std::string(ostrs_dice_stream.str());
+				}
+				else {
+					int i_pos_of_k = str_single_dice.find('k');
+					if (i_pos_of_k == std::string::npos) {
+						int i_num_of_die = i_pos_of_d > 0 ? std::stoi(str_single_dice.substr(i_start_pos, i_pos_of_d)) : 1;
+						int i_face_of_die = std::stoi(str_single_dice.substr(i_pos_of_d + 1));
+						int i_num_of_keep = i_num_of_die;
+						CHECK_DICE_LIMITS();
+						DiceRoller dr_diceRoll(i_num_of_die, i_face_of_die);
+						CREATING_OUTPUT(ostrs_dice_stream, dr_diceRoll, i_single_dice_sign);
+					}
+					else {
+						int i_pos_of_l = str_single_dice.find('l');
+						if (i_pos_of_l == std::string::npos) {
+							i_pos_of_l = i_pos_of_k;
+							FUNCTION_PARSE_DICE(str_single_dice, i_start_pos, i_pos_of_d, i_pos_of_k, i_pos_of_l);
+							CHECK_DICE_LIMITS();
+							DiceRoller dr_diceRoll(i_num_of_die, i_face_of_die, i_num_of_keep, false);
+							CREATING_OUTPUT(ostrs_dice_stream, dr_diceRoll, i_single_dice_sign);
+						}
+						else {
+							FUNCTION_PARSE_DICE(str_single_dice, i_start_pos, i_pos_of_d, i_pos_of_k, i_pos_of_l);
+							CHECK_DICE_LIMITS();
+							DiceRoller dr_diceRoll(i_num_of_die, i_face_of_die, i_num_of_keep, true);
+							CREATING_OUTPUT(ostrs_dice_stream, dr_diceRoll, i_single_dice_sign);
+						}
+					}
+				}
+			}
+			catch (const std::invalid_argument& ia) {
+				this->status = ROLL_STATUS_DICE_NOT_AVAILABLE;
+				break;
+			}
+		} while (false);
+		if (this->status == ROLL_STATUS_UNINITIALIZED) this->status = ROLL_STATUS_FINISHED;
+	}
+	else {
+		this->status = ROLL_STATUS_GENERAL_ERR;
+	}
 }
 

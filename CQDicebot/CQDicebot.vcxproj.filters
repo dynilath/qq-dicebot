@@ -49,13 +49,13 @@
     <ClInclude Include="utility.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="diceSpliter.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
     <ClInclude Include="nickManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="databaseManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="diceSpliter.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
