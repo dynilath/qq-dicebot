@@ -123,6 +123,8 @@ copy "$(ProjectDir)com.dynilath.coolqdicebot.json" "$(SolutionDir)酷Q Air\app\"
     <ClInclude Include="diceroller.h" />
     <ClInclude Include="diceSpliter.h" />
     <ClInclude Include="include\sqlite3.h" />
+    <ClInclude Include="manualdice.h" />
+    <ClInclude Include="manualDiceControl.h" />
     <ClInclude Include="messagepipeline.h" />
     <ClInclude Include="nickManager.h" />
     <ClInclude Include="QTool.h" />
@@ -148,6 +150,8 @@ copy "$(ProjectDir)com.dynilath.coolqdicebot.json" "$(SolutionDir)酷Q Air\app\"
     <ClCompile Include="diceroller.cpp" />
     <ClCompile Include="diceSpliter.cpp" />
     <ClCompile Include="dllmain.cpp" />
+    <ClCompile Include="manualdice.cpp" />
+    <ClCompile Include="manualDiceControl.cpp" />
     <ClCompile Include="messagepipeline.cpp" />
     <ClCompile Include="nickManager.cpp" />
     <ClCompile Include="QTool.cpp" />

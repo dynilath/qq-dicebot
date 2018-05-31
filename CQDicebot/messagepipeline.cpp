@@ -15,14 +15,44 @@
 #define CHECK_LASTLINE_FOR_ENDL(_Stream,_Flag) if (_Flag) {	_Flag = false;	_Stream << std::endl;}
 
 std::regex regex_filter_command_identifier("^ *. *(c|r|ns|n) *");
+//rename loudly
 std::regex regex_filter_rename("^ *. *n *");
+//rename silently
 std::regex regex_filter_rename_silence("^ *. *ns *");
+//regular dice
 std::regex regex_filter_normaldice("^ *. *r *");
+//coc7th customized dice
 std::regex regex_filter_cocdice("^ *. *c *");
+
+//TODO
+//macro, use macro to save a specific regular diceroll, like .m 4d6+4 my_biggest_trick
+//spaces are not allowed in macro names
 std::regex regex_filter_macro_dice("^ *. *m *");
+//use specific diceroll, like .rm my_biggest_trick
 std::regex regex_filter_use_macro("^ *. *rm *");
+//use specific diceroll, but the detail of rolling wont be displayed, only the result
+std::regex regex_filter_use_macro_silent("^ *. *rms *");
+
+//TODO
+//hand use die, create some realdice and keep them alive, for example ".h 4d8+5d6"
+//of course no plain numerical is allowed here 
+std::regex regex_filter_manual_dice("^ *. *h *");
+//roll specific one of hand use dice, .hr 4 will reroll the 4th of the 4 dice
+std::regex regex_filter_manual_roll("^ *. *hr *");
+//kill specific one of hand use dice, ".hk 1" will remove the 1st die
+//".hk" will kill them all, also will ".hk 1" when there is only 1 die left
+std::regex regex_filter_manual_kill("^ *. *hk *");
+
+//TODO
+//define result, if you use ".def 1 i like it", any dice roll you get a result of 1 will be shown as "i like it"
+std::regex regex_filter_def_result("^ *. *def *");
+//macro specific define result, it only apply to specific macro
+std::regex regex_filter_macro_def("^ *. *mdef *");
+
+
 std::regex regex_filter_full_dice("^(\\+|\\-)?((\\d*d\\d+((k|kl)\\d+)?)|\\d+)((\\+|\\-|\\*|/)((\\d*d\\d+((k|kl)\\d+)?)|\\d+))* *");
 std::regex regex_filter_coc_full_dice("^((p|b)\\d+)* *");
+std::regex regex_filter_manual_dice("^((\\+)?\\d*d\\d+)(\\+\\d*d\\d+)* *");
 
 bool group_message_pipeline(const int32_t i_AuthCode,const char * msg, const int64_t uint64_fromGroupOrDiscuss, const int64_t uint64_fromQQ,bool isfromGroup)
 {

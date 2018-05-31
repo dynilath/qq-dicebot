@@ -163,14 +163,29 @@ DiceRoller::DiceRoller(std::string & str_single_dice,int mode)
 				if (i_bp_count > 1) ostrs_dice_stream << " = d100" << (i_cal_pb > 0 ? "b" : "p") << (i_cal_pb > 0 ? i_cal_pb : -i_cal_pb);
 				ostrs_dice_stream << " = ";
 				DiceRoller dice_roll2(1, 10, 0);
+				if (dice_roll2.status != ROLL_STATUS_FINISHED) 
+				{ 
+					this->status = dice_roll2.status; 
+					return;
+				}
 				int i_dec_min = dice_roll2.i_sum_result == 0 ? 1 : 0;
 				DiceRoller dice_roll1(i_num_of_dice, 10, 1, is_keep_high, i_dec_min);
+				if (dice_roll1.status != ROLL_STATUS_FINISHED)
+				{
+					this->status = dice_roll1.status;
+					return;
+				}
 				ostrs_dice_stream << "[" << *(dice_roll1.str_detail_result) << "] ";
 				ostrs_dice_stream << "[" << *(dice_roll2.str_detail_result) << "]";
 				result = dice_roll1.i_sum_result * 10 + dice_roll2.i_sum_result;
 			}
 			else {
 				DiceRoller dice_roll(1, 100);
+				if (dice_roll.status != ROLL_STATUS_FINISHED)
+				{
+					this->status = dice_roll.status;
+					return;
+				}
 				result = dice_roll.i_sum_result;
 				//ostrs_dice_stream << *(dice_roll.str_detail_result);
 			}
@@ -214,6 +229,11 @@ DiceRoller::DiceRoller(std::string & str_single_dice,int mode)
 						int i_num_of_keep = i_num_of_die;
 						CHECK_DICE_LIMITS();
 						DiceRoller dr_diceRoll(i_num_of_die, i_face_of_die);
+						if (dr_diceRoll.status != ROLL_STATUS_FINISHED)
+						{
+							this->status = dr_diceRoll.status;
+							return;
+						}
 						CREATING_OUTPUT(ostrs_dice_stream, dr_diceRoll, i_single_dice_sign);
 					}
 					else {
@@ -223,12 +243,22 @@ DiceRoller::DiceRoller(std::string & str_single_dice,int mode)
 							FUNCTION_PARSE_DICE(str_single_dice, i_start_pos, i_pos_of_d, i_pos_of_k, i_pos_of_l);
 							CHECK_DICE_LIMITS();
 							DiceRoller dr_diceRoll(i_num_of_die, i_face_of_die, i_num_of_keep, false);
+							if (dr_diceRoll.status != ROLL_STATUS_FINISHED)
+							{
+								this->status = dr_diceRoll.status;
+								return;
+							}
 							CREATING_OUTPUT(ostrs_dice_stream, dr_diceRoll, i_single_dice_sign);
 						}
 						else {
 							FUNCTION_PARSE_DICE(str_single_dice, i_start_pos, i_pos_of_d, i_pos_of_k, i_pos_of_l);
 							CHECK_DICE_LIMITS();
 							DiceRoller dr_diceRoll(i_num_of_die, i_face_of_die, i_num_of_keep, true);
+							if (dr_diceRoll.status != ROLL_STATUS_FINISHED)
+							{
+								this->status = dr_diceRoll.status;
+								return;
+							}
 							CREATING_OUTPUT(ostrs_dice_stream, dr_diceRoll, i_single_dice_sign);
 						}
 					}
