@@ -20,6 +20,7 @@ nickManager::nickManager() noexcept
 	databaseManager * databaseControl = databaseManager::getInstance();
 	int i_ret_code = databaseControl->registerTable(NICK_TABLE_NAME, NICK_TABLE_DEFINE);
 	is_no_sql_mode = i_ret_code != SQLITE_OK;
+	map_nickname_cache = new std::map<std::pair<int64_t, int64_t>, std::string>();
 	if (nickManager::instance != nullptr) {
 		delete(nickManager::instance);
 	}
@@ -29,6 +30,7 @@ nickManager::nickManager() noexcept
 
 nickManager::~nickManager()
 {
+	delete(this->map_nickname_cache);
 	if (nickManager::instance == this) {
 		nickManager::instance = nullptr;
 	}
@@ -37,14 +39,14 @@ nickManager::~nickManager()
 void nickManager::getNickName(const int i_AuthCode, const int64_t fromGroupOrDiscuss, const int64_t fromQQ, std::string & nickname,bool isfromGroup)
 {
 	sqlite3 * database = databaseManager::getDatabase();
-	std::map<std::pair<int64_t, int64_t>, std::string>::iterator iter_map_nick =  map_nickname_cache.find(std::pair<int64_t, int64_t>(fromQQ, fromGroupOrDiscuss));
-	if (iter_map_nick != map_nickname_cache.end()) {
+	std::map<std::pair<int64_t, int64_t>, std::string>::iterator iter_map_nick =  map_nickname_cache->find(std::pair<int64_t, int64_t>(fromQQ, fromGroupOrDiscuss));
+	if (iter_map_nick != map_nickname_cache->end()) {
 		nickname = (*iter_map_nick).second;
 	}
 	else {
 		if (is_no_sql_mode) {
 			if (CQTool::getDefaultName(i_AuthCode, fromGroupOrDiscuss, fromQQ, nickname, isfromGroup)) {
-				map_nickname_cache.insert(std::pair<std::pair<int64_t, int64_t>, std::string>(std::pair<int64_t, int64_t>(fromQQ, fromGroupOrDiscuss), nickname));
+				map_nickname_cache->insert(std::pair<std::pair<int64_t, int64_t>, std::string>(std::pair<int64_t, int64_t>(fromQQ, fromGroupOrDiscuss), nickname));
 			}
 		}
 		else {
@@ -56,7 +58,7 @@ void nickManager::getNickName(const int i_AuthCode, const int64_t fromGroupOrDis
 			if (ret_code == SQLITE_OK) {
 				if (str_nick_endcoded.length() > 0) {
 					Base64::Decode(str_nick_endcoded, &nickname);
-					map_nickname_cache.insert(std::pair<std::pair<int64_t, int64_t>, std::string>(std::pair<int64_t, int64_t>(fromQQ, fromGroupOrDiscuss), nickname));
+					map_nickname_cache->insert(std::pair<std::pair<int64_t, int64_t>, std::string>(std::pair<int64_t, int64_t>(fromQQ, fromGroupOrDiscuss), nickname));
 				}
 				else {
 					CQTool::getDefaultName(i_AuthCode, fromGroupOrDiscuss, fromQQ, nickname, isfromGroup);
@@ -76,12 +78,12 @@ void nickManager::getNickName(const int i_AuthCode, const int64_t fromGroupOrDis
 void nickManager::setNickName(const int i_AuthCode, const int64_t fromGroupOrDiscuss, const int64_t fromQQ, const std::string & nickname,bool isfromGroup)
 {
 	sqlite3 * database = databaseManager::getDatabase();
-	std::map<std::pair<int64_t, int64_t>, std::string>::iterator iter_map_nick = map_nickname_cache.find(std::pair<int64_t, int64_t>(fromQQ, fromGroupOrDiscuss));
-	if (iter_map_nick != map_nickname_cache.end()) {
+	std::map<std::pair<int64_t, int64_t>, std::string>::iterator iter_map_nick = map_nickname_cache->find(std::pair<int64_t, int64_t>(fromQQ, fromGroupOrDiscuss));
+	if (iter_map_nick != map_nickname_cache->end()) {
 		(*iter_map_nick).second = nickname;
 	}
 	else {
-		map_nickname_cache.insert(std::pair<std::pair<int64_t, int64_t>, std::string>(std::pair<int64_t, int64_t>(fromQQ, fromGroupOrDiscuss), nickname));
+		map_nickname_cache->insert(std::pair<std::pair<int64_t, int64_t>, std::string>(std::pair<int64_t, int64_t>(fromQQ, fromGroupOrDiscuss), nickname));
 	}
 
 	if (!is_no_sql_mode) {
