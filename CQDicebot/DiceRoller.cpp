@@ -54,11 +54,10 @@ DiceRoller::~DiceRoller()
 {
 	if (this->pstr_detail_result != nullptr)
 		delete(this->pstr_detail_result);
-	if (pstr_detail_result != nullptr)
-		delete(pstr_detail_result);
 }
 
 DiceRoller::DiceRoller(int val1_i_num_of_dice, int val2_num_of_face, int start_value) {
+	this->status = ROLL_STATUS_UNINITIALIZED;
 	RANDOMIZE(val2_num_of_face, start_value);
 	int i_result_sum = 0;
 	std::ostringstream ostrs_dice_stream(std::ostringstream::ate);
@@ -72,9 +71,11 @@ DiceRoller::DiceRoller(int val1_i_num_of_dice, int val2_num_of_face, int start_v
 	}
 	this->pstr_detail_result = new std::string(ostrs_dice_stream.str());
 	this->i_sum_result = i_result_sum;
+	if (this->status == ROLL_STATUS_UNINITIALIZED) this->status = ROLL_STATUS_FINISHED;
 }
 
 DiceRoller::DiceRoller(int num_of_dice, int num_of_face, int keep, bool is_keeping_high, int start_value) {
+	this->status = ROLL_STATUS_UNINITIALIZED;
 	if (keep >= num_of_dice) {
 		DiceRoller dice(num_of_dice, num_of_face, start_value);
 		this->pstr_detail_result = new std::string(*dice.pstr_detail_result);
@@ -124,6 +125,7 @@ DiceRoller::DiceRoller(int num_of_dice, int num_of_face, int keep, bool is_keepi
 		this->pstr_detail_result = new std::string(ostrs_dice_stream.str());
 		this->i_sum_result = i_result_sum;
 	}
+	if (this->status == ROLL_STATUS_UNINITIALIZED) this->status = ROLL_STATUS_FINISHED;
 }
 
 //inputs regex (\\+|\\-)?(\\d*d\\d+((k|kl)\\d+)?)|(\\d+)

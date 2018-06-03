@@ -64,6 +64,9 @@
     <ClInclude Include="manualDiceControl.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="encoder.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Library Include="CQP.lib">
@@ -115,6 +118,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="manualDiceControl.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="encoder.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

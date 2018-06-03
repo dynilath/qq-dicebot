@@ -13,12 +13,13 @@
 #include "nickManager.h"
 #include "utility.h"
 #include "diceroller.h"
-
+#include "manualDiceControl.h"
 int32_t i_AuthCode = -1; //AuthCode 调用酷Q的方法时需要用到
 bool enabled = false;
 
 nickManager * nickCtrl;
 databaseManager * dbCtrl;
+manualDiceManager * mdCtrl;
 /* 
 * 返回应用的ApiVer、Appid，打包后将不会调用
 */
@@ -50,7 +51,7 @@ CQEVENT(int32_t, __eventEnable, 0)() {
 	createDir(APP_DIR);
 	dbCtrl = new databaseManager();
 	nickCtrl = new nickManager();
-	
+	mdCtrl = new manualDiceManager();
 	return 0;
 }
 
@@ -63,6 +64,7 @@ CQEVENT(int32_t, __eventEnable, 0)() {
 */
 CQEVENT(int32_t, __eventDisable, 0)() {
 	enabled = false;
+	delete(mdCtrl);
 	delete(nickCtrl);
 	delete(dbCtrl);
 	return 0;

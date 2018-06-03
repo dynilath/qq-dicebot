@@ -2,6 +2,7 @@
 #include "CppUnitTest.h"
 #include "..\CQDicebot\diceroller.h"
 #include "..\CQDicebot\diceSpliter.h"
+#include "..\CQDicebot\manualdice.h"
 #include <string>
 #include <iostream>
 
@@ -148,6 +149,27 @@ namespace UnitTest
 			bool avail = baseSplitDice(input, output);
 			Assert::IsTrue(avail);
 			Assert::IsTrue(output == "1+2*3/4+3*2 = 1 + 2 * 3 / 4 + 3 * 2 = 8.5");
+			std::cout << "detail : " << output;
+		}
+		
+		TEST_METHOD(ManualDiceTest1)
+		{
+			std::cout << ">>test 10 : manualDice(\"4d6\");" << std::endl;
+			std::string input("4d6");
+			std::string output;
+			manualDice md = manualDice("4d6");
+
+			int res1 = md.i_sum_result;
+
+			Assert::IsTrue(md.status == ROLL_STATUS_FINISHED);
+
+			output = md.endcode();
+			Assert::IsTrue(output.length() > 0);
+
+			md.decode(output);
+			Assert::IsTrue(res1 == md.i_sum_result);
+
+
 			std::cout << "detail : " << output;
 		}
 	};

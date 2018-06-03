@@ -13,6 +13,7 @@ public:
 	manualDice(const std::string & source);
 	void roll(const std::string & source);
 	void kill(const std::string & source);
+	void add(const std::string & source);
 	std::string endcode();
 	std::string ToString();
 	int status;
