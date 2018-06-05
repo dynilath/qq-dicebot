@@ -115,3 +115,4 @@ Just a simple dicebot for coolq in development.<br>
 所有的骰子指令支持多行输入<br> 
 骰子指令的头部.r可以任意填充空格，例如"      .    r     1d20"也是有效的<br> 
 骰子用昵称每个群每个qq不同，保存在数据库不会断电丢失<br> 
+手动骰子的数据也保存在数据库，并且每个群每个qq不同<br>
