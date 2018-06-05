@@ -18,9 +18,9 @@ if (i_face_of_die > MAX_DICE_FACE || i_num_of_keep > MAX_DICE_FACE || i_num_of_d
 }
 
 #define CREATING_OUTPUT(_Stream,_DiceRoll,_Sign) \
-_Stream << "(" << *(_DiceRoll.str_detail_result) << ")";\
+_Stream << "(" << *(_DiceRoll.pstr_detail_result) << ")";\
 this->i_sum_result = _DiceRoll.i_sum_result * _Sign;\
-this->str_detail_result = new std::string(_Stream.str())
+this->pstr_detail_result = new std::string(_Stream.str())
 
 #define RANDOMIZE(_Max,_Min)\
 std::random_device rd_generator;\
@@ -52,11 +52,12 @@ DiceRoller::DiceRoller() noexcept
 
 DiceRoller::~DiceRoller()
 {
-	if (str_detail_result != nullptr)
-		delete(str_detail_result);
+	if (this->pstr_detail_result != nullptr)
+		delete(this->pstr_detail_result);
 }
 
 DiceRoller::DiceRoller(int val1_i_num_of_dice, int val2_num_of_face, int start_value) {
+	this->status = ROLL_STATUS_UNINITIALIZED;
 	RANDOMIZE(val2_num_of_face, start_value);
 	int i_result_sum = 0;
 	std::ostringstream ostrs_dice_stream(std::ostringstream::ate);
@@ -68,14 +69,16 @@ DiceRoller::DiceRoller(int val1_i_num_of_dice, int val2_num_of_face, int start_v
 		ostrs_dice_stream << i_step_result;
 		if ((--val1_i_num_of_dice) > 0) ostrs_dice_stream << " + ";
 	}
-	this->str_detail_result = new std::string(ostrs_dice_stream.str());
+	this->pstr_detail_result = new std::string(ostrs_dice_stream.str());
 	this->i_sum_result = i_result_sum;
+	if (this->status == ROLL_STATUS_UNINITIALIZED) this->status = ROLL_STATUS_FINISHED;
 }
 
 DiceRoller::DiceRoller(int num_of_dice, int num_of_face, int keep, bool is_keeping_high, int start_value) {
+	this->status = ROLL_STATUS_UNINITIALIZED;
 	if (keep >= num_of_dice) {
 		DiceRoller dice(num_of_dice, num_of_face, start_value);
-		this->str_detail_result = new std::string(*dice.str_detail_result);
+		this->pstr_detail_result = new std::string(*dice.pstr_detail_result);
 		this->i_sum_result = dice.i_sum_result;
 	}
 	else {
@@ -119,9 +122,10 @@ DiceRoller::DiceRoller(int num_of_dice, int num_of_face, int keep, bool is_keepi
 			}
 			if (i_iter + 1 < num_of_dice) ostrs_dice_stream << " + ";
 		}
-		this->str_detail_result = new std::string(ostrs_dice_stream.str());
+		this->pstr_detail_result = new std::string(ostrs_dice_stream.str());
 		this->i_sum_result = i_result_sum;
 	}
+	if (this->status == ROLL_STATUS_UNINITIALIZED) this->status = ROLL_STATUS_FINISHED;
 }
 
 //inputs regex (\\+|\\-)?(\\d*d\\d+((k|kl)\\d+)?)|(\\d+)
@@ -163,14 +167,29 @@ DiceRoller::DiceRoller(std::string & str_single_dice,int mode)
 				if (i_bp_count > 1) ostrs_dice_stream << " = d100" << (i_cal_pb > 0 ? "b" : "p") << (i_cal_pb > 0 ? i_cal_pb : -i_cal_pb);
 				ostrs_dice_stream << " = ";
 				DiceRoller dice_roll2(1, 10, 0);
+				if (dice_roll2.status != ROLL_STATUS_FINISHED) 
+				{ 
+					this->status = dice_roll2.status; 
+					return;
+				}
 				int i_dec_min = dice_roll2.i_sum_result == 0 ? 1 : 0;
 				DiceRoller dice_roll1(i_num_of_dice, 10, 1, is_keep_high, i_dec_min);
-				ostrs_dice_stream << "[" << *(dice_roll1.str_detail_result) << "] ";
-				ostrs_dice_stream << "[" << *(dice_roll2.str_detail_result) << "]";
+				if (dice_roll1.status != ROLL_STATUS_FINISHED)
+				{
+					this->status = dice_roll1.status;
+					return;
+				}
+				ostrs_dice_stream << "[" << *(dice_roll1.pstr_detail_result) << "] ";
+				ostrs_dice_stream << "[" << *(dice_roll2.pstr_detail_result) << "]";
 				result = dice_roll1.i_sum_result * 10 + dice_roll2.i_sum_result;
 			}
 			else {
 				DiceRoller dice_roll(1, 100);
+				if (dice_roll.status != ROLL_STATUS_FINISHED)
+				{
+					this->status = dice_roll.status;
+					return;
+				}
 				result = dice_roll.i_sum_result;
 				//ostrs_dice_stream << *(dice_roll.str_detail_result);
 			}
@@ -179,7 +198,7 @@ DiceRoller::DiceRoller(std::string & str_single_dice,int mode)
 			this->status = ROLL_STATUS_DICE_NOT_AVAILABLE;
 		}
 		this->i_sum_result = result;
-		this->str_detail_result = new std::string(ostrs_dice_stream.str());
+		this->pstr_detail_result = new std::string(ostrs_dice_stream.str());
 		if (this->status == ROLL_STATUS_UNINITIALIZED) this->status = ROLL_STATUS_FINISHED;
 	}
 	else if (mode == ROLL_MODE_DND_DK) {
@@ -204,7 +223,7 @@ DiceRoller::DiceRoller(std::string & str_single_dice,int mode)
 					int result = std::stoi(str_single_dice.substr(i_start_pos));
 					this->i_sum_result = result * i_single_dice_sign;
 					ostrs_dice_stream << result;
-					this->str_detail_result = new std::string(ostrs_dice_stream.str());
+					this->pstr_detail_result = new std::string(ostrs_dice_stream.str());
 				}
 				else {
 					int i_pos_of_k = str_single_dice.find('k');
@@ -214,6 +233,11 @@ DiceRoller::DiceRoller(std::string & str_single_dice,int mode)
 						int i_num_of_keep = i_num_of_die;
 						CHECK_DICE_LIMITS();
 						DiceRoller dr_diceRoll(i_num_of_die, i_face_of_die);
+						if (dr_diceRoll.status != ROLL_STATUS_FINISHED)
+						{
+							this->status = dr_diceRoll.status;
+							return;
+						}
 						CREATING_OUTPUT(ostrs_dice_stream, dr_diceRoll, i_single_dice_sign);
 					}
 					else {
@@ -223,12 +247,22 @@ DiceRoller::DiceRoller(std::string & str_single_dice,int mode)
 							FUNCTION_PARSE_DICE(str_single_dice, i_start_pos, i_pos_of_d, i_pos_of_k, i_pos_of_l);
 							CHECK_DICE_LIMITS();
 							DiceRoller dr_diceRoll(i_num_of_die, i_face_of_die, i_num_of_keep, false);
+							if (dr_diceRoll.status != ROLL_STATUS_FINISHED)
+							{
+								this->status = dr_diceRoll.status;
+								return;
+							}
 							CREATING_OUTPUT(ostrs_dice_stream, dr_diceRoll, i_single_dice_sign);
 						}
 						else {
 							FUNCTION_PARSE_DICE(str_single_dice, i_start_pos, i_pos_of_d, i_pos_of_k, i_pos_of_l);
 							CHECK_DICE_LIMITS();
 							DiceRoller dr_diceRoll(i_num_of_die, i_face_of_die, i_num_of_keep, true);
+							if (dr_diceRoll.status != ROLL_STATUS_FINISHED)
+							{
+								this->status = dr_diceRoll.status;
+								return;
+							}
 							CREATING_OUTPUT(ostrs_dice_stream, dr_diceRoll, i_single_dice_sign);
 						}
 					}

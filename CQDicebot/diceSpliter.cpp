@@ -51,7 +51,7 @@ bool baseSplitDice(const std::string & str_input, std::string & str_output) {
 		i_dice_result = dr_single_dice.i_sum_result;
 
 
-		ostrs_dice_stream << *(dr_single_dice.str_detail_result);
+		ostrs_dice_stream << *(dr_single_dice.pstr_detail_result);
 		str_input_copy = matchList_single_dice.suffix().str();
 
 		if (i_dice_cal_type == PCAL_TYPE_MUL) {
