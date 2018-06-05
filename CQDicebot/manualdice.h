@@ -14,6 +14,7 @@ public:
 	void roll(const std::string & source);
 	void kill(const std::string & source);
 	void add(const std::string & source);
+	void killall();
 	std::string endcode();
 	std::string ToString();
 	int status;

@@ -12,12 +12,13 @@ class manualDiceManager
 public:
 	static manualDiceManager * instance;
 	TYPE_MAP_MANUALDICE * map_manualdicemap;
-	std::string * str_detail_string;
 	manualDiceManager();
 	~manualDiceManager();
 	manualDice * createManualDice(const int64_t i_QQID, const int64_t i_QQGroupID, const std::string & command);
 	manualDice * rollManualDice(const int64_t i_QQID, const int64_t i_QQGroupID, const std::string & command);
 	manualDice * killManualDice(const int64_t i_QQID, const int64_t i_QQGroupID, const std::string & command);
 	manualDice * addManualDice(const int64_t i_QQID, const int64_t i_QQGroupID, const std::string & command);
+	manualDice * killallManualDice(const int64_t i_QQID, const int64_t i_QQGroupID);
+	static int sqlite3_callback_query_manualdice(void * data, int argc, char ** argv, char ** azColName);
 };
 

@@ -17,7 +17,7 @@
 
 #define CHECK_LASTLINE_FOR_ENDL(_Stream,_Flag) if (_Flag) {	_Flag = false;	_Stream << std::endl;}
 
-std::regex regex_filter_command_identifier("^ *\\. *(ha|hk|hr|h|c|r|ns|n) *");
+std::regex regex_filter_command_identifier("^ *\\. *(hka|ha|hk|hr|h|c|r|ns|n) *");
 //rename loudly
 std::regex regex_filter_rename("^ *\\. *n *");
 //rename silently
@@ -46,6 +46,7 @@ std::regex regex_filter_manual_roll("^ *\\. *hr *");
 //".hk" will kill them all, also will ".hk 1" when there is only 1 die left
 std::regex regex_filter_manual_kill("^ *\\. *hk *");
 std::regex regex_filter_manual_add("^ *\\. *ha *");
+std::regex regex_filter_manual_killall("^ *\\. *hka *");
 
 //TODO
 //define result, if you use ".def 1 i like it", any dice roll you get a result of 1 will be shown as "i like it"
@@ -163,33 +164,60 @@ bool group_message_pipeline(const int32_t i_AuthCode,const char * msg, const int
 				continue;
 			}
 		}
-		std::smatch matchlist_manualdice_add;
-		std::regex_search((*iterator_sources), matchlist_manualdice_add, regex_filter_manual_add);
-		if (matchlist_manualdice_add.begin() != matchlist_manualdice_add.end()) {
-			std::string str_full_command = matchlist_manualdice_add.suffix().str();
-			std::smatch matchList_roll_match;
-			std::regex_search(str_full_command, matchList_roll_match, regex_filter_manual_full_dice);
-			if (matchList_roll_match.begin() != matchList_roll_match.end()) {
-				std::string str_command = matchList_roll_match.str();
-				std::string str_roll_message = matchList_roll_match.suffix().str();
-				removeSpaceAndTab(str_command);
 
-				manualDice * md_manualdice = manualDiceManager::instance->rollManualDice(uint64_fromQQ, uint64_fromGroupOrDiscuss, str_command);
-				if ((*md_manualdice).status == ROLL_STATUS_FINISHED) {
-					CHECK_LASTLINE_FOR_ENDL(ostrs_output_stream, does_last_line_have_output);
+		{
+			std::smatch matchlist_manualdice_add;
+			std::regex_search((*iterator_sources), matchlist_manualdice_add, regex_filter_manual_add);
+			if (matchlist_manualdice_add.begin() != matchlist_manualdice_add.end()) {
+				std::string str_full_command = matchlist_manualdice_add.suffix().str();
+				std::smatch matchList_roll_match;
+				std::regex_search(str_full_command, matchList_roll_match, regex_filter_manual_full_dice);
+				if (matchList_roll_match.begin() != matchList_roll_match.end()) {
+					std::string str_command = matchList_roll_match.str();
+					std::string str_roll_message = matchList_roll_match.suffix().str();
+					removeSpaceAndTab(str_command);
 
-					std::string nickname;
-					(nickManager::instance)->getNickName(i_AuthCode, uint64_fromGroupOrDiscuss, uint64_fromQQ, nickname, isfromGroup);
-					ostrs_output_stream << " * " << nickname << " " << str_roll_message;
-					ostrs_output_stream << " 在桌上增加了这些骰子: " << str_command;
-					ostrs_output_stream << "当前状态: " << md_manualdice->ToString();
-					is_output_available = true;
-					does_last_line_have_output = true;
+					manualDice * md_manualdice = manualDiceManager::instance->addManualDice(uint64_fromQQ, uint64_fromGroupOrDiscuss, str_command);
+					if ((*md_manualdice).status == ROLL_STATUS_FINISHED) {
+						CHECK_LASTLINE_FOR_ENDL(ostrs_output_stream, does_last_line_have_output);
 
+						std::string nickname;
+						(nickManager::instance)->getNickName(i_AuthCode, uint64_fromGroupOrDiscuss, uint64_fromQQ, nickname, isfromGroup);
+						ostrs_output_stream << " * " << nickname << " " << str_roll_message;
+						ostrs_output_stream << " 在桌上增加了这些骰子: " << str_command;
+						ostrs_output_stream << " 当前状态: " << md_manualdice->ToString();
+						is_output_available = true;
+						does_last_line_have_output = true;
+
+					}
 				}
+				continue;
 			}
+		}
+
+		std::smatch matchlist_manualdice_killall;
+		std::regex_search((*iterator_sources), matchlist_manualdice_killall, regex_filter_manual_killall);
+		if (matchlist_manualdice_killall.begin() != matchlist_manualdice_killall.end()) {
+
+			std::string str_roll_message = matchlist_manualdice_killall.suffix().str();
+
+			manualDice * md_manualdice = manualDiceManager::instance->killallManualDice(uint64_fromQQ, uint64_fromGroupOrDiscuss);
+			if ((*md_manualdice).status == ROLL_STATUS_FINISHED) {
+				CHECK_LASTLINE_FOR_ENDL(ostrs_output_stream, does_last_line_have_output);
+
+				std::string nickname;
+				(nickManager::instance)->getNickName(i_AuthCode, uint64_fromGroupOrDiscuss, uint64_fromQQ, nickname, isfromGroup);
+				ostrs_output_stream << " * " << nickname << " " << str_roll_message;
+				ostrs_output_stream << " 杀掉了所有的骰子 ";
+				ostrs_output_stream << "当前状态: " << md_manualdice->ToString();
+				is_output_available = true;
+				does_last_line_have_output = true;
+
+			}
+
 			continue;
 		}
+
 		std::smatch matchlist_manualdice_kill;
 		std::regex_search((*iterator_sources), matchlist_manualdice_kill, regex_filter_manual_kill);
 		if (matchlist_manualdice_kill.begin() != matchlist_manualdice_kill.end()) {

@@ -64,9 +64,9 @@ CQEVENT(int32_t, __eventEnable, 0)() {
 */
 CQEVENT(int32_t, __eventDisable, 0)() {
 	enabled = false;
-	delete(mdCtrl);
-	delete(nickCtrl);
-	delete(dbCtrl);
+	if (mdCtrl != nullptr) delete(mdCtrl);
+	if (nickCtrl != nullptr) delete(nickCtrl);
+	if (dbCtrl != nullptr) delete(dbCtrl);
 	return 0;
 }
 

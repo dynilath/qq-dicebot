@@ -68,7 +68,10 @@ void manualDice::roll(const std::string & source)
 	this->status = ROLL_STATUS_UNINITIALIZED;
 	try {
 		unsigned int target = std::stoi(source) - 1;
-		if (target > this->pintlist_dice->size()) return;
+		if (target > this->pintlist_dice->size()) { 
+			this->status = ROLL_STATUS_FINISHED;
+			return; 
+		}
 		else if (target < 0) return;
 		TYPE_LIST_DICE::iterator iter_list = this->pintlist_dice->begin() + target;
 		int i_face_of_die = (*iter_list).first;
@@ -92,7 +95,10 @@ void manualDice::kill(const std::string & source)
 	this->status = ROLL_STATUS_UNINITIALIZED;
 	try{
 		unsigned int target = std::stoi(source) -1;
-		if (target >= this->pintlist_dice->size()) return;
+		if (target >= this->pintlist_dice->size()) {
+			this->status = ROLL_STATUS_FINISHED;
+			return;
+		}
 		else if (target < 0) return;
 		TYPE_LIST_DICE::iterator iter_list = (this->pintlist_dice->begin()) + target;
 		i_sum_result -= (*iter_list).second;
@@ -140,6 +146,19 @@ void manualDice::add(const std::string & source)
 		if (i_max_unit_alert == MAX_DICE_UNIT_COUNT) {
 			this->status = ROLL_STATUS_TOO_MANY_DICE;
 		}
+	}
+	catch (const std::invalid_argument& ia) {
+		this->status = ROLL_STATUS_DICE_NOT_AVAILABLE;
+	}
+}
+
+void manualDice::killall()
+{
+	this->status = ROLL_STATUS_UNINITIALIZED;
+	try {
+		this->pintlist_dice->clear();
+		this->i_sum_result = 0;
+		if (this->status == ROLL_STATUS_UNINITIALIZED) this->status = ROLL_STATUS_FINISHED;
 	}
 	catch (const std::invalid_argument& ia) {
 		this->status = ROLL_STATUS_DICE_NOT_AVAILABLE;
