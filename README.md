@@ -87,7 +87,7 @@ Just a simple dicebot for coolq in development.<br>
  * goubi 简单一点 掷骰: d100 = 64</code></pre>
 <br> 
 
-6.手动骰子<br> 
+7.手动骰子<br> 
 >输入
 
 <pre><code>.ns手动骰子测试
