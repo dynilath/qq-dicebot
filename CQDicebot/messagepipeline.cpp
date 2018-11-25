@@ -7,11 +7,12 @@
 #include "manual_dice_control.h"
 
 #include "nick_manager.h"
+#include "dice_protocols_manager.h"
 
 #include "cqp.h"
 #include "QTool.h"
 #include "dice_spliter.h"
-#include <regex>
+
 #include <iostream>
 
 #include "messagepipeline.h"
@@ -38,7 +39,7 @@ std::regex regex_filter_macro_def("^ *\\. *mdef *");
 #define CHECK_LASTLINE_FOR_ENDL(_Stream,_Flag) if (_Flag) {	_Flag = false;	_Stream << std::endl;}
 
 bool group_message_pipeline(
-	std::vector<dice_protocol * > * diceProtocols,
+	dice_protocols_manager * dice_protocols,
 	const int32_t i_AuthCode,
 	const char * msg, 
 	const int64_t uint64_fromGroupOrDiscuss, 
@@ -59,33 +60,27 @@ bool group_message_pipeline(
 	bool does_last_line_have_output = false;
 
 	for (; iterator_sources != source_splits.end(); iterator_sources++) {
-
-		std::vector<dice_protocol * >::iterator iter_protocals = diceProtocols->begin();
 		std::smatch matchList_command_identifier_match;
-		std::regex_search((*iterator_sources), matchList_command_identifier_match, regex_filter_command_identifier);
+		std::regex_search((*iterator_sources), matchList_command_identifier_match, *(dice_protocols->get_regex_command()));
 		if (matchList_command_identifier_match.begin() == matchList_command_identifier_match.end()) continue;
 
-		bool go_next_line = false;
-		for (; iter_protocals != diceProtocols->end(); iter_protocals++) {
-			std::string command = matchList_command_identifier_match[1];
-			if (!((*iter_protocals)->get_identifier().compare(command))) {
-				std::string response = (*iter_protocals)->resolve_request(
-					matchList_command_identifier_match.suffix().str(),
-					i_AuthCode,
-					uint64_fromGroupOrDiscuss,
-					uint64_fromQQ,
-					isfromGroup
-				);
-				if (response.size() > 0) {
-					if (is_output_available) ostrs_output_stream << std::endl;
-					ostrs_output_stream << response;
-					is_output_available = true;
-				}
-				break;
-				go_next_line = true;
-			}
+		std::string command = matchList_command_identifier_match[1];
+		dice_protocol * target_protocol = dice_protocols->get_protocol(command);
+
+		std::string response = target_protocol->resolve_request(
+			matchList_command_identifier_match.suffix().str(),
+			i_AuthCode,
+			uint64_fromGroupOrDiscuss,
+			uint64_fromQQ,
+			isfromGroup
+		);
+		if (response.size() > 0) {
+			if (is_output_available) ostrs_output_stream << std::endl;
+			ostrs_output_stream << response;
+			is_output_available = true;
+			continue;
 		}
-		if (go_next_line) continue;
+
 	}
 	if (is_output_available) {
 		if(isfromGroup)	CQ_sendGroupMsg(i_AuthCode, uint64_fromGroupOrDiscuss, ostrs_output_stream.str().c_str());

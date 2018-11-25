@@ -122,6 +122,7 @@ copy "$(ProjectDir)com.dynilath.coolqdicebot.json" "$(SolutionDir)酷Q Air\app\"
     <ClInclude Include="database_manager.h" />
     <ClInclude Include="dice_protocol.h" />
     <ClInclude Include="diceroller.h" />
+    <ClInclude Include="dice_protocols_manager.h" />
     <ClInclude Include="dice_spliter.h" />
     <ClInclude Include="encoder.h" />
     <ClInclude Include="include\sqlite3.h" />
@@ -147,6 +148,7 @@ copy "$(ProjectDir)com.dynilath.coolqdicebot.json" "$(SolutionDir)酷Q Air\app\"
     <Library Include="lib_Release\sqlite3.lib" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\.travis.yml" />
     <None Include="..\README.md" />
     <None Include="com.dynilath.coolqdicebot.json" />
   </ItemGroup>
@@ -155,6 +157,7 @@ copy "$(ProjectDir)com.dynilath.coolqdicebot.json" "$(SolutionDir)酷Q Air\app\"
     <ClCompile Include="database_manager.cpp" />
     <ClCompile Include="dice_protocol.cpp" />
     <ClCompile Include="diceroller.cpp" />
+    <ClCompile Include="dice_protocols_manager.cpp" />
     <ClCompile Include="dice_spliter.cpp" />
     <ClCompile Include="dllmain.cpp" />
     <ClCompile Include="encoder.cpp" />
