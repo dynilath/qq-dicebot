@@ -6,18 +6,18 @@
 
 std::regex regex_filter_manual_dice_part("^((\\+)?\\d*d\\d+)");
 
-manualDice::manualDice()
+manual_dice::manual_dice()
 {
 	pintlist_dice = new TYPE_LIST_DICE();
 	i_sum_result = 0; 
 }
 
 
-manualDice::~manualDice()
+manual_dice::~manual_dice()
 {
 }
 
-manualDice::manualDice(const std::string & source)
+manual_dice::manual_dice(const std::string & source)
 {
 	this->pintlist_dice = new TYPE_LIST_DICE();
 	i_sum_result = 0;
@@ -37,7 +37,7 @@ manualDice::manualDice(const std::string & source)
 					int i_face_of_die = std::stoi(command.substr(i_pos_of_d + 1));
 					
 					for (int i_iter = 0; i_iter < i_num_of_die; i_iter++) {
-						DiceRoller dice(1, i_face_of_die);
+						dice_roller dice(1, i_face_of_die);
 						if (dice.status != ROLL_STATUS_FINISHED) {
 							this->status = dice.status;
 							return;
@@ -63,7 +63,7 @@ manualDice::manualDice(const std::string & source)
 	if (this->status == ROLL_STATUS_UNINITIALIZED) this->status = ROLL_STATUS_FINISHED;
 }
 
-void manualDice::roll(const std::string & source)
+void manual_dice::roll(const std::string & source)
 {
 	this->status = ROLL_STATUS_UNINITIALIZED;
 	try {
@@ -76,7 +76,7 @@ void manualDice::roll(const std::string & source)
 		TYPE_LIST_DICE::iterator iter_list = this->pintlist_dice->begin() + target;
 		int i_face_of_die = (*iter_list).first;
 		i_sum_result -= (*iter_list).second;
-		DiceRoller dice(1, i_face_of_die);
+		dice_roller dice(1, i_face_of_die);
 		if (dice.status != ROLL_STATUS_FINISHED){
 			this->status = dice.status;
 			return;
@@ -90,7 +90,7 @@ void manualDice::roll(const std::string & source)
 	}
 }
 
-void manualDice::kill(const std::string & source)
+void manual_dice::kill(const std::string & source)
 {
 	this->status = ROLL_STATUS_UNINITIALIZED;
 	try{
@@ -110,7 +110,7 @@ void manualDice::kill(const std::string & source)
 	}
 }
 
-void manualDice::add(const std::string & source)
+void manual_dice::add(const std::string & source)
 {
 	try {
 		std::string str_source_copy(source);
@@ -127,7 +127,7 @@ void manualDice::add(const std::string & source)
 					int i_face_of_die = std::stoi(command.substr(i_pos_of_d + 1));
 
 					for (int i_iter = 0; i_iter < i_num_of_die; i_iter++) {
-						DiceRoller dice(1, i_face_of_die);
+						dice_roller dice(1, i_face_of_die);
 						if (dice.status != ROLL_STATUS_FINISHED) {
 							this->status = dice.status;
 							return;
@@ -152,7 +152,7 @@ void manualDice::add(const std::string & source)
 	}
 }
 
-void manualDice::killall()
+void manual_dice::killall()
 {
 	this->status = ROLL_STATUS_UNINITIALIZED;
 	try {
@@ -165,7 +165,7 @@ void manualDice::killall()
 	}
 }
 
-std::string manualDice::endcode()
+std::string manual_dice::endcode()
 {
 	encoder enc_encoder;
 
@@ -178,7 +178,7 @@ std::string manualDice::endcode()
 	return std::string(enc_encoder.getBase64());
 }
 
-void manualDice::decode(std::string & source)
+void manual_dice::decode(std::string & source)
 {
 	std::string source_copy(source);
 	if (this->pintlist_dice != nullptr) delete(this->pintlist_dice);
@@ -196,7 +196,7 @@ void manualDice::decode(std::string & source)
 	}
 }
 
-std::string manualDice::ToString()
+std::string manual_dice::ToString()
 {
 	std::ostringstream ostrs_result(std::ostringstream::ate);
 	int i_sum_result = 0;

@@ -1,5 +1,5 @@
 #include "stdafx.h"
-#include "DiceRoller.h"
+#include "diceroller.h"
 #include "utility.h"
 #include <random>
 #include <vector>
@@ -25,38 +25,38 @@ this->pstr_detail_result = new std::string(_Stream.str())
 #define RANDOMIZE(_Max,_Min)\
 std::random_device rd_generator;\
 std::mt19937 mt_generator(ulong_prand_seed);\
-if (DiceRoller::is_using_pseudo_random) mt_generator.discard(ulong_prand_stage);\
+if (dice_roller::is_using_pseudo_random) mt_generator.discard(ulong_prand_stage);\
 std::uniform_int_distribution<> dice(_Min, _Max + _Min - 1)
 
 #define RANDOM(_Target)\
-if (DiceRoller::is_using_pseudo_random) { _Target = dice(mt_generator); ulong_prand_stage++;}\
+if (dice_roller::is_using_pseudo_random) { _Target = dice(mt_generator); ulong_prand_stage++;}\
 else _Target = dice(rd_generator)
 
-void DiceRoller::random_initialize()
+void dice_roller::random_initialize()
 {
 	std::random_device rd;
 	if (rd.entropy() > 0.0) {
-		DiceRoller::is_using_pseudo_random = false;
+		dice_roller::is_using_pseudo_random = false;
 	}
-	else DiceRoller::is_using_pseudo_random = true;
+	else dice_roller::is_using_pseudo_random = true;
 }
 
-bool DiceRoller::is_using_pseudo_random = false;
-unsigned long DiceRoller::ulong_prand_seed = 0;
-unsigned long DiceRoller::ulong_prand_stage = 0;
+bool dice_roller::is_using_pseudo_random = false;
+unsigned long dice_roller::ulong_prand_seed = 0;
+unsigned long dice_roller::ulong_prand_stage = 0;
 
-DiceRoller::DiceRoller() noexcept
+dice_roller::dice_roller() noexcept
 {
 }
 
 
-DiceRoller::~DiceRoller()
+dice_roller::~dice_roller()
 {
 	if (this->pstr_detail_result != nullptr)
 		delete(this->pstr_detail_result);
 }
 
-DiceRoller::DiceRoller(int val1_i_num_of_dice, int val2_num_of_face, int start_value) {
+dice_roller::dice_roller(int val1_i_num_of_dice, int val2_num_of_face, int start_value) {
 	this->status = ROLL_STATUS_UNINITIALIZED;
 	RANDOMIZE(val2_num_of_face, start_value);
 	int i_result_sum = 0;
@@ -74,10 +74,10 @@ DiceRoller::DiceRoller(int val1_i_num_of_dice, int val2_num_of_face, int start_v
 	if (this->status == ROLL_STATUS_UNINITIALIZED) this->status = ROLL_STATUS_FINISHED;
 }
 
-DiceRoller::DiceRoller(int num_of_dice, int num_of_face, int keep, bool is_keeping_high, int start_value) {
+dice_roller::dice_roller(int num_of_dice, int num_of_face, int keep, bool is_keeping_high, int start_value) {
 	this->status = ROLL_STATUS_UNINITIALIZED;
 	if (keep >= num_of_dice) {
-		DiceRoller dice(num_of_dice, num_of_face, start_value);
+		dice_roller dice(num_of_dice, num_of_face, start_value);
 		this->pstr_detail_result = new std::string(*dice.pstr_detail_result);
 		this->i_sum_result = dice.i_sum_result;
 	}
@@ -99,7 +99,7 @@ DiceRoller::DiceRoller(int num_of_dice, int num_of_face, int keep, bool is_keepi
 			pilotList.push_back(i_count);
 			flagList.push_back(0);
 		}
-		quickSort(sortList.data(), pilotList.data(), 0, sortList.size() - 1);
+		quick_sort(sortList.data(), pilotList.data(), 0, sortList.size() - 1);
 
 		if (is_keeping_high) {
 			for (int i_iter = 0; i_iter < keep; i_iter++) {
@@ -129,7 +129,7 @@ DiceRoller::DiceRoller(int num_of_dice, int num_of_face, int keep, bool is_keepi
 }
 
 //inputs regex (\\+|\\-)?(\\d*d\\d+((k|kl)\\d+)?)|(\\d+)
-DiceRoller::DiceRoller(std::string & str_single_dice,int mode)
+dice_roller::dice_roller(std::string & str_single_dice,int mode)
 {
 	this->status = ROLL_STATUS_UNINITIALIZED;
 	if (mode == ROLL_MODE_COC_PB) {
@@ -166,14 +166,14 @@ DiceRoller::DiceRoller(std::string & str_single_dice,int mode)
 				bool is_keep_high = i_cal_pb > 0;
 				if (i_bp_count > 1) ostrs_dice_stream << " = d100" << (i_cal_pb > 0 ? "b" : "p") << (i_cal_pb > 0 ? i_cal_pb : -i_cal_pb);
 				ostrs_dice_stream << " = ";
-				DiceRoller dice_roll2(1, 10, 0);
+				dice_roller dice_roll2(1, 10, 0);
 				if (dice_roll2.status != ROLL_STATUS_FINISHED) 
 				{ 
 					this->status = dice_roll2.status; 
 					return;
 				}
 				int i_dec_min = dice_roll2.i_sum_result == 0 ? 1 : 0;
-				DiceRoller dice_roll1(i_num_of_dice, 10, 1, is_keep_high, i_dec_min);
+				dice_roller dice_roll1(i_num_of_dice, 10, 1, is_keep_high, i_dec_min);
 				if (dice_roll1.status != ROLL_STATUS_FINISHED)
 				{
 					this->status = dice_roll1.status;
@@ -184,7 +184,7 @@ DiceRoller::DiceRoller(std::string & str_single_dice,int mode)
 				result = dice_roll1.i_sum_result * 10 + dice_roll2.i_sum_result;
 			}
 			else {
-				DiceRoller dice_roll(1, 100);
+				dice_roller dice_roll(1, 100);
 				if (dice_roll.status != ROLL_STATUS_FINISHED)
 				{
 					this->status = dice_roll.status;
@@ -232,7 +232,7 @@ DiceRoller::DiceRoller(std::string & str_single_dice,int mode)
 						int i_face_of_die = std::stoi(str_single_dice.substr(i_pos_of_d + 1));
 						int i_num_of_keep = i_num_of_die;
 						CHECK_DICE_LIMITS();
-						DiceRoller dr_diceRoll(i_num_of_die, i_face_of_die);
+						dice_roller dr_diceRoll(i_num_of_die, i_face_of_die);
 						if (dr_diceRoll.status != ROLL_STATUS_FINISHED)
 						{
 							this->status = dr_diceRoll.status;
@@ -246,7 +246,7 @@ DiceRoller::DiceRoller(std::string & str_single_dice,int mode)
 							i_pos_of_l = i_pos_of_k;
 							FUNCTION_PARSE_DICE(str_single_dice, i_start_pos, i_pos_of_d, i_pos_of_k, i_pos_of_l);
 							CHECK_DICE_LIMITS();
-							DiceRoller dr_diceRoll(i_num_of_die, i_face_of_die, i_num_of_keep, false);
+							dice_roller dr_diceRoll(i_num_of_die, i_face_of_die, i_num_of_keep, false);
 							if (dr_diceRoll.status != ROLL_STATUS_FINISHED)
 							{
 								this->status = dr_diceRoll.status;
@@ -257,7 +257,7 @@ DiceRoller::DiceRoller(std::string & str_single_dice,int mode)
 						else {
 							FUNCTION_PARSE_DICE(str_single_dice, i_start_pos, i_pos_of_d, i_pos_of_k, i_pos_of_l);
 							CHECK_DICE_LIMITS();
-							DiceRoller dr_diceRoll(i_num_of_die, i_face_of_die, i_num_of_keep, true);
+							dice_roller dr_diceRoll(i_num_of_die, i_face_of_die, i_num_of_keep, true);
 							if (dr_diceRoll.status != ROLL_STATUS_FINISHED)
 							{
 								this->status = dr_diceRoll.status;
