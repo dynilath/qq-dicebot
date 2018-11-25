@@ -55,19 +55,7 @@
     <ClInclude Include="utility.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="nickManager.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="databaseManager.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="diceSpliter.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="manualdice.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="manualDiceControl.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="encoder.h">
@@ -87,6 +75,18 @@
     </ClInclude>
     <ClInclude Include="protocol_nickname.h">
       <Filter>Header Files\dice_protocols</Filter>
+    </ClInclude>
+    <ClInclude Include="database_manager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="manual_dice_control.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="dice_spliter.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="nick_manager.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -126,19 +126,7 @@
     <ClCompile Include="utility.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="diceSpliter.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="nickManager.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="databaseManager.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="manualdice.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="manualDiceControl.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="encoder.cpp">
@@ -158,6 +146,18 @@
     </ClCompile>
     <ClCompile Include="protocol_nickname.cpp">
       <Filter>Source Files\dice_protocols</Filter>
+    </ClCompile>
+    <ClCompile Include="database_manager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="manual_dice_control.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="dice_spliter.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="nick_manager.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

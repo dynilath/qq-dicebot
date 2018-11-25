@@ -119,16 +119,16 @@ copy "$(ProjectDir)com.dynilath.coolqdicebot.json" "$(SolutionDir)酷Q Air\app\"
     <ClInclude Include="appmain.h" />
     <ClInclude Include="base64.h" />
     <ClInclude Include="cqp.h" />
-    <ClInclude Include="databaseManager.h" />
+    <ClInclude Include="database_manager.h" />
     <ClInclude Include="dice_protocol.h" />
     <ClInclude Include="diceroller.h" />
-    <ClInclude Include="diceSpliter.h" />
+    <ClInclude Include="dice_spliter.h" />
     <ClInclude Include="encoder.h" />
     <ClInclude Include="include\sqlite3.h" />
     <ClInclude Include="manualdice.h" />
-    <ClInclude Include="manualDiceControl.h" />
+    <ClInclude Include="manual_dice_control.h" />
     <ClInclude Include="messagepipeline.h" />
-    <ClInclude Include="nickManager.h" />
+    <ClInclude Include="nick_manager.h" />
     <ClInclude Include="protocol_coc_dice.h" />
     <ClInclude Include="protocol_manual_dice.h" />
     <ClInclude Include="protocol_nickname.h" />
@@ -152,16 +152,16 @@ copy "$(ProjectDir)com.dynilath.coolqdicebot.json" "$(SolutionDir)酷Q Air\app\"
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="appmain.cpp" />
-    <ClCompile Include="databaseManager.cpp" />
+    <ClCompile Include="database_manager.cpp" />
     <ClCompile Include="dice_protocol.cpp" />
     <ClCompile Include="diceroller.cpp" />
-    <ClCompile Include="diceSpliter.cpp" />
+    <ClCompile Include="dice_spliter.cpp" />
     <ClCompile Include="dllmain.cpp" />
     <ClCompile Include="encoder.cpp" />
     <ClCompile Include="manualdice.cpp" />
-    <ClCompile Include="manualDiceControl.cpp" />
+    <ClCompile Include="manual_dice_control.cpp" />
     <ClCompile Include="messagepipeline.cpp" />
-    <ClCompile Include="nickManager.cpp" />
+    <ClCompile Include="nick_manager.cpp" />
     <ClCompile Include="protocol_coc_dice.cpp" />
     <ClCompile Include="protocol_manual_dice.cpp" />
     <ClCompile Include="protocol_nickname.cpp" />

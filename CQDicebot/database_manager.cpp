@@ -1,48 +1,48 @@
 #include "stdafx.h"
-#include "databaseManager.h"
+#include "database_manager.h"
 #include "base64.h"
 #include "QTool.h"
 #include <iostream>
 
 const char * cstr_file_db = APP_DIR "com.dynilath.coolqdicebot.nickname.db";
 
-databaseManager * databaseManager::instance = nullptr;
+database_manager * database_manager::instance = nullptr;
 
 
-sqlite3 * databaseManager::getDatabase()
+sqlite3 * database_manager::get_database()
 {
-	return (databaseManager::instance)->database;
+	return (database_manager::instance)->database;
 }
 
-databaseManager * databaseManager::getInstance()
+database_manager * database_manager::get_instance()
 {
-	return databaseManager::instance;
+	return database_manager::instance;
 }
 
-databaseManager::databaseManager()
+database_manager::database_manager()
 {
 	isDatabaseReady = false;
 	int i_ret_code = sqlite3_open(cstr_file_db, &database);
 	if (i_ret_code == SQLITE_OK) {
-		if (databaseManager::instance != nullptr) {
-			free(databaseManager::instance);
-			databaseManager::instance = this;
+		if (database_manager::instance != nullptr) {
+			free(database_manager::instance);
+			database_manager::instance = this;
 		}
-		databaseManager::instance = this;
+		database_manager::instance = this;
 		isDatabaseReady = true;
 	}
 }
 
-databaseManager::~databaseManager()
+database_manager::~database_manager()
 {
-	if (databaseManager::instance == this) databaseManager::instance = nullptr;
+	if (database_manager::instance == this) database_manager::instance = nullptr;
 	sqlite3_close(this->database);
 }
 
-int databaseManager::registerTable(std::string str_table_name, std::string str_table_sql)
+int database_manager::register_table(std::string str_table_name, std::string str_table_sql)
 {
 	bool isExist;
-	int i_ret_code = isTableExist(str_table_name, isExist);
+	int i_ret_code = is_table_exist(str_table_name, isExist);
 	if (i_ret_code == SQLITE_OK && !isExist) {
 		const char * sql_command = str_table_sql.c_str();
 		char * pchar_err_message = nullptr;
@@ -63,12 +63,12 @@ int databaseManager::registerTable(std::string str_table_name, std::string str_t
 	else return i_ret_code;
 }
 
-inline int databaseManager::isTableExist(const std::string & table_name , bool & isExist)
+inline int database_manager::is_table_exist(const std::string & table_name , bool & isExist)
 {
 	std::string sql_command = "select count(*) from sqlite_master where type ='table' and name ='" + table_name + "'";
 	char * pchar_err_message = nullptr;
 	int i_count_of_table = 0;
-	int ret_code = sqlite3_exec(this->database, sql_command.c_str(), &sqlite3_callback_isTableExist, (void*)&i_count_of_table, &pchar_err_message);
+	int ret_code = sqlite3_exec(this->database, sql_command.c_str(), &sqlite3_callback_is_table_exist, (void*)&i_count_of_table, &pchar_err_message);
 	if (ret_code == SQLITE_OK) {
 		isExist = i_count_of_table > 0;
 		return ret_code;
@@ -82,7 +82,7 @@ inline int databaseManager::isTableExist(const std::string & table_name , bool &
 	return ret_code;
 }
 
-int databaseManager::sqlite3_callback(void * data, int argc, char ** argv, char ** azColName)
+int database_manager::sqlite3_callback(void * data, int argc, char ** argv, char ** azColName)
 {
 	int i_database_op = *((int*)data);
 	switch (i_database_op)
@@ -96,7 +96,7 @@ int databaseManager::sqlite3_callback(void * data, int argc, char ** argv, char 
 	}
 }
 
-int databaseManager::sqlite3_callback_isTableExist(void * data, int argc, char ** argv, char ** azColName)
+int database_manager::sqlite3_callback_is_table_exist(void * data, int argc, char ** argv, char ** azColName)
 {
 	int * i_handle = (int*)data;
 	if (argc == 1) {

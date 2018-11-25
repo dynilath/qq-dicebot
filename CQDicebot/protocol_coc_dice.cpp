@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #include "utility.h"
-#include "nickManager.h"
+#include "nick_manager.h"
 #include "diceroller.h"
 #include "dice_protocol.h"
 #include "protocol_coc_dice.h"
@@ -33,14 +33,14 @@ std::string protocol_coc_dice::resolve_request(
 	if (match_list_command_coc_dice_roll_match.begin() != match_list_command_coc_dice_roll_match.end()) {
 		std::string str_roll_message = match_list_command_coc_dice_roll_match.suffix().str();
 		std::string str_roll_source = match_list_command_coc_dice_roll_match.str();
-		removeSpaceAndTab(str_roll_source);
+		remove_space_and_tab(str_roll_source);
 
-		DiceRoller diceRoll(str_roll_source, ROLL_MODE_COC_PB);
+		dice_roller diceRoll(str_roll_source, ROLL_MODE_COC_PB);
 		if (diceRoll.status == ROLL_STATUS_FINISHED) {
 			std::ostringstream ostrs_output_stream(std::ostringstream::ate);
 
 			std::string str_nickname;
-			(nickManager::instance)->getNickName(i_AuthCode, uint64_fromGroupOrDiscuss, uint64_fromQQ, str_nickname, isfromGroup);
+			(nickname_manager::instance)->get_nickname(i_AuthCode, uint64_fromGroupOrDiscuss, uint64_fromQQ, str_nickname, isfromGroup);
 
 			ostrs_output_stream << " * " << str_nickname << " " << str_roll_message << " ÖÀ÷»: ";
 			ostrs_output_stream << *(diceRoll.pstr_detail_result) << " = " << diceRoll.i_sum_result;

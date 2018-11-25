@@ -3,14 +3,14 @@
 #define TYPE_LIST_DICE std::vector<std::pair<int,int>>
 #define TYPE_PAIR_DICE std::pair<int,int>
 
-class manualDice
+class manual_dice
 {
 private :
 	TYPE_LIST_DICE * pintlist_dice;
 public:
-	manualDice();
-	~manualDice();
-	manualDice(const std::string & source);
+	manual_dice();
+	~manual_dice();
+	manual_dice(const std::string & source);
 	void roll(const std::string & source);
 	void kill(const std::string & source);
 	void add(const std::string & source);

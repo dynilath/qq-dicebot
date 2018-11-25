@@ -1,9 +1,9 @@
 #include "stdafx.h"
 #include "utility.h"
-#include "nickManager.h"
+#include "nick_manager.h"
 
 #include "manualdice.h"
-#include "manualDiceControl.h"
+#include "manual_dice_control.h"
 
 #include "diceroller.h"
 
@@ -41,7 +41,7 @@ std::string protocol_manual_dice::resolve_request(
 	bool isfromGroup)
 {
 	std::string str_nickname;
-	(nickManager::instance)->getNickName(i_AuthCode, uint64_fromGroupOrDiscuss, uint64_fromQQ, str_nickname, isfromGroup);
+	(nickname_manager::instance)->get_nickname(i_AuthCode, uint64_fromGroupOrDiscuss, uint64_fromQQ, str_nickname, isfromGroup);
 
 	std::smatch match_list_command_identifier_match;
 	std::regex_search(message, match_list_command_identifier_match, regex_manual_dice_detail_command);
@@ -63,8 +63,8 @@ std::string protocol_manual_dice::manualdice_add(std::string message, std::strin
 	if (match_list_roll_match.begin() != match_list_roll_match.end()) {
 		std::string str_command = match_list_roll_match.str();
 		std::string str_roll_message = match_list_roll_match.suffix().str();
-		removeSpaceAndTab(str_command);
-		manualDice * md_manualdice = manualDiceManager::instance->addManualDice(uint64_fromQQ, uint64_fromGroupOrDiscuss, str_command);
+		remove_space_and_tab(str_command);
+		manual_dice * md_manualdice = manual_dice_manager::instance->add_manual_dice(uint64_fromQQ, uint64_fromGroupOrDiscuss, str_command);
 		if ((*md_manualdice).status == ROLL_STATUS_FINISHED) {
 			std::ostringstream ostrs_output_stream(std::ostringstream::ate);
 			ostrs_output_stream << " * " << nick_name << " " << str_roll_message;
@@ -78,7 +78,7 @@ std::string protocol_manual_dice::manualdice_add(std::string message, std::strin
 
 std::string protocol_manual_dice::manualdice_killall(std::string message, std::string nick_name, int64_t uint64_fromGroupOrDiscuss, int64_t uint64_fromQQ)
 {
-	manualDice * md_manualdice = manualDiceManager::instance->killallManualDice(uint64_fromQQ, uint64_fromGroupOrDiscuss);
+	manual_dice * md_manualdice = manual_dice_manager::instance->killall_manual_dice(uint64_fromQQ, uint64_fromGroupOrDiscuss);
 	if ((*md_manualdice).status == ROLL_STATUS_FINISHED) {
 		std::ostringstream ostrs_output_stream(std::ostringstream::ate);
 		ostrs_output_stream << " * " << nick_name << " " << message;
@@ -86,6 +86,7 @@ std::string protocol_manual_dice::manualdice_killall(std::string message, std::s
 		ostrs_output_stream << "µ±Ç°×´Ì¬: " << md_manualdice->ToString();
 		return ostrs_output_stream.str();
 	}
+	return std::string();
 }
 
 std::string protocol_manual_dice::manualdice_kill(std::string message, std::string nick_name, int64_t uint64_fromGroupOrDiscuss, int64_t uint64_fromQQ)
@@ -95,9 +96,9 @@ std::string protocol_manual_dice::manualdice_kill(std::string message, std::stri
 	if (match_list_roll_match.begin() != match_list_roll_match.end()) {
 		std::string str_command = match_list_roll_match.str();
 		std::string str_roll_message = match_list_roll_match.suffix().str();
-		removeSpaceAndTab(str_command);
+		remove_space_and_tab(str_command);
 
-		manualDice * md_manualdice = manualDiceManager::instance->killManualDice(uint64_fromQQ, uint64_fromGroupOrDiscuss, str_command);
+		manual_dice * md_manualdice = manual_dice_manager::instance->kill_manual_dice(uint64_fromQQ, uint64_fromGroupOrDiscuss, str_command);
 		if ((*md_manualdice).status == ROLL_STATUS_FINISHED) {
 			std::ostringstream ostrs_output_stream(std::ostringstream::ate);
 			ostrs_output_stream << " * " << nick_name << " " << str_roll_message;
@@ -116,9 +117,9 @@ std::string protocol_manual_dice::manualdice_roll(std::string message, std::stri
 	if (match_list_roll_match.begin() != match_list_roll_match.end()) {
 		std::string str_command = match_list_roll_match.str();
 		std::string str_roll_message = match_list_roll_match.suffix().str();
-		removeSpaceAndTab(str_command);
+		remove_space_and_tab(str_command);
 
-		manualDice * md_manualdice = manualDiceManager::instance->rollManualDice(uint64_fromQQ, uint64_fromGroupOrDiscuss, str_command);
+		manual_dice * md_manualdice = manual_dice_manager::instance->roll_manual_dice(uint64_fromQQ, uint64_fromGroupOrDiscuss, str_command);
 		if ((*md_manualdice).status == ROLL_STATUS_FINISHED) {
 			std::ostringstream ostrs_output_stream(std::ostringstream::ate);
 			ostrs_output_stream << " * " << nick_name << " " << str_roll_message;
@@ -137,9 +138,9 @@ std::string protocol_manual_dice::manualdice_create(std::string message, std::st
 	if (match_list_roll_match.begin() != match_list_roll_match.end()) {
 		std::string str_command = match_list_roll_match.str();
 		std::string str_roll_message = match_list_roll_match.suffix().str();
-		removeSpaceAndTab(str_command);
+		remove_space_and_tab(str_command);
 
-		manualDice * md_manualdice = manualDiceManager::instance->createManualDice(uint64_fromQQ, uint64_fromGroupOrDiscuss, str_command);
+		manual_dice * md_manualdice = manual_dice_manager::instance->create_manual_dice(uint64_fromQQ, uint64_fromGroupOrDiscuss, str_command);
 		if (md_manualdice->status == ROLL_STATUS_FINISHED) {
 			std::ostringstream ostrs_output_stream(std::ostringstream::ate);
 			ostrs_output_stream << " * " << nick_name << " " << str_roll_message;

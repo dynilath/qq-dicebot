@@ -4,13 +4,13 @@
 #include "diceroller.h"
 
 #include "manualdice.h"
-#include "manualDiceControl.h"
+#include "manual_dice_control.h"
 
-#include "nickManager.h"
+#include "nick_manager.h"
 
 #include "cqp.h"
 #include "QTool.h"
-#include "diceSpliter.h"
+#include "dice_spliter.h"
 #include <regex>
 #include <iostream>
 
@@ -56,7 +56,7 @@ bool group_message_pipeline(
 	std::string source(msg);
 	std::vector<std::string> source_splits;
 
-	splitLine(source, source_splits);
+	split_line(source, source_splits);
 
 	std::vector<std::string>::iterator iterator_sources = source_splits.begin();
 

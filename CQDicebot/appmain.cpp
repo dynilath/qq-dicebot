@@ -9,11 +9,11 @@
 
 #include "cqp.h"
 #include "dice_protocol.h"
-#include "databaseManager.h"
-#include "nickManager.h"
+#include "database_manager.h"
+#include "nick_manager.h"
 #include "utility.h"
 #include "diceroller.h"
-#include "manualDiceControl.h"
+#include "manual_dice_control.h"
 #include "messagepipeline.h"
 
 #include "protocol_roll_dice.h"
@@ -24,9 +24,9 @@
 int32_t i_AuthCode = -1; //AuthCode 调用酷Q的方法时需要用到
 bool enabled = false;
 
-nickManager * nickCtrl;
-databaseManager * dbCtrl;
-manualDiceManager * mdCtrl;
+nickname_manager * nickCtrl;
+database_manager * dbCtrl;
+manual_dice_manager * mdCtrl;
 std::vector<dice_protocol *> * diceProtocols;
 
 /* 
@@ -55,12 +55,12 @@ CQEVENT(int32_t, Initialize, 4)(int32_t AuthCode) {
 CQEVENT(int32_t, __eventEnable, 0)() {
 	enabled = true;
 	
-	DiceRoller::random_initialize();
+	dice_roller::random_initialize();
 
-	createDir(APP_DIR);
-	dbCtrl = new databaseManager();
-	nickCtrl = new nickManager();
-	mdCtrl = new manualDiceManager();
+	create_dir(APP_DIR);
+	dbCtrl = new database_manager();
+	nickCtrl = new nickname_manager();
+	mdCtrl = new manual_dice_manager();
 	diceProtocols = new std::vector<dice_protocol *>();
 
 	diceProtocols->push_back(new protocol_roll_dice());

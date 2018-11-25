@@ -1,5 +1,5 @@
 #include "stdafx.h"
-#include "diceSpliter.h"
+#include "dice_spliter.h"
 #include <regex>
 #include "diceroller.h"
 
@@ -18,7 +18,7 @@ is_using_double = true;}
 #define PCAL_TYPE_DVI 2
 #define PCAL_TYPE_INIT -1
 
-bool baseSplitDice(const std::string & str_input, std::string & str_output) {
+bool base_split_dice(const std::string & str_input, std::string & str_output) {
 	std::string str_input_copy(str_input);
 	std::smatch matchList_single_dice;
 
@@ -46,7 +46,7 @@ bool baseSplitDice(const std::string & str_input, std::string & str_output) {
 
 		if (!std::regex_search(str_input_copy, matchList_single_dice, regex_single_dice)) { break; }
 		std::string str_single_dice = matchList_single_dice.str();
-		DiceRoller dr_single_dice(str_single_dice);
+		dice_roller dr_single_dice(str_single_dice);
 		if (dr_single_dice.status != ROLL_STATUS_FINISHED) { is_this_line_output = false; break; }
 		i_dice_result = dr_single_dice.i_sum_result;
 

@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "utility.h"
-#include "nickManager.h"
-#include "diceSpliter.h"
+#include "nick_manager.h"
+#include "dice_spliter.h"
 #include "dice_protocol.h"
 #include "protocol_roll_dice.h"
 
@@ -32,13 +32,13 @@ std::string protocol_roll_dice::resolve_request(
 	if (match_list_command_full_dice_roll_match.begin() != match_list_command_full_dice_roll_match.end()) {
 		std::string str_roll_message = match_list_command_full_dice_roll_match.suffix().str();
 		std::string str_roll_source = match_list_command_full_dice_roll_match.str();
-		removeSpaceAndTab(str_roll_source);
+		remove_space_and_tab(str_roll_source);
 		std::string str_roll_output;
-		if (baseSplitDice(str_roll_source, str_roll_output)) {
+		if (base_split_dice(str_roll_source, str_roll_output)) {
 			std::ostringstream ostrs_output_stream(std::ostringstream::ate);
 
 			std::string str_nickname;
-			(nickManager::instance)->getNickName(i_AuthCode, uint64_fromGroupOrDiscuss, uint64_fromQQ, str_nickname, isfromGroup);
+			(nickname_manager::instance)->get_nickname(i_AuthCode, uint64_fromGroupOrDiscuss, uint64_fromQQ, str_nickname, isfromGroup);
 
 			ostrs_output_stream << " * " << str_nickname << " " << str_roll_message << " ÖÀ÷»: ";
 			ostrs_output_stream << str_roll_output;

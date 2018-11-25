@@ -3,7 +3,7 @@
 
 #include "cqp.h"
 #include "QTool.h"
-#include "nickManager.h"
+#include "nick_manager.h"
 
 #include "protocol_nickname.h"
 
@@ -28,7 +28,7 @@ std::string protocol_nickname::resolve_request(std::string message, const int32_
 	if (match_list_silence.begin() == match_list_silence.end() && message.length() > 0) {
 		std::string str_origin_name;
 		CQTool::getDefaultName(i_AuthCode, uint64_fromGroupOrDiscuss, uint64_fromQQ, str_origin_name, isfromGroup);
-		(nickManager::instance)->setNickName(i_AuthCode, uint64_fromGroupOrDiscuss, uint64_fromQQ, message, isfromGroup);
+		(nickname_manager::instance)->set_nickname(i_AuthCode, uint64_fromGroupOrDiscuss, uint64_fromQQ, message, isfromGroup);
 
 		std::ostringstream ostrs_output_stream(std::ostringstream::ate);
 		ostrs_output_stream << " * " << str_origin_name << " 的新名字是 " << message;
@@ -37,7 +37,7 @@ std::string protocol_nickname::resolve_request(std::string message, const int32_
 	else {
 		std::string s_message = match_list_silence.suffix().str();
 		if(s_message.length() > 0)
-			(nickManager::instance)->setNickName(i_AuthCode, uint64_fromGroupOrDiscuss, uint64_fromQQ, s_message, isfromGroup);
+			(nickname_manager::instance)->set_nickname(i_AuthCode, uint64_fromGroupOrDiscuss, uint64_fromQQ, s_message, isfromGroup);
 	}
 	return std::string();
 }

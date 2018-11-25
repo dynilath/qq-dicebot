@@ -8,7 +8,7 @@
 
 #define ROLL_MODE_DND_DK 1
 #define ROLL_MODE_COC_PB 2
-class DiceRoller
+class dice_roller
 {
 private:
 	static bool is_using_pseudo_random;
@@ -16,13 +16,13 @@ private:
 	static unsigned long ulong_prand_stage;
 public:
 	int status;
-	DiceRoller() noexcept;
-	~DiceRoller();
+	dice_roller() noexcept;
+	~dice_roller();
 	std::string * pstr_detail_result = nullptr;
 	int i_sum_result = 0;
-	DiceRoller(int val1_i_num_of_dice, int val2_num_of_face, int start_value = 1);
-	DiceRoller(int num_of_dice, int num_of_face, int keep, bool is_keeping_high, int start_value = 1);
-	DiceRoller(std::string & str_dice_command, int mode = ROLL_MODE_DND_DK);
+	dice_roller(int val1_i_num_of_dice, int val2_num_of_face, int start_value = 1);
+	dice_roller(int num_of_dice, int num_of_face, int keep, bool is_keeping_high, int start_value = 1);
+	dice_roller(std::string & str_dice_command, int mode = ROLL_MODE_DND_DK);
 	static void random_initialize();
 };
 

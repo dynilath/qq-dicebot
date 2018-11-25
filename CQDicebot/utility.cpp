@@ -9,7 +9,7 @@
 #include <sys/stat.h>
 #endif
 
-void splitLine(std::string & source, std::vector<std::string>& source_splits)
+void split_line(std::string & source, std::vector<std::string>& source_splits)
 {
 	if (source.length() > 2) {
 		unsigned int iter_source = 0;
@@ -31,7 +31,7 @@ void splitLine(std::string & source, std::vector<std::string>& source_splits)
 	}
 }
 
-void removeSpaceAndTab(std::string & source)
+void remove_space_and_tab(std::string & source)
 {
 	//i cant erase(iter,str.end()), so switch to traditional method
 	unsigned int iter = 0;
@@ -60,7 +60,7 @@ void removeSpaceAndTab(std::string & source)
 	}
 }
 
-void quickSort(int * origin, int * pilot, int first, int last) {
+void quick_sort(int * origin, int * pilot, int first, int last) {
 	if (last <= first)
 		return;
 
@@ -93,11 +93,11 @@ void quickSort(int * origin, int * pilot, int first, int last) {
 	pilot[first] = pilot[right];
 	pilot[right] = pivot_pilot;
 
-	quickSort(origin, pilot, first, right - 1);
-	quickSort(origin, pilot, left, last);
+	quick_sort(origin, pilot, first, right - 1);
+	quick_sort(origin, pilot, left, last);
 }
 
-void createDir(char * cstr_dir_name) {
+void create_dir(char * cstr_dir_name) {
 	uint32_t dirPathLen = std::strlen(APP_DIR);
 	std::string t_path;
 	for (uint32_t i = 0; i < dirPathLen; ++i)
