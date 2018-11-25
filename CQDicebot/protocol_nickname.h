@@ -1,6 +1,8 @@
 #pragma once
 class protocol_nickname :public dice_protocol
 {
+private:
+	std::regex * regex_detail_command;
 public:
 	protocol_nickname();
 	~protocol_nickname(); 

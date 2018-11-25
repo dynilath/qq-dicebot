@@ -7,24 +7,24 @@
 
 #include "protocol_nickname.h"
 
-std::regex regex_nickname_silence("^s *");
-
 protocol_nickname::protocol_nickname()
 {
 	this->identifier = new std::string("n");
+	this->regex_detail_command = new std::regex("^s *");
 }
 
 
 protocol_nickname::~protocol_nickname()
 {
 	delete this->identifier;
+	delete this->regex_detail_command;
 }
 
 std::string protocol_nickname::resolve_request(std::string message, const int32_t i_AuthCode, const int64_t uint64_fromGroupOrDiscuss, const int64_t uint64_fromQQ, bool isfromGroup)
 {
 	bool is_silence = false;
 	std::smatch match_list_silence;
-	std::regex_search(message, match_list_silence, regex_nickname_silence);
+	std::regex_search(message, match_list_silence, *this->regex_detail_command);
 	if (match_list_silence.begin() == match_list_silence.end() && message.length() > 0) {
 		std::string str_origin_name;
 		CQTool::getDefaultName(i_AuthCode, uint64_fromGroupOrDiscuss, uint64_fromQQ, str_origin_name, isfromGroup);

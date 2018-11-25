@@ -10,13 +10,13 @@
 #include "dice_protocol.h"
 #include "protocol_manual_dice.h"
 
-std::regex regex_manual_dice_detail_command("^(ka|a|k|r) *");
 
 protocol_manual_dice::protocol_manual_dice()
 {
 	this->identifier = new std::string("h");
 	this->regex_filter_full_dice = new std::regex("^ *((\\+)?\\d*d\\d+)(\\+\\d*d\\d+)* *");
 	this->regex_filter_integer_space = new std::regex("^ *\\d+ *");
+	this->regex_detail_command = new std::regex("^(ka|a|k|r) *");
 	this->method_map = new std::map<std::string, MANUAL_DICE_CALL_TYPE()>();
 	this->method_map->insert(std::pair<std::string, MANUAL_DICE_CALL_TYPE()>("ka", &protocol_manual_dice::manualdice_killall));
 	this->method_map->insert(std::pair<std::string, MANUAL_DICE_CALL_TYPE()>("k", &protocol_manual_dice::manualdice_kill));
@@ -31,6 +31,7 @@ protocol_manual_dice::~protocol_manual_dice()
 	delete this->regex_filter_full_dice;
 	delete this->regex_filter_integer_space;
 	delete this->method_map;
+	delete this->regex_detail_command;
 }
 
 std::string protocol_manual_dice::resolve_request(
@@ -44,7 +45,7 @@ std::string protocol_manual_dice::resolve_request(
 	(nickname_manager::instance)->get_nickname(i_AuthCode, uint64_fromGroupOrDiscuss, uint64_fromQQ, str_nickname, isfromGroup);
 
 	std::smatch match_list_command_identifier_match;
-	std::regex_search(message, match_list_command_identifier_match, regex_manual_dice_detail_command);
+	std::regex_search(message, match_list_command_identifier_match, *this->regex_detail_command);
 	if (match_list_command_identifier_match.begin() == match_list_command_identifier_match.end())
 		return manualdice_create(message, str_nickname, uint64_fromGroupOrDiscuss, uint64_fromQQ);
 	std::string str_match = match_list_command_identifier_match[1];

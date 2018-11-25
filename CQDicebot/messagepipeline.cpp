@@ -18,10 +18,6 @@
 
 
 std::regex regex_filter_command_identifier("^ *\\. *(h|c|r|n)");
-//rename loudly
-//std::regex regex_filter_rename("^ *\\. *n *");
-//rename silently
-//std::regex regex_filter_rename_silence("^ *\\. *ns *");
 
 //TODO
 //macro, use macro to save a specific regular diceroll, like .m 4d6+4 my_biggest_trick
@@ -37,9 +33,6 @@ std::regex regex_filter_use_macro_silent("^ *\\. *rms *");
 std::regex regex_filter_def_result("^ *\\. *def *");
 //macro specific define result, it only apply to specific macro
 std::regex regex_filter_macro_def("^ *\\. *mdef *");
-
-std::regex regex_filter_manual_full_dice("^((\\+)?\\d*d\\d+)(\\+\\d*d\\d+)* *");
-std::regex regex_filter_integer_space("^\\d+ *");
 
 
 #define CHECK_LASTLINE_FOR_ENDL(_Stream,_Flag) if (_Flag) {	_Flag = false;	_Stream << std::endl;}

@@ -4,6 +4,7 @@
 class protocol_manual_dice : public dice_protocol
 {
 private:
+	std::regex * regex_detail_command;
 	std::regex * regex_filter_integer_space;
 	std::map<std::string, MANUAL_DICE_CALL_TYPE()> * method_map;
 public:
