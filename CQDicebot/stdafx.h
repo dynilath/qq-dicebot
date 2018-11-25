@@ -19,6 +19,7 @@
 #include <map>
 #include <sstream>
 #include <vector>
+#include <regex>
 
 #define APP_DIR "./app/com.dynilath.coolqdicebot/"
 #define MAX_DICE_UNIT_COUNT 10

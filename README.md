@@ -5,6 +5,12 @@ Just a simple dicebot for coolq in development.<br>
 [下载cpk](https://github.com/decterous/CoolQDicebot/releases/latest)<br> 
 [获取酷Q](https://cqp.cc/)<br> 
 
+特性
+-----
+所有的骰子指令支持多行输入<br> 
+骰子指令的头部.r可以任意填充空格，例如"      .    r     1d20"也是有效的<br> 
+骰子用昵称每个群每个qq不同，保存在数据库不会断电丢失<br> 
+
 使用示范
 -----
 
@@ -108,10 +114,3 @@ Just a simple dicebot for coolq in development.<br>
  * 手动骰子测试  重骰桌上的第 4 个骰子 当前状态: 没有骰子了
  * 手动骰子测试  在桌上增加了这些骰子: 1d4 当前状态: 4(4) = 4</code></pre>
 <br> 
-
-
-特性
------
-所有的骰子指令支持多行输入<br> 
-骰子指令的头部.r可以任意填充空格，例如"      .    r     1d20"也是有效的<br> 
-骰子用昵称每个群每个qq不同，保存在数据库不会断电丢失<br> 

@@ -120,6 +120,7 @@ copy "$(ProjectDir)com.dynilath.coolqdicebot.json" "$(SolutionDir)酷Q Air\app\"
     <ClInclude Include="base64.h" />
     <ClInclude Include="cqp.h" />
     <ClInclude Include="databaseManager.h" />
+    <ClInclude Include="dice_protocol.h" />
     <ClInclude Include="diceroller.h" />
     <ClInclude Include="diceSpliter.h" />
     <ClInclude Include="encoder.h" />
@@ -128,6 +129,10 @@ copy "$(ProjectDir)com.dynilath.coolqdicebot.json" "$(SolutionDir)酷Q Air\app\"
     <ClInclude Include="manualDiceControl.h" />
     <ClInclude Include="messagepipeline.h" />
     <ClInclude Include="nickManager.h" />
+    <ClInclude Include="protocol_coc_dice.h" />
+    <ClInclude Include="protocol_manual_dice.h" />
+    <ClInclude Include="protocol_nickname.h" />
+    <ClInclude Include="protocol_roll_dice.h" />
     <ClInclude Include="QTool.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
@@ -148,6 +153,7 @@ copy "$(ProjectDir)com.dynilath.coolqdicebot.json" "$(SolutionDir)酷Q Air\app\"
   <ItemGroup>
     <ClCompile Include="appmain.cpp" />
     <ClCompile Include="databaseManager.cpp" />
+    <ClCompile Include="dice_protocol.cpp" />
     <ClCompile Include="diceroller.cpp" />
     <ClCompile Include="diceSpliter.cpp" />
     <ClCompile Include="dllmain.cpp" />
@@ -156,6 +162,10 @@ copy "$(ProjectDir)com.dynilath.coolqdicebot.json" "$(SolutionDir)酷Q Air\app\"
     <ClCompile Include="manualDiceControl.cpp" />
     <ClCompile Include="messagepipeline.cpp" />
     <ClCompile Include="nickManager.cpp" />
+    <ClCompile Include="protocol_coc_dice.cpp" />
+    <ClCompile Include="protocol_manual_dice.cpp" />
+    <ClCompile Include="protocol_nickname.cpp" />
+    <ClCompile Include="protocol_roll_dice.cpp" />
     <ClCompile Include="QTool.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>

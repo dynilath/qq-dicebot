@@ -17,6 +17,12 @@
       <UniqueIdentifier>{b5fdd001-c89c-4690-80fd-b4e85cd89a1e}</UniqueIdentifier>
       <Extensions>lib</Extensions>
     </Filter>
+    <Filter Include="Source Files\dice_protocols">
+      <UniqueIdentifier>{d501f147-c12f-44a6-8764-3e88a588d529}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\dice_protocols">
+      <UniqueIdentifier>{2d2286d0-5c87-4729-afb0-106dae6a96ea}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\sqlite3.h">
@@ -66,6 +72,21 @@
     </ClInclude>
     <ClInclude Include="encoder.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="protocol_manual_dice.h">
+      <Filter>Header Files\dice_protocols</Filter>
+    </ClInclude>
+    <ClInclude Include="protocol_roll_dice.h">
+      <Filter>Header Files\dice_protocols</Filter>
+    </ClInclude>
+    <ClInclude Include="dice_protocol.h">
+      <Filter>Header Files\dice_protocols</Filter>
+    </ClInclude>
+    <ClInclude Include="protocol_coc_dice.h">
+      <Filter>Header Files\dice_protocols</Filter>
+    </ClInclude>
+    <ClInclude Include="protocol_nickname.h">
+      <Filter>Header Files\dice_protocols</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -122,6 +143,21 @@
     </ClCompile>
     <ClCompile Include="encoder.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="protocol_roll_dice.cpp">
+      <Filter>Source Files\dice_protocols</Filter>
+    </ClCompile>
+    <ClCompile Include="protocol_manual_dice.cpp">
+      <Filter>Source Files\dice_protocols</Filter>
+    </ClCompile>
+    <ClCompile Include="dice_protocol.cpp">
+      <Filter>Source Files\dice_protocols</Filter>
+    </ClCompile>
+    <ClCompile Include="protocol_coc_dice.cpp">
+      <Filter>Source Files\dice_protocols</Filter>
+    </ClCompile>
+    <ClCompile Include="protocol_nickname.cpp">
+      <Filter>Source Files\dice_protocols</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

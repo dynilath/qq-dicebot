@@ -37,7 +37,6 @@ manualDiceManager::~manualDiceManager()
 
 manualDice * manualDiceManager::createManualDice(const int64_t i_QQID, const int64_t i_QQGroupID, const std::string & command)
 {
-
 	manualDice md_manualdice(command);
 	manualDice * md_manualdice_ret = nullptr;
 	TYPE_MAP_MANUALDICE::iterator iter_manualdicemap = this->map_manualdicemap->find(TYPE_KEY_MANUALDICE(i_QQID, i_QQGroupID));
@@ -147,6 +146,7 @@ manualDice * manualDiceManager::rollManualDice(const int64_t i_QQID, const int64
 			else is_no_sql_mode = true;
 		}
 	}
+	return nullptr;
 }
 
 manualDice * manualDiceManager::killManualDice(const int64_t i_QQID, const int64_t i_QQGroupID, const std::string & command)
@@ -290,6 +290,7 @@ manualDice * manualDiceManager::killallManualDice(const int64_t i_QQID, const in
 			else is_no_sql_mode = true;
 		}
 	}
+	return nullptr;
 }
 
 int manualDiceManager::sqlite3_callback_query_manualdice(void * data, int argc, char ** argv, char ** azColName)
