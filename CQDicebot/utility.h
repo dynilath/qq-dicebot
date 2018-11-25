@@ -1,9 +1,9 @@
 #pragma once
 
-void splitLine(std::string &source, std::vector<std::string> &source_splits);
+void split_line(std::string &source, std::vector<std::string> &source_splits);
 
-void removeSpaceAndTab(std::string &source);
+void remove_space_and_tab(std::string &source);
 
-void quickSort(int* origin, int * pilot, int first, int last);
+void quick_sort(int* origin, int * pilot, int first, int last);
 
-void createDir(char * cstr_dir_name);
+void create_dir(char * cstr_dir_name);
