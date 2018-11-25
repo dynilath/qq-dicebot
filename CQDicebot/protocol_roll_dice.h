@@ -3,6 +3,8 @@
 
 class protocol_roll_dice : public dice_protocol
 {
+private:
+	std::regex * regex_detail_command;
 public:
 	protocol_roll_dice();
 	~protocol_roll_dice();

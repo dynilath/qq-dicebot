@@ -18,12 +18,13 @@ is_using_double = true;}
 #define PCAL_TYPE_DVI 2
 #define PCAL_TYPE_INIT -1
 
-bool base_split_dice(const std::string & str_input, std::string & str_output) {
+bool base_split_dice(const std::string & str_input, std::string & str_output, bool detail_message) {
 	std::string str_input_copy(str_input);
 	std::smatch matchList_single_dice;
 
 	std::ostringstream ostrs_dice_stream(std::ostringstream::ate);
-	ostrs_dice_stream << str_input << " = ";
+	ostrs_dice_stream << str_input;
+	if (detail_message) ostrs_dice_stream << " = ";
 
 	INT32 i_dice_summary = 0;
 	double d_dice_summary = 0.0;
@@ -51,7 +52,7 @@ bool base_split_dice(const std::string & str_input, std::string & str_output) {
 		i_dice_result = dr_single_dice.i_sum_result;
 
 
-		ostrs_dice_stream << *(dr_single_dice.pstr_detail_result);
+		if(detail_message) ostrs_dice_stream << *(dr_single_dice.pstr_detail_result);
 		str_input_copy = matchList_single_dice.suffix().str();
 
 		if (i_dice_cal_type == PCAL_TYPE_MUL) {
@@ -70,7 +71,7 @@ bool base_split_dice(const std::string & str_input, std::string & str_output) {
 		}
 
 		if (str_input_copy.length() > 0 && (str_input_copy[0] == '*' || str_input_copy[0] == '/')) {
-			ostrs_dice_stream << ' ' << str_input_copy[0] << ' ';
+			if (detail_message) ostrs_dice_stream << ' ' << str_input_copy[0] << ' ';
 			if (i_cal_level == 0) {
 				PCAL_WITH_IS_DOUBLE_CHECK(d_dice_buffer_level_1, i_dice_buffer_level_1, =, i_dice_result);
 				i_cal_level = 1;

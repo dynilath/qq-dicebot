@@ -9,6 +9,7 @@
 
 protocol_roll_dice::protocol_roll_dice()
 {
+	this->regex_detail_command = new std::regex("^s *");
 	this->identifier = new std::string("r");
 	this->regex_filter_full_dice = new std::regex("^ *(\\+|\\-)?((\\d*d\\d+((k|kl)\\d+)?)|\\d+)((\\+|\\-|\\*|/)((\\d*d\\d+((k|kl)\\d+)?)|\\d+))* *");
 }
@@ -16,6 +17,7 @@ protocol_roll_dice::protocol_roll_dice()
 
 protocol_roll_dice::~protocol_roll_dice()
 {
+	delete this->regex_detail_command;
 	delete this->identifier;
 	delete this->regex_filter_full_dice;
 }
@@ -27,6 +29,14 @@ std::string protocol_roll_dice::resolve_request(
 	const int64_t uint64_fromQQ,
 	bool isfromGroup)
 {
+	bool detailed_roll_message = false;
+	std::smatch match_list_command_detail;
+	std::regex_search(message, match_list_command_detail, *this->regex_detail_command);
+	if (match_list_command_detail.begin() != match_list_command_detail.end()) {
+		detailed_roll_message = true;
+		message = match_list_command_detail.suffix().str();
+	}
+
 	std::smatch match_list_command_full_dice_roll_match;
 	std::regex_search(message, match_list_command_full_dice_roll_match, *this->regex_filter_full_dice);
 	if (match_list_command_full_dice_roll_match.begin() != match_list_command_full_dice_roll_match.end()) {
@@ -34,7 +44,7 @@ std::string protocol_roll_dice::resolve_request(
 		std::string str_roll_source = match_list_command_full_dice_roll_match.str();
 		remove_space_and_tab(str_roll_source);
 		std::string str_roll_output;
-		if (base_split_dice(str_roll_source, str_roll_output)) {
+		if (base_split_dice(str_roll_source, str_roll_output, detailed_roll_message)) {
 			std::ostringstream ostrs_output_stream(std::ostringstream::ate);
 
 			std::string str_nickname;
