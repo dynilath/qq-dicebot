@@ -1,7 +1,5 @@
 #include "stdafx.h"
 
-
-#include <memory>
 #include "diceroller.h"
 #include "dice_spliter.h"
 

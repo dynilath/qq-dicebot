@@ -66,10 +66,10 @@ CQEVENT(int32_t, __eventEnable, 0)() {
 	mdCtrl = new manual_dice_manager();
 
 	dice_protocols = new dice_protocols_manager();
-	dice_protocols->register_dice(new protocol_roll_dice());
-	dice_protocols->register_dice(new protocol_coc_dice());
-	dice_protocols->register_dice(new protocol_manual_dice());
-	dice_protocols->register_dice(new protocol_nickname());
+	dice_protocols->register_dice(std::shared_ptr<dice_protocol>(new protocol_roll_dice()));
+	dice_protocols->register_dice(std::shared_ptr<dice_protocol>(new protocol_coc_dice()));
+	dice_protocols->register_dice(std::shared_ptr<dice_protocol>(new protocol_manual_dice()));
+	dice_protocols->register_dice(std::shared_ptr<dice_protocol>(new protocol_nickname()));
 	dice_protocols->create_command_regex();
 	return 0;
 }

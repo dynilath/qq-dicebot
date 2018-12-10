@@ -22,7 +22,7 @@
 #include <stack>
 #include <vector>
 #include <regex>
-
+#include <memory>
 #include "number.h"
 
 #define APP_DIR "./app/com.dynilath.coolqdicebot/"
