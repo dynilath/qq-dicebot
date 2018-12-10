@@ -1,10 +1,8 @@
 #include "stdafx.h"
-#include "diceroller.h"
-#include "utility.h"
 #include <random>
-#include <vector>
 #include <chrono>
-#include <regex>
+#include "utility.h"
+#include "diceroller.h"
 
 #define FUNCTION_PARSE_DICE(_Str_target,_Pos_Start,_Pos_D,_Pos_K,_Pos_L) \
 int i_num_of_die = _Pos_D > 0 ? std::stoi(_Str_target.substr(_Pos_Start, _Pos_D - (_Pos_Start))) : 1;\

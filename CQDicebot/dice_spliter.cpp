@@ -1,7 +1,6 @@
 #include "stdafx.h"
-#include "dice_spliter.h"
-#include <regex>
 #include "diceroller.h"
+#include "dice_spliter.h"
 
 std::regex regex_single_dice("(\\+|\\-)?((\\d*d\\d+((k|kl)\\d+)?)|(\\d+))");
 

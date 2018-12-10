@@ -18,8 +18,12 @@
 #include <string>
 #include <map>
 #include <sstream>
+#include <list>
+#include <stack>
 #include <vector>
 #include <regex>
+
+#include "number.h"
 
 #define APP_DIR "./app/com.dynilath.coolqdicebot/"
 #define MAX_DICE_UNIT_COUNT 10
