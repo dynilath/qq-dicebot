@@ -91,6 +91,9 @@
     <ClInclude Include="dice_protocols_manager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="number.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Library Include="CQP.lib">
@@ -107,6 +110,7 @@
     <None Include="com.dynilath.coolqdicebot.json" />
     <None Include="..\README.md" />
     <None Include="..\.travis.yml" />
+    <None Include="..\.gitignore" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="appmain.cpp">
