@@ -1,13 +1,5 @@
 #pragma once
 
-#define ROLL_STATUS_FINISHED 0
-#define ROLL_STATUS_GENERAL_ERR 1
-#define ROLL_STATUS_DICE_NOT_AVAILABLE 2
-#define ROLL_STATUS_UNINITIALIZED -1
-#define ROLL_STATUS_TOO_MANY_DICE 3
-
-#define ROLL_MODE_DND_DK 1
-#define ROLL_MODE_COC_PB 2
 class dice_roller
 {
 private:
@@ -15,6 +7,14 @@ private:
 	static unsigned long ulong_prand_seed;
 	static unsigned long ulong_prand_stage;
 public:
+	static const int ROLL_STATUS_FINISHED = 0;
+	static const int ROLL_STATUS_GENERAL_ERR = 1;
+	static const int ROLL_STATUS_DICE_NOT_AVAILABLE = 2;
+	static const int ROLL_STATUS_UNINITIALIZED = -1;
+	static const int ROLL_STATUS_TOO_MANY_DICE = 3;
+	static const int ROLL_MODE_DND_DK = 1;
+	static const int ROLL_MODE_COC_PB = 2;
+
 	int status;
 	dice_roller() noexcept;
 	~dice_roller();
