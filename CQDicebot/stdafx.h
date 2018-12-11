@@ -28,4 +28,4 @@
 #define APP_DIR "./app/com.dynilath.coolqdicebot/"
 #define MAX_DICE_UNIT_COUNT 10
 #define MAX_DICE_NUM 50
-#define MAX_DICE_FACE 500
+#define MAX_DICE_FACE 1000
