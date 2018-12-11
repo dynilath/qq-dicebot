@@ -11,7 +11,7 @@ public:
 	protocol_manual_dice();
 	~protocol_manual_dice();
 	std::string resolve_request(
-		std::string message,
+		std::string &message,
 		const int32_t i_AuthCode,
 		const int64_t uint64_fromGroupOrDiscuss,
 		const int64_t uint64_fromQQ,
