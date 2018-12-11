@@ -13,10 +13,10 @@
 #define ZERO_THRESHOLD 1e-16
 #define P_INT32_MAX -(INT32_MIN)
 
-class zero_devider_exception : public std::exception
+class zero_divider_exception : public std::exception
 {
 public:
-	zero_devider_exception():exception("cannot devided by zero"){}
+	zero_divider_exception():exception("cannot divided by zero"){}
 };
 
 class number
@@ -200,8 +200,8 @@ public:
 	inline number operator / (const number &val1)
 	{
 		if ((val1.is_using_int && val1.i_value == 0)
-			|| (val1.d_value < ZERO_THRESHOLD && val1.d_value > -ZERO_THRESHOLD)) {
-			throw zero_devider_exception();
+			|| (!val1.is_using_int && val1.d_value < ZERO_THRESHOLD && val1.d_value > -ZERO_THRESHOLD)) {
+			throw zero_divider_exception();
 		}
 
 		if (val1.is_using_int) {
@@ -214,7 +214,7 @@ public:
 
 	inline number operator / (const int32_t val1) {
 		if (val1 == 0) {
-			throw zero_devider_exception();
+			throw zero_divider_exception();
 		}
 
 		if (this->is_using_int && this->i_value % val1 == 0) {
@@ -227,7 +227,7 @@ public:
 
 	inline number operator / (const double val1) {
 		if (val1 < ZERO_THRESHOLD && val1 > -ZERO_THRESHOLD) {
-			throw zero_devider_exception();
+			throw zero_divider_exception();
 		}
 
 		double value_this = this->is_using_int ? (double)(this->i_value) : this->d_value;
