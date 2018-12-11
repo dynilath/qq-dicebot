@@ -38,6 +38,8 @@ std::regex regex_filter_macro_def("^ *\\. *mdef *");
 
 #define CHECK_LASTLINE_FOR_ENDL(_Stream,_Flag) if (_Flag) {	_Flag = false;	_Stream << std::endl;}
 
+std::string str_help_message("DiceBot by dynilath v1.4.2\r\n访问项目主页http://github.com/dynilath/CoolQDicebot\r\n获得使用说明以及了解更多内容。");
+
 bool group_message_pipeline(
 	dice_protocols_manager * dice_protocols,
 	const int32_t i_AuthCode,
@@ -46,9 +48,14 @@ bool group_message_pipeline(
 	const int64_t uint64_fromQQ,
 	bool isfromGroup)
 {
-
 	std::string source(msg);
 	std::vector<std::string> source_splits;
+
+	if (source == ".help") {
+		if (isfromGroup)	CQ_sendGroupMsg(i_AuthCode, uint64_fromGroupOrDiscuss, str_help_message.c_str());
+		else CQ_sendDiscussMsg(i_AuthCode, uint64_fromGroupOrDiscuss, str_help_message.c_str());
+		return true;
+	}
 
 	split_line(source, source_splits);
 
