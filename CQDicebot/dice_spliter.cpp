@@ -368,7 +368,7 @@ bool operation_item::mode_oper_cal_value_from(operation_item * item1, operation_
 			break;
 		case '/':
 			try{ this->ret_value = item1->ret_value / item2->ret_value; }
-			catch (zero_devider_exception zde) {
+			catch (zero_divider_exception zde) {
 				return this->is_cal_successful = false;
 			}
 			break;
