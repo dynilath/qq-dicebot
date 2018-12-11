@@ -11,6 +11,7 @@
 */
 
 #define ZERO_THRESHOLD 1e-16
+#define P_INT32_MAX -(INT32_MIN)
 
 class zero_devider_exception : public std::exception
 {
@@ -93,7 +94,7 @@ public:
 	inline number operator + (const int32_t &val1) {
 		if (this->is_using_int
 			&& (val1 == 0
-				|| (val1 > 0 && INT32_MAX - val1 < this->i_value)
+				|| (val1 > 0 && P_INT32_MAX - val1 < this->i_value)
 				|| (val1 < 0 && INT32_MIN - val1 > this->i_value))) {
 			return number(this->i_value + val1);
 		}
@@ -106,7 +107,7 @@ public:
 		double value_this = this->is_using_int ? (double)(this->i_value) : this->d_value;
 		number ret(value_this + val1);
 
-		if (ret.d_value < INT32_MAX && ret.d_value > INT32_MIN) {
+		if (ret.d_value < P_INT32_MAX && ret.d_value > INT32_MIN) {
 			int32_t i_val = (int32_t)(ret.d_value);
 			double diff = ret.d_value - i_val;
 			if (diff < ZERO_THRESHOLD && diff > -ZERO_THRESHOLD) {
@@ -132,7 +133,7 @@ public:
 		if (this->is_using_int
 			&& (val1 == 0
 				|| (val1 > 0 && INT32_MIN + val1 < this->i_value)
-				|| (val1 < 0 && INT32_MAX + val1 > this->i_value))) {
+				|| (val1 < 0 && P_INT32_MAX + val1 > this->i_value))) {
 			return number(this->i_value - val1);
 		}
 		else {
@@ -144,7 +145,7 @@ public:
 		double value_this = this->is_using_int ? (double)(this->i_value) : this->d_value;
 		number ret(value_this - val1);
 
-		if (ret.d_value < INT32_MAX && ret.d_value > INT32_MIN) {
+		if (ret.d_value < P_INT32_MAX && ret.d_value > INT32_MIN) {
 			int32_t i_val = (int32_t)(ret.d_value);
 			double diff = ret.d_value - i_val;
 			if (diff < ZERO_THRESHOLD && diff > -ZERO_THRESHOLD) {
@@ -167,12 +168,13 @@ public:
 	}
 
 	inline number operator * (const int32_t val1) {
-		if (val1 == 0
-			|| this->i_value == 0
-			|| (val1 > 0 && this->i_value > 0 && INT32_MAX / val1 > this->i_value)
-			|| (val1 < 0 && this->i_value < 0 && INT32_MAX / val1 < this->i_value)
+		if (this->is_using_int
+			&& (val1 == 0
+			|| this->i_value == 0 
+			|| (val1 > 0 && this->i_value > 0 && P_INT32_MAX / val1 > this->i_value)
+			|| (val1 < 0 && this->i_value < 0 && P_INT32_MAX / val1 < this->i_value)
 			|| (val1 < 0 && this->i_value > 0 && INT32_MIN / val1 > this->i_value)
-			|| (val1 > 0 && this->i_value < 0 && INT32_MIN / val1 < this->i_value)) {
+			|| (val1 > 0 && this->i_value < 0 && INT32_MIN / val1 < this->i_value))) {
 			return number(this->i_value * val1);
 		}
 		else {
@@ -184,7 +186,7 @@ public:
 		double value_this = this->is_using_int ? (double)(this->i_value) : this->d_value;
 		number ret(value_this * val1);
 
-		if (ret.d_value < INT32_MAX && ret.d_value > INT32_MIN) {
+		if (ret.d_value < P_INT32_MAX && ret.d_value > INT32_MIN) {
 			int32_t i_val = (int32_t)(ret.d_value);
 			double diff = ret.d_value - i_val;
 			if (diff < ZERO_THRESHOLD && diff > -ZERO_THRESHOLD) {
@@ -231,7 +233,7 @@ public:
 		double value_this = this->is_using_int ? (double)(this->i_value) : this->d_value;
 		number ret(value_this / val1);
 
-		if (ret.d_value < INT32_MAX && ret.d_value > INT32_MIN) {
+		if (ret.d_value < P_INT32_MAX && ret.d_value > INT32_MIN) {
 			int32_t i_val = (int32_t)(ret.d_value);
 			double diff = ret.d_value - i_val;
 			if (diff < ZERO_THRESHOLD && diff > -ZERO_THRESHOLD) {
