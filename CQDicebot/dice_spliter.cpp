@@ -525,14 +525,18 @@ bool operation::add_operation(int i_oper_mode, std::string str_oper, std::string
 		else { 
 			if (this->left_bracket_location->size() == 0) return false;
 			this->left_bracket_location->pop_back();
+			bool is_empty_bracket = true;
 			while (!this->stack_temp->top()->is_left_bracket()) {
 				this->list_output->push_back(this->stack_temp->top());
 				this->stack_temp->pop();
+				is_empty_bracket = false;
 			}
 			std::shared_ptr<operation_item> p_oper_item(oper_item);
-			this->list_output->back()->is_bracket_surrounded = true;
-			this->list_output->back()->left_bracket = this->stack_temp->top();
-			this->list_output->back()->right_bracket = p_oper_item;
+			if (!is_empty_bracket) {
+				this->list_output->back()->is_bracket_surrounded = true;
+				this->list_output->back()->left_bracket = this->stack_temp->top();
+				this->list_output->back()->right_bracket = p_oper_item;
+			}
 			this->stack_temp->pop();
 			this->list_operations->push_back(p_oper_item);
 			return true;
