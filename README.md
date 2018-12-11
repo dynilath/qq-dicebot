@@ -17,6 +17,17 @@ Just a simple dicebot for coolq in development.
 * 可以识别整数、小数、百分数，例如```123```，```123.45```,```123.45%```都是有效的。（当然，骰子个数和面数不可能是小数。）  
 
 # 使用示范
+## help
+发送```.help```获取没啥用的帮助信息。
+> 测试：```.help```
+
+> DiceBot：
+> ``` 
+> DiceBot by dynilath v1.4.2
+> 访问项目主页http://github.com/dynilath/CoolQDicebot
+> 获得使用说明以及了解更多内容。
+> ```
+
 ## 最简单的骰子
 这里假设我们骰一个d20来攻击那个哥布林。  
 > 测试：```.rd20```
