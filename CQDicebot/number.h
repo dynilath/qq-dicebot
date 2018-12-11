@@ -133,7 +133,7 @@ public:
 			&& (val1 == 0
 				|| (val1 > 0 && INT32_MIN + val1 < this->i_value)
 				|| (val1 < 0 && INT32_MAX + val1 > this->i_value))) {
-			return number(this->i_value + val1);
+			return number(this->i_value - val1);
 		}
 		else {
 			return *this - (double)val1;
