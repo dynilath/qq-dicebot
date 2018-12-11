@@ -88,6 +88,12 @@
     <ClInclude Include="nick_manager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="dice_protocols_manager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="number.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Library Include="CQP.lib">
@@ -103,6 +109,8 @@
   <ItemGroup>
     <None Include="com.dynilath.coolqdicebot.json" />
     <None Include="..\README.md" />
+    <None Include="..\.travis.yml" />
+    <None Include="..\.gitignore" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="appmain.cpp">
@@ -138,9 +146,6 @@
     <ClCompile Include="protocol_manual_dice.cpp">
       <Filter>Source Files\dice_protocols</Filter>
     </ClCompile>
-    <ClCompile Include="dice_protocol.cpp">
-      <Filter>Source Files\dice_protocols</Filter>
-    </ClCompile>
     <ClCompile Include="protocol_coc_dice.cpp">
       <Filter>Source Files\dice_protocols</Filter>
     </ClCompile>
@@ -157,6 +162,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="nick_manager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="dice_protocols_manager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

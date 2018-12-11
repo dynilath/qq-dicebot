@@ -22,7 +22,7 @@ protocol_coc_dice::~protocol_coc_dice()
 }
 
 std::string protocol_coc_dice::resolve_request(
-	std::string message,
+	std::string &message,
 	const int32_t i_AuthCode,
 	const int64_t uint64_fromGroupOrDiscuss,
 	const int64_t uint64_fromQQ,
@@ -35,8 +35,8 @@ std::string protocol_coc_dice::resolve_request(
 		std::string str_roll_source = match_list_command_coc_dice_roll_match.str();
 		remove_space_and_tab(str_roll_source);
 
-		dice_roller diceRoll(str_roll_source, ROLL_MODE_COC_PB);
-		if (diceRoll.status == ROLL_STATUS_FINISHED) {
+		dice_roller diceRoll(str_roll_source, dice_roller::ROLL_MODE_COC_PB);
+		if (diceRoll.status == dice_roller::ROLL_STATUS_FINISHED) {
 			std::ostringstream ostrs_output_stream(std::ostringstream::ate);
 
 			std::string str_nickname;

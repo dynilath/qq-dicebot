@@ -1,10 +1,8 @@
 #include "stdafx.h"
-#include "diceroller.h"
-#include "utility.h"
 #include <random>
-#include <vector>
 #include <chrono>
-#include <regex>
+#include "utility.h"
+#include "diceroller.h"
 
 #define FUNCTION_PARSE_DICE(_Str_target,_Pos_Start,_Pos_D,_Pos_K,_Pos_L) \
 int i_num_of_die = _Pos_D > 0 ? std::stoi(_Str_target.substr(_Pos_Start, _Pos_D - (_Pos_Start))) : 1;\
@@ -131,8 +129,8 @@ dice_roller::dice_roller(int num_of_dice, int num_of_face, int keep, bool is_kee
 //inputs regex (\\+|\\-)?(\\d*d\\d+((k|kl)\\d+)?)|(\\d+)
 dice_roller::dice_roller(std::string & str_single_dice,int mode)
 {
-	this->status = ROLL_STATUS_UNINITIALIZED;
-	if (mode == ROLL_MODE_COC_PB) {
+	this->status = dice_roller::ROLL_STATUS_UNINITIALIZED;
+	if (mode == dice_roller::ROLL_MODE_COC_PB) {
 		std::ostringstream ostrs_dice_stream(std::ostringstream::ate);
 		ostrs_dice_stream << "d100" << str_single_dice;
 		int i_cal_pb = 0;
@@ -167,14 +165,14 @@ dice_roller::dice_roller(std::string & str_single_dice,int mode)
 				if (i_bp_count > 1) ostrs_dice_stream << " = d100" << (i_cal_pb > 0 ? "b" : "p") << (i_cal_pb > 0 ? i_cal_pb : -i_cal_pb);
 				ostrs_dice_stream << " = ";
 				dice_roller dice_roll2(1, 10, 0);
-				if (dice_roll2.status != ROLL_STATUS_FINISHED) 
+				if (dice_roll2.status != dice_roller::ROLL_STATUS_FINISHED)
 				{ 
 					this->status = dice_roll2.status; 
 					return;
 				}
 				int i_dec_min = dice_roll2.i_sum_result == 0 ? 1 : 0;
 				dice_roller dice_roll1(i_num_of_dice, 10, 1, is_keep_high, i_dec_min);
-				if (dice_roll1.status != ROLL_STATUS_FINISHED)
+				if (dice_roll1.status != dice_roller::ROLL_STATUS_FINISHED)
 				{
 					this->status = dice_roll1.status;
 					return;
@@ -185,7 +183,7 @@ dice_roller::dice_roller(std::string & str_single_dice,int mode)
 			}
 			else {
 				dice_roller dice_roll(1, 100);
-				if (dice_roll.status != ROLL_STATUS_FINISHED)
+				if (dice_roll.status != dice_roller::ROLL_STATUS_FINISHED)
 				{
 					this->status = dice_roll.status;
 					return;
@@ -195,13 +193,13 @@ dice_roller::dice_roller(std::string & str_single_dice,int mode)
 			}
 		}
 		catch (const std::invalid_argument& ia) {
-			this->status = ROLL_STATUS_DICE_NOT_AVAILABLE;
+			this->status = dice_roller::ROLL_STATUS_DICE_NOT_AVAILABLE;
 		}
 		this->i_sum_result = result;
 		this->pstr_detail_result = new std::string(ostrs_dice_stream.str());
-		if (this->status == ROLL_STATUS_UNINITIALIZED) this->status = ROLL_STATUS_FINISHED;
+		if (this->status == dice_roller::ROLL_STATUS_UNINITIALIZED) this->status = dice_roller::ROLL_STATUS_FINISHED;
 	}
-	else if (mode == ROLL_MODE_DND_DK) {
+	else if (mode == dice_roller::ROLL_MODE_DND_DK) {
 		bool is_first_signed = (str_single_dice[0] == '+' || str_single_dice[0] == '-');
 		std::ostringstream ostrs_dice_stream(std::ostringstream::ate);
 
@@ -233,7 +231,7 @@ dice_roller::dice_roller(std::string & str_single_dice,int mode)
 						int i_num_of_keep = i_num_of_die;
 						CHECK_DICE_LIMITS();
 						dice_roller dr_diceRoll(i_num_of_die, i_face_of_die);
-						if (dr_diceRoll.status != ROLL_STATUS_FINISHED)
+						if (dr_diceRoll.status != dice_roller::ROLL_STATUS_FINISHED)
 						{
 							this->status = dr_diceRoll.status;
 							return;
@@ -247,7 +245,7 @@ dice_roller::dice_roller(std::string & str_single_dice,int mode)
 							FUNCTION_PARSE_DICE(str_single_dice, i_start_pos, i_pos_of_d, i_pos_of_k, i_pos_of_l);
 							CHECK_DICE_LIMITS();
 							dice_roller dr_diceRoll(i_num_of_die, i_face_of_die, i_num_of_keep, false);
-							if (dr_diceRoll.status != ROLL_STATUS_FINISHED)
+							if (dr_diceRoll.status != dice_roller::ROLL_STATUS_FINISHED)
 							{
 								this->status = dr_diceRoll.status;
 								return;
@@ -258,7 +256,7 @@ dice_roller::dice_roller(std::string & str_single_dice,int mode)
 							FUNCTION_PARSE_DICE(str_single_dice, i_start_pos, i_pos_of_d, i_pos_of_k, i_pos_of_l);
 							CHECK_DICE_LIMITS();
 							dice_roller dr_diceRoll(i_num_of_die, i_face_of_die, i_num_of_keep, true);
-							if (dr_diceRoll.status != ROLL_STATUS_FINISHED)
+							if (dr_diceRoll.status != dice_roller::ROLL_STATUS_FINISHED)
 							{
 								this->status = dr_diceRoll.status;
 								return;
@@ -269,14 +267,14 @@ dice_roller::dice_roller(std::string & str_single_dice,int mode)
 				}
 			}
 			catch (const std::invalid_argument& ia) {
-				this->status = ROLL_STATUS_DICE_NOT_AVAILABLE;
+				this->status = dice_roller::ROLL_STATUS_DICE_NOT_AVAILABLE;
 				break;
 			}
 		} while (false);
-		if (this->status == ROLL_STATUS_UNINITIALIZED) this->status = ROLL_STATUS_FINISHED;
+		if (this->status == dice_roller::ROLL_STATUS_UNINITIALIZED) this->status = ROLL_STATUS_FINISHED;
 	}
 	else {
-		this->status = ROLL_STATUS_GENERAL_ERR;
+		this->status = dice_roller::ROLL_STATUS_GENERAL_ERR;
 	}
 }
 

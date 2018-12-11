@@ -35,7 +35,7 @@ protocol_manual_dice::~protocol_manual_dice()
 }
 
 std::string protocol_manual_dice::resolve_request(
-	std::string message,
+	std::string &message,
 	const int32_t i_AuthCode,
 	const int64_t uint64_fromGroupOrDiscuss,
 	const int64_t uint64_fromQQ,
@@ -66,7 +66,7 @@ std::string protocol_manual_dice::manualdice_add(std::string message, std::strin
 		std::string str_roll_message = match_list_roll_match.suffix().str();
 		remove_space_and_tab(str_command);
 		manual_dice * md_manualdice = manual_dice_manager::instance->add_manual_dice(uint64_fromQQ, uint64_fromGroupOrDiscuss, str_command);
-		if ((*md_manualdice).status == ROLL_STATUS_FINISHED) {
+		if ((*md_manualdice).status == dice_roller::ROLL_STATUS_FINISHED) {
 			std::ostringstream ostrs_output_stream(std::ostringstream::ate);
 			ostrs_output_stream << " * " << nick_name << " " << str_roll_message;
 			ostrs_output_stream << " 在桌上增加了这些骰子: " << str_command;
@@ -80,7 +80,7 @@ std::string protocol_manual_dice::manualdice_add(std::string message, std::strin
 std::string protocol_manual_dice::manualdice_killall(std::string message, std::string nick_name, int64_t uint64_fromGroupOrDiscuss, int64_t uint64_fromQQ)
 {
 	manual_dice * md_manualdice = manual_dice_manager::instance->killall_manual_dice(uint64_fromQQ, uint64_fromGroupOrDiscuss);
-	if ((*md_manualdice).status == ROLL_STATUS_FINISHED) {
+	if ((*md_manualdice).status == dice_roller::ROLL_STATUS_FINISHED) {
 		std::ostringstream ostrs_output_stream(std::ostringstream::ate);
 		ostrs_output_stream << " * " << nick_name << " " << message;
 		ostrs_output_stream << " 杀掉了所有的骰子 ";
@@ -100,7 +100,7 @@ std::string protocol_manual_dice::manualdice_kill(std::string message, std::stri
 		remove_space_and_tab(str_command);
 
 		manual_dice * md_manualdice = manual_dice_manager::instance->kill_manual_dice(uint64_fromQQ, uint64_fromGroupOrDiscuss, str_command);
-		if ((*md_manualdice).status == ROLL_STATUS_FINISHED) {
+		if ((*md_manualdice).status == dice_roller::ROLL_STATUS_FINISHED) {
 			std::ostringstream ostrs_output_stream(std::ostringstream::ate);
 			ostrs_output_stream << " * " << nick_name << " " << str_roll_message;
 			ostrs_output_stream << " 杀死桌上的第 " << str_command << " 个骰子 ";
@@ -121,7 +121,7 @@ std::string protocol_manual_dice::manualdice_roll(std::string message, std::stri
 		remove_space_and_tab(str_command);
 
 		manual_dice * md_manualdice = manual_dice_manager::instance->roll_manual_dice(uint64_fromQQ, uint64_fromGroupOrDiscuss, str_command);
-		if ((*md_manualdice).status == ROLL_STATUS_FINISHED) {
+		if ((*md_manualdice).status == dice_roller::ROLL_STATUS_FINISHED) {
 			std::ostringstream ostrs_output_stream(std::ostringstream::ate);
 			ostrs_output_stream << " * " << nick_name << " " << str_roll_message;
 			ostrs_output_stream << " 重骰桌上的第 " << str_command << " 个骰子 ";
@@ -142,7 +142,7 @@ std::string protocol_manual_dice::manualdice_create(std::string message, std::st
 		remove_space_and_tab(str_command);
 
 		manual_dice * md_manualdice = manual_dice_manager::instance->create_manual_dice(uint64_fromQQ, uint64_fromGroupOrDiscuss, str_command);
-		if (md_manualdice->status == ROLL_STATUS_FINISHED) {
+		if (md_manualdice->status == dice_roller::ROLL_STATUS_FINISHED) {
 			std::ostringstream ostrs_output_stream(std::ostringstream::ate);
 			ostrs_output_stream << " * " << nick_name << " " << str_roll_message;
 			ostrs_output_stream << " 在桌上放了这些骰子: " << str_command;

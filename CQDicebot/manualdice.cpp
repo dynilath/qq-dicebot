@@ -21,7 +21,7 @@ manual_dice::manual_dice(const std::string & source)
 {
 	this->pintlist_dice = new TYPE_LIST_DICE();
 	i_sum_result = 0;
-	this->status = ROLL_STATUS_UNINITIALIZED;
+	this->status = dice_roller::ROLL_STATUS_UNINITIALIZED;
 	try {
 		std::string str_source_copy(source);
 		std::smatch smatch_single_manual_dice;
@@ -38,7 +38,7 @@ manual_dice::manual_dice(const std::string & source)
 					
 					for (int i_iter = 0; i_iter < i_num_of_die; i_iter++) {
 						dice_roller dice(1, i_face_of_die);
-						if (dice.status != ROLL_STATUS_FINISHED) {
+						if (dice.status != dice_roller::ROLL_STATUS_FINISHED) {
 							this->status = dice.status;
 							return;
 						}
@@ -54,22 +54,22 @@ manual_dice::manual_dice(const std::string & source)
 			else break;
 		}
 		if (i_max_unit_alert == MAX_DICE_UNIT_COUNT) {
-			this->status = ROLL_STATUS_TOO_MANY_DICE;
+			this->status = dice_roller::ROLL_STATUS_TOO_MANY_DICE;
 		}
 	}
 	catch (const std::invalid_argument& ia) {
-		this->status = ROLL_STATUS_DICE_NOT_AVAILABLE;
+		this->status = dice_roller::ROLL_STATUS_DICE_NOT_AVAILABLE;
 	}
-	if (this->status == ROLL_STATUS_UNINITIALIZED) this->status = ROLL_STATUS_FINISHED;
+	if (this->status == dice_roller::ROLL_STATUS_UNINITIALIZED) this->status = dice_roller::ROLL_STATUS_FINISHED;
 }
 
 void manual_dice::roll(const std::string & source)
 {
-	this->status = ROLL_STATUS_UNINITIALIZED;
+	this->status = dice_roller::ROLL_STATUS_UNINITIALIZED;
 	try {
 		unsigned int target = std::stoi(source) - 1;
 		if (target > this->pintlist_dice->size()) { 
-			this->status = ROLL_STATUS_FINISHED;
+			this->status = dice_roller::ROLL_STATUS_FINISHED;
 			return; 
 		}
 		else if (target < 0) return;
@@ -77,36 +77,36 @@ void manual_dice::roll(const std::string & source)
 		int i_face_of_die = (*iter_list).first;
 		i_sum_result -= (*iter_list).second;
 		dice_roller dice(1, i_face_of_die);
-		if (dice.status != ROLL_STATUS_FINISHED){
+		if (dice.status != dice_roller::ROLL_STATUS_FINISHED){
 			this->status = dice.status;
 			return;
 		}
 		(*iter_list).second = dice.i_sum_result;
 		i_sum_result += dice.i_sum_result;
-		if (this->status == ROLL_STATUS_UNINITIALIZED) this->status = ROLL_STATUS_FINISHED;
+		if (this->status == dice_roller::ROLL_STATUS_UNINITIALIZED) this->status = dice_roller::ROLL_STATUS_FINISHED;
 	}
 	catch (const std::invalid_argument& ia) {
-		this->status = ROLL_STATUS_DICE_NOT_AVAILABLE;
+		this->status = dice_roller::ROLL_STATUS_DICE_NOT_AVAILABLE;
 	}
 }
 
 void manual_dice::kill(const std::string & source)
 {
-	this->status = ROLL_STATUS_UNINITIALIZED;
+	this->status = dice_roller::ROLL_STATUS_UNINITIALIZED;
 	try{
 		unsigned int target = std::stoi(source) -1;
 		if (target >= this->pintlist_dice->size()) {
-			this->status = ROLL_STATUS_FINISHED;
+			this->status = dice_roller::ROLL_STATUS_FINISHED;
 			return;
 		}
 		else if (target < 0) return;
 		TYPE_LIST_DICE::iterator iter_list = (this->pintlist_dice->begin()) + target;
 		i_sum_result -= (*iter_list).second;
 		this->pintlist_dice->erase((iter_list));
-		if (this->status == ROLL_STATUS_UNINITIALIZED) this->status = ROLL_STATUS_FINISHED;
+		if (this->status == dice_roller::ROLL_STATUS_UNINITIALIZED) this->status = dice_roller::ROLL_STATUS_FINISHED;
 	}
 	catch (const std::invalid_argument& ia) {
-		this->status = ROLL_STATUS_DICE_NOT_AVAILABLE;
+		this->status = dice_roller::ROLL_STATUS_DICE_NOT_AVAILABLE;
 	}
 }
 
@@ -128,7 +128,7 @@ void manual_dice::add(const std::string & source)
 
 					for (int i_iter = 0; i_iter < i_num_of_die; i_iter++) {
 						dice_roller dice(1, i_face_of_die);
-						if (dice.status != ROLL_STATUS_FINISHED) {
+						if (dice.status != dice_roller::ROLL_STATUS_FINISHED) {
 							this->status = dice.status;
 							return;
 						}
@@ -144,24 +144,24 @@ void manual_dice::add(const std::string & source)
 			else break;
 		}
 		if (i_max_unit_alert == MAX_DICE_UNIT_COUNT) {
-			this->status = ROLL_STATUS_TOO_MANY_DICE;
+			this->status = dice_roller::ROLL_STATUS_TOO_MANY_DICE;
 		}
 	}
 	catch (const std::invalid_argument& ia) {
-		this->status = ROLL_STATUS_DICE_NOT_AVAILABLE;
+		this->status = dice_roller::ROLL_STATUS_DICE_NOT_AVAILABLE;
 	}
 }
 
 void manual_dice::killall()
 {
-	this->status = ROLL_STATUS_UNINITIALIZED;
+	this->status = dice_roller::ROLL_STATUS_UNINITIALIZED;
 	try {
 		this->pintlist_dice->clear();
 		this->i_sum_result = 0;
-		if (this->status == ROLL_STATUS_UNINITIALIZED) this->status = ROLL_STATUS_FINISHED;
+		if (this->status == dice_roller::ROLL_STATUS_UNINITIALIZED) this->status = dice_roller::ROLL_STATUS_FINISHED;
 	}
 	catch (const std::invalid_argument& ia) {
-		this->status = ROLL_STATUS_DICE_NOT_AVAILABLE;
+		this->status = dice_roller::ROLL_STATUS_DICE_NOT_AVAILABLE;
 	}
 }
 

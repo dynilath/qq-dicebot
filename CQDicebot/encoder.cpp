@@ -35,7 +35,7 @@ int encoder::getInt()
 void encoder::setChar(const char * source, size_t size)
 {
 	vec_container = new std::vector<char>();
-	for (int i_iter = 0; i_iter < size; i_iter++) {
+	for (unsigned int i_iter = 0; i_iter < size; i_iter++) {
 		vec_container->push_back(source[i_iter]);
 	}
 }

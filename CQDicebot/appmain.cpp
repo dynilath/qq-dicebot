@@ -14,12 +14,15 @@
 #include "utility.h"
 #include "diceroller.h"
 #include "manual_dice_control.h"
-#include "messagepipeline.h"
 
 #include "protocol_roll_dice.h"
 #include "protocol_coc_dice.h"
 #include "protocol_manual_dice.h"
 #include "protocol_nickname.h"
+#include "dice_protocols_manager.h"
+
+
+#include "messagepipeline.h"
 
 int32_t i_AuthCode = -1; //AuthCode 调用酷Q的方法时需要用到
 bool enabled = false;
@@ -27,7 +30,7 @@ bool enabled = false;
 nickname_manager * nickCtrl;
 database_manager * dbCtrl;
 manual_dice_manager * mdCtrl;
-std::vector<dice_protocol *> * diceProtocols;
+dice_protocols_manager * dice_protocols;
 
 /* 
 * 返回应用的ApiVer、Appid，打包后将不会调用
@@ -61,13 +64,13 @@ CQEVENT(int32_t, __eventEnable, 0)() {
 	dbCtrl = new database_manager();
 	nickCtrl = new nickname_manager();
 	mdCtrl = new manual_dice_manager();
-	diceProtocols = new std::vector<dice_protocol *>();
 
-	diceProtocols->push_back(new protocol_roll_dice());
-	diceProtocols->push_back(new protocol_coc_dice());
-	diceProtocols->push_back(new protocol_manual_dice());
-	diceProtocols->push_back(new protocol_nickname());
-
+	dice_protocols = new dice_protocols_manager();
+	dice_protocols->register_dice(std::shared_ptr<dice_protocol>(new protocol_roll_dice()));
+	dice_protocols->register_dice(std::shared_ptr<dice_protocol>(new protocol_coc_dice()));
+	dice_protocols->register_dice(std::shared_ptr<dice_protocol>(new protocol_manual_dice()));
+	dice_protocols->register_dice(std::shared_ptr<dice_protocol>(new protocol_nickname()));
+	dice_protocols->create_command_regex();
 	return 0;
 }
 
@@ -83,7 +86,7 @@ CQEVENT(int32_t, __eventDisable, 0)() {
 	if (mdCtrl != nullptr) delete(mdCtrl);
 	if (nickCtrl != nullptr) delete(nickCtrl);
 	if (dbCtrl != nullptr) delete(dbCtrl);
-	if (diceProtocols != nullptr) delete(diceProtocols);
+	if (dice_protocols != nullptr) delete(dice_protocols);
 	return 0;
 }
 
@@ -105,7 +108,7 @@ CQEVENT(int32_t, __eventPrivateMsg, 24)(int32_t subType, int32_t msgId, int64_t 
 * Type=2 群消息
 */
 CQEVENT(int32_t, __eventGroupMsg, 36)(int32_t subType, int32_t msgId, int64_t fromGroup, int64_t fromQQ, const char *fromAnonymous, const char *msg, int32_t font) {
-	if (group_message_pipeline(diceProtocols, i_AuthCode, msg, fromGroup, fromQQ, true)) {
+	if (group_message_pipeline(dice_protocols, i_AuthCode, msg, fromGroup, fromQQ, true)) {
 		return EVENT_BLOCK;
 	}
 	return EVENT_IGNORE;
@@ -116,7 +119,7 @@ CQEVENT(int32_t, __eventGroupMsg, 36)(int32_t subType, int32_t msgId, int64_t fr
 * Type=4 讨论组消息
 */
 CQEVENT(int32_t, __eventDiscussMsg, 32)(int32_t subType, int32_t msgId, int64_t fromDiscuss, int64_t fromQQ, const char *msg, int32_t font) {
-	if (group_message_pipeline(diceProtocols, i_AuthCode, msg, fromDiscuss, fromQQ, false)) {
+	if (group_message_pipeline(dice_protocols, i_AuthCode, msg, fromDiscuss, fromQQ, false)) {
 		return EVENT_BLOCK;
 	}
 	return EVENT_IGNORE; //关于返回值说明, 见“_eventPrivateMsg”函数

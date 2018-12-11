@@ -1,6 +1,6 @@
 #pragma once
 #define MANUAL_DICE_CALL_TYPE(_name) std::string(protocol_manual_dice::* _name )(std::string, std::string, int64_t, int64_t)
-
+typedef std::string(*manual_dice_call)(std::string, std::string, int64_t, int64_t);
 class protocol_manual_dice : public dice_protocol
 {
 private:
@@ -11,7 +11,7 @@ public:
 	protocol_manual_dice();
 	~protocol_manual_dice();
 	std::string resolve_request(
-		std::string message,
+		std::string &message,
 		const int32_t i_AuthCode,
 		const int64_t uint64_fromGroupOrDiscuss,
 		const int64_t uint64_fromQQ,

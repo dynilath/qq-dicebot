@@ -207,4 +207,4 @@ enc_temp_folder/
 *.diagsession
 
 #unittest
-UnitTest/
+UnitTest1/

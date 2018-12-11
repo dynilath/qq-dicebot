@@ -23,7 +23,7 @@ protocol_roll_dice::~protocol_roll_dice()
 }
 
 std::string protocol_roll_dice::resolve_request(
-	std::string message,
+	std::string &message,
 	const int32_t i_AuthCode,
 	const int64_t uint64_fromGroupOrDiscuss,
 	const int64_t uint64_fromQQ,
@@ -37,23 +37,25 @@ std::string protocol_roll_dice::resolve_request(
 		message = match_list_command_detail.suffix().str();
 	}
 
-	std::smatch match_list_command_full_dice_roll_match;
-	std::regex_search(message, match_list_command_full_dice_roll_match, *this->regex_filter_full_dice);
-	if (match_list_command_full_dice_roll_match.begin() != match_list_command_full_dice_roll_match.end()) {
-		std::string str_roll_message = match_list_command_full_dice_roll_match.suffix().str();
-		std::string str_roll_source = match_list_command_full_dice_roll_match.str();
-		remove_space_and_tab(str_roll_source);
-		std::string str_roll_output;
-		if (base_split_dice(str_roll_source, str_roll_output, detailed_roll_message)) {
-			std::ostringstream ostrs_output_stream(std::ostringstream::ate);
+	std::string str_roll_command;
+	std::string str_roll_detail;
+	std::string str_result;
+	std::string str_message;
 
-			std::string str_nickname;
-			(nickname_manager::instance)->get_nickname(i_AuthCode, uint64_fromGroupOrDiscuss, uint64_fromQQ, str_nickname, isfromGroup);
+	binary_tree_split_dice(message, str_roll_command, str_roll_detail, str_result, str_message);
 
-			ostrs_output_stream << " * " << str_nickname << " " << str_roll_message << " ÖÀ÷»: ";
-			ostrs_output_stream << str_roll_output;
-			return ostrs_output_stream.str();
-		}
+	if (str_roll_command.size() > 0) {
+		std::ostringstream ostrs_output_stream(std::ostringstream::ate);
+
+		std::string str_nickname;
+		(nickname_manager::instance)->get_nickname(i_AuthCode, uint64_fromGroupOrDiscuss, uint64_fromQQ, str_nickname, isfromGroup);
+
+		ostrs_output_stream << " * " << str_nickname << " " << str_message << " ÖÀ÷»: ";
+		ostrs_output_stream << str_roll_command << " = ";
+		if (detailed_roll_message && str_roll_detail.size() > 0) ostrs_output_stream << str_roll_detail << " = ";
+		ostrs_output_stream << str_result;
+
+		return ostrs_output_stream.str();
 	}
 	return std::string();
 }
