@@ -59,7 +59,6 @@ Just a simple dicebot for coolq in development.<br>
 <br> 
 
 4.算式输入<br> 
-尚未加入小数输入<br>
 >输入
 
 <pre><code>.ns算式输入
