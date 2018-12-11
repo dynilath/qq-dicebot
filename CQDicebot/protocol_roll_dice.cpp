@@ -23,7 +23,7 @@ protocol_roll_dice::~protocol_roll_dice()
 }
 
 std::string protocol_roll_dice::resolve_request(
-	std::string message,
+	std::string &message,
 	const int32_t i_AuthCode,
 	const int64_t uint64_fromGroupOrDiscuss,
 	const int64_t uint64_fromQQ,
@@ -52,7 +52,7 @@ std::string protocol_roll_dice::resolve_request(
 
 		ostrs_output_stream << " * " << str_nickname << " " << str_message << " ÖÀ÷»: ";
 		ostrs_output_stream << str_roll_command << " = ";
-		if (detailed_roll_message) ostrs_output_stream << str_roll_detail << " = ";
+		if (detailed_roll_message && str_roll_detail.size() > 0) ostrs_output_stream << str_roll_detail << " = ";
 		ostrs_output_stream << str_result;
 
 		return ostrs_output_stream.str();
