@@ -28,13 +28,13 @@ Just a simple dicebot for coolq in development.<br>
 
 这里假设我们骰一个d20来攻击那个哥布林。<br> 
 >输入：<code>.rd20</code><br> 
->输出：<code> * 测试  掷骰: d20 = 20</code><br> 
+>输出：<code> \* 测试  掷骰: d20 = 20</code><br> 
 
 你只需要在开头写上<code>.r</code>再加上骰子（例如<code>d20</code>、<code>4d6</code>）。<br> 
 发送这个消息，骰子机器人就能识别你的消息并回复一个骰子结果。<br> 
 你也可以加上一些描述：<br> 
 >输入：<code>.rd20攻击</code><br> 
->输出：<code> * 测试 攻击 掷骰: d20 = 6</code><br> 
+>输出：<code> \* 测试 攻击 掷骰: d20 = 6</code><br> 
 
 骰子机器人在说什么？
 ------
@@ -50,7 +50,7 @@ Just a simple dicebot for coolq in development.<br>
 
 有的时候你可能会想要知道4d6里面每个骰子各是多少，这个时候使用<code>.rs</code>代替之前的<code>.r</code>即可。<br>
 >输入：<code>.rs4d6</code><br> 
->输出：<code> * 测试  掷骰: 4d6 = (1 + 1 + 4 + 2) = 8</code><br> 
+>输出：<code> \* 测试  掷骰: 4d6 = (1 + 1 + 4 + 2) = 8</code><br> 
 
 这个时候的发送的信息组成结构为：<br> 
 <pre><code> * [你的QQ昵称/群名片] [骰子描述] 掷骰: [骰子指令] = [骰子详细] = [结果]</code></pre>
@@ -62,7 +62,7 @@ Just a simple dicebot for coolq in development.<br>
 <code>k[数值]</code>表示保留较高结果，<code>kl[数值]</code>表示较低结果。<br>
 下面的例子是骰4d6并保留3个较高的结果（即扔掉较低的那个）。<br>
 >输入：<code>.rs4d6k3</code><br> 
->输出：<code> * 测试  掷骰: 4d6k3 = (5 + 1 + (1) + 1) = 7</code><br> 
+>输出：<code> \* 测试  掷骰: 4d6k3 = (5 + 1 + (1) + 1) = 7</code><br> 
 
 一个一个地输入太麻烦了！
 ------
@@ -106,23 +106,23 @@ Just a simple dicebot for coolq in development.<br>
 ------
 
 不用担心，骰子机器人是支持算式的。<br>
->输入：<code>.rs(((4d6+3)/2+2d20)+4*1d6)*150%</code><br> 
->输出：<code> * 测试  掷骰: (( + 2d20) + 4 * 1d6) * 150% = (( + (12 + 13)) + 4 * (3)) * 150% = 55.5</code><br> 
+>输入：<code>.rs(((4d6+3)/2+2d20)+4\*1d6)\*150%</code><br> 
+>输出：<code> \* 测试  掷骰: (((4d6 + 3) / 2 + 2d20) + 4 \* 1d6) \* 150% = ((((2 + 1 + 5 + 4) + 3) / 2 + (11 + 12)) + 4 \* (4)) \* 150% = 69.75</code><br> 
 
 当然，如果你的算式输入格式有问题，多余的部分会被识别成骰子描述。<br> 
->输入：<code>.rs4d6+(((4d6+3)/2+2d20)+4*1d6</code><br> 
->输出：<code> * 测试 +(((4d6+3)/2+2d20)+4*1d6 掷骰: 4d6 = (6 + 3 + 2 + 4) = 15</code><br> 
+>输入：<code>.rs4d6+(((4d6+3)/2+2d20)+4\*1d6</code><br> 
+>输出：<code> \* 测试 +(((4d6+3)/2+2d20)+4\*1d6 掷骰: 4d6 = (6 + 3 + 2 + 4) = 15</code><br> 
 
 我不想每次都改群名片
 ------
 
 使用<code>.n</code>指令来指定一个仅在骰子机器人中用的名字。<br>
 >输入：<code>.n菜鸟PC</code><br> 
->输出：<code> * Da'Inihlus 的新名字是 菜鸟PC</code><br> 
+>输出：<code> \* Da'Inihlus 的新名字是 菜鸟PC</code><br> 
 
 在这之后使用骰子指令时，昵称部分会使用这个名字。<br>
 >输入：<code>.r4d6k3 力量</code><br> 
->输出：<code> * 菜鸟PC 力量 掷骰: 4d6k3 = 7</code><br> 
+>输出：<code> \* 菜鸟PC 力量 掷骰: 4d6k3 = 7</code><br> 
 
 这个昵称在每个群/讨论组之间是独立的，在A群的设置不会影响在B群的状态。<br>
 
@@ -141,18 +141,18 @@ Just a simple dicebot for coolq in development.<br>
 
 骰子机器人提供了coc定制的骰子。使用指令为<code>.c</code>。<br> 
 >输入：<code>.c图书馆利用</code><br> 
->输出：<code> * 反pal魅魔 图书馆利用 掷骰: d100 = 11</code><br> 
+>输出：<code> \* 反pal魅魔 图书馆利用 掷骰: d100 = 11</code><br> 
 
 除此之外，内置了coc7版的奖惩骰。使用<code>b[数值]</code>来产生奖励骰，使用<code>p[数值]</code>来产生惩罚骰。<br>
 >输入：<code>.cp2闪避(50)</code><br> 
->输出：<code> * 反pal魅魔 闪避(50) 掷骰: d100p2 = [(1) + 7 + (7)] [0] = 70</code><br> 
+>输出：<code> \* 反pal魅魔 闪避(50) 掷骰: d100p2 = [(1) + 7 + (7)] [0] = 70</code><br> 
 
 >输入：<code>.cb2斗殴(65)</code><br> 
->输出：<code> * 反pal魅魔 斗殴(65) 掷骰: d100b2 = [(10) + 9 + (9)] [0] = 90</code><br> 
+>输出：<code> \* 反pal魅魔 斗殴(65) 掷骰: d100b2 = [(10) + 9 + (9)] [0] = 90</code><br> 
 
 可以自动计算奖惩相抵。<br>
 >输入：<code>.cp5b5p2b3奖罚抵消</code><br> 
->输出：<code> * 反pal魅魔 奖罚抵消 掷骰: d100p5b5p2b3 = d100b1 = [0 + (1)] [7] = 7</code><br> 
+>输出：<code> \* 反pal魅魔 奖罚抵消 掷骰: d100p5b5p2b3 = d100b1 = [0 + (1)] [7] = 7</code><br> 
 
 高级功能
 ------
