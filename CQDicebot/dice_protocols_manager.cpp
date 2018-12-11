@@ -35,8 +35,8 @@ void dice_protocols_manager::create_command_regex()
 	for (; iter != this->dice_protocol_map->end(); iter++) {
 		if (is_first) {
 			is_first = false;
-			ostrs_stream << "|";
 		}
+		else ostrs_stream << "|";
 		ostrs_stream << (*iter).first;
 	}
 	ostrs_stream << ")";
@@ -46,7 +46,7 @@ void dice_protocols_manager::create_command_regex()
 dice_protocol * dice_protocols_manager::get_protocol(std::string command)
 {
 	std::map<std::string, std::shared_ptr<dice_protocol> >::iterator  iter = this->dice_protocol_map->find(command);
-	if (iter != dice_protocol_map->end()) return nullptr;
+	if (iter == dice_protocol_map->end()) return nullptr;
 	else return (*iter).second.get();
 }
 
