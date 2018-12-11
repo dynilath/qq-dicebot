@@ -146,9 +146,6 @@
     <ClCompile Include="protocol_manual_dice.cpp">
       <Filter>Source Files\dice_protocols</Filter>
     </ClCompile>
-    <ClCompile Include="dice_protocol.cpp">
-      <Filter>Source Files\dice_protocols</Filter>
-    </ClCompile>
     <ClCompile Include="protocol_coc_dice.cpp">
       <Filter>Source Files\dice_protocols</Filter>
     </ClCompile>

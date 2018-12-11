@@ -157,7 +157,6 @@ copy "$(ProjectDir)com.dynilath.coolqdicebot.json" "$(SolutionDir)酷Q Air\app\"
   <ItemGroup>
     <ClCompile Include="appmain.cpp" />
     <ClCompile Include="database_manager.cpp" />
-    <ClCompile Include="dice_protocol.cpp" />
     <ClCompile Include="diceroller.cpp" />
     <ClCompile Include="dice_protocols_manager.cpp" />
     <ClCompile Include="dice_spliter.cpp" />
