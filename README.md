@@ -9,13 +9,15 @@ Just a simple dicebot for coolq in development.
 * 使用硬件随机器，如果硬件随机器不可用，则改用mt19937随机器。  
 * 支持coc7的奖惩骰。  
 * 可以识别整数、小数、百分数。
+* 注意：该骰子机器人不会回应私聊消息。
 
 # 安装
 点击[下载cpk](https://github.com/decterous/CoolQDicebot/releases/latest)前往下载本骰子机器人最新cpk。  
 点击[获取酷Q](https://cqp.cc/)前往酷Q官网下载酷Q。    
 点击[酷Q wiki](https://d.cqp.me/Pro/%E6%96%B0%E6%89%8B%E4%B8%8A%E8%B7%AF)前往酷Qwiki了解如何使用酷Q以及插件如何安装。  
-注意：该骰子机器人不会回应私聊消息。  
-
+  
+# 实例  
+QQ：1701687847  
 
 # 使用示范
 ## help
