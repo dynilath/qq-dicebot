@@ -9,7 +9,7 @@ Just a simple dicebot for coolq in development.
 * 支持coc7的奖惩骰。  
 * 可以识别整数、小数、百分数。
 
-#安装
+# 安装
 点击[下载cpk](https://github.com/decterous/CoolQDicebot/releases/latest)前往下载本骰子机器人最新cpk。  
 点击[获取酷Q](https://cqp.cc/)前往酷Q官网下载酷Q。    
 点击[酷Q wiki](https://d.cqp.me/Pro/%E6%96%B0%E6%89%8B%E4%B8%8A%E8%B7%AF)前往酷Qwiki了解如何使用酷Q以及插件如何安装。  
