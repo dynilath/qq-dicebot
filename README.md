@@ -2,6 +2,7 @@
 Just a simple dicebot for coolq in development.  
 只是一个简单的酷Q骰子机器人。  
 ![image](/dicebot_test.gif)   
+感谢@niunuinui 在文档制作上的帮助。
 
 # 特性
 * 所有的骰子指令支持多行输入。  
@@ -14,7 +15,7 @@ Just a simple dicebot for coolq in development.
 点击[获取酷Q](https://cqp.cc/)前往酷Q官网下载酷Q。    
 点击[酷Q wiki](https://d.cqp.me/Pro/%E6%96%B0%E6%89%8B%E4%B8%8A%E8%B7%AF)前往酷Qwiki了解如何使用酷Q以及插件如何安装。  
 注意：该骰子机器人不会回应私聊消息。  
-感谢@niunuinui 在文档制作上的帮助。
+
 
 # 使用示范
 ## help
