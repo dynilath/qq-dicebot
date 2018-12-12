@@ -173,6 +173,7 @@ Just a simple dicebot for coolq in development.
 ## 我是一个coc7版玩家
 骰子机器人提供了coc定制的骰子。使用指令为```.c```。  
 > 测试：```.c图书馆利用```  
+
 > DiceBot：``` * 反pal魅魔 图书馆利用 掷骰: d100 = 11```  
 
 除此之外，骰子机器人内置了coc7版的奖惩骰。 
@@ -188,6 +189,7 @@ Just a simple dicebot for coolq in development.
 
 可以自动计算奖惩相抵。
 > 测试：```.cp5b5p2b3奖罚抵消```  
+
 > DiceBot：``` * 反pal魅魔 奖罚抵消 掷骰: d100p5b5p2b3 = d100b1 = [0 + (1)] [7] = 7```  
 
 ## 手动骰子
