@@ -1,5 +1,4 @@
 # DiceRobot kills you 3000
-![image](/dicebot_test.gif)  
 Just a simple dicebot for coolq in development.  
 只是一个简单的酷Q骰子机器人。  
 点击[下载cpk](https://github.com/decterous/CoolQDicebot/releases/latest)前往下载本骰子机器人最新cpk。  
@@ -7,6 +6,7 @@ Just a simple dicebot for coolq in development.
 在启动酷Q后，右键点击酷Q任务栏图标，点击```应用```→```应用目录```，将cpk复制到打开的目录中，重启酷Q。  
 注意：该骰子机器人不会回应私聊消息。  
 感谢@niunuinui 在文档制作上的帮助。
+![image](/dicebot_test.gif)   
 
 # 特性
 * 所有的骰子指令支持多行输入。  
