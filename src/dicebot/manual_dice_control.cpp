@@ -1,6 +1,7 @@
 #include "./manual_dice_control.h"
 
 #include "sqlite3.h"
+
 #include "./manual_dice.h"
 #include "./database_manager.h"
 

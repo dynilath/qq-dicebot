@@ -1,14 +1,13 @@
+#include "./protocol_manual_dice.h"
 
+
+#include "./dice_roller.h"
 #include "./dice_utils.h"
 #include "./nick_manager.h"
-
 #include "./manual_dice.h"
 #include "./manual_dice_control.h"
 
-#include "./dice_roller.h"
 
-#include "./protocol_base.h"
-#include "./protocol_manual_dice.h"
 
 namespace dicebot::protocol{
 

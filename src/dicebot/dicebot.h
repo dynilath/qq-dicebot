@@ -43,6 +43,10 @@ namespace dicebot{
         logger::log = varlog;
     }
 
+	bool try_get_nickname(int64_t group_id, int64_t user_id, std::string &str_out_nick){
+		str_out_nick.assign("");
+	}
+
     bool group_message_pipeline(
 		std::string source,
 		const int64_t fromGroup, 

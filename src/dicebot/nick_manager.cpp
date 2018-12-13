@@ -1,3 +1,4 @@
+#include "./database_manager.h"
 
 #include "./nick_manager.h"
 
@@ -5,11 +6,10 @@
 
 #include "sqlite3.h"
 
-#include "./database_manager.h"
+
 
 namespace base64 = cq::utils::base64;
-namespace api = cq::api;
-namespace logging = cq::logging;
+namespace cqapi = cq::api;
 
 namespace dicebot{
 	#define NICK_TABLE_NAME "nickname"
@@ -140,12 +140,12 @@ namespace dicebot{
 
 	bool nickname_manager::get_default_name(const int64_t fromGroupOrDiscuss, const int64_t fromQQ, std::string & nickname,bool is_from_group){
 		if(is_from_group){
-			cq::GroupMember member = api::get_group_member_info(fromGroupOrDiscuss,fromQQ);
+			cq::GroupMember member = cqapi::get_group_member_info(fromGroupOrDiscuss,fromQQ);
 			nickname.assign(member.nickname);
 			return true;
 		}
 		else{
-			cq::User user = api::get_stranger_info(fromQQ);
+			cq::User user = cqapi::get_stranger_info(fromQQ);
 			nickname.assign(user.nickname);
 			return true;
 		}

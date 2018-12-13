@@ -1,6 +1,7 @@
 #pragma once
 
 #include "./common.h"
+#include "./protocol_base.h"
 
 namespace dicebot::protocol{
 	#define MANUAL_DICE_CALL_TYPE_R std::string(protocol_manual_dice::* )(std::string, std::string, int64_t, int64_t)

@@ -1,12 +1,9 @@
-#include <sstream>
+#include "./protocol_nickname.h"
 
-#include "cqsdk/api.h"
+#include "../cqsdk/api.h"
 
-#include "protocol_base.h"
-#include "nick_manager.h"
 
-#include "protocol_nickname.h"
-
+#include "./nick_manager.h"
 
 namespace cqapi = cq::api;
 

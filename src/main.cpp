@@ -26,7 +26,7 @@ CQ_MAIN {
 
     event::on_private_msg = [](const cq::PrivateMessageEvent &e) {
         logging::debug(u8"消息", u8"收到私聊消息：" + e.message + u8"，发送者：" + std::to_string(e.user_id));
-
+        
         std::string output;
 
         try {

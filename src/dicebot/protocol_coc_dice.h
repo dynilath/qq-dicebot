@@ -1,6 +1,7 @@
 #pragma once
 
 #include "./common.h"
+#include "./protocol_base.h"
 
 namespace dicebot::protocol{
 	class protocol_coc_dice : public protocol_base

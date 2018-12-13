@@ -1,10 +1,8 @@
-#include <sstream>
+#include "./protocol_roll_dice.h"
 
-#include "dice_utils.h"
-#include "nick_manager.h"
-#include "dice_spliter.h"
-#include "protocol_base.h"
-#include "protocol_roll_dice.h"
+#include "./dice_utils.h"
+#include "./nick_manager.h"
+#include "./dice_spliter.h"
 
 //regular dice, with detailed info
 

@@ -1,8 +1,6 @@
 #include "./dice_utils.h"
 
 #include <vector>
-#include <io.h>
-#include <direct.h>
 
 namespace dicebot{
 	void split_line(std::string & source, std::vector<std::string>& source_splits){
