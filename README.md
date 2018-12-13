@@ -1,4 +1,6 @@
 # DiceRobot kills you 3000
+[![License](https://img.shields.io/github/license/dynilath/coolq-dicebot.svg)](LICENSE)
+[![Build Status](https://img.shields.io/appveyor/ci/dynilath/coolqdicebot.svg)](https://ci.appveyor.com/project/dynilath/coolqdicebot)  
 Just a simple dicebot for coolq in development.  
 只是一个简单的酷Q骰子机器人。  
 ![image](/dicebot_test.gif)   
