@@ -13,7 +13,6 @@
             ],
             "options": {
                 "env": {
-                    "VCPKG_ROOT": "H:\\github\\vcpkg",
                     "VCPKG_TRIPLET": "my-x86-windows-static"
                 }
             },
@@ -34,7 +33,6 @@
             ],
             "options": {
                 "env": {
-                    "VCPKG_ROOT": "H:\\github\\vcpkg",
                     "VCPKG_TRIPLET": "my-x86-windows-static"
                 }
             },
