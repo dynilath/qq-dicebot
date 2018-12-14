@@ -38,20 +38,20 @@ namespace dicebot{
 		}
 	}
 
-	manual_dice * manual_dice_control::create_manual_dice(const int64_t i_QQID, const int64_t i_QQGroupID, const std::string & command)
+	manual_dice * manual_dice_control::create_manual_dice(const int64_t user_id, const int64_t group_id, const std::string & command)
 	{
 		manual_dice md_manualdice(command);
 		manual_dice * md_manualdice_ret = nullptr;
-		TYPE_MAP_MANUALDICE::iterator iter_manualdicemap = this->map_manualdicemap->find(TYPE_KEY_MANUALDICE(i_QQID, i_QQGroupID));
+		TYPE_MAP_MANUALDICE::iterator iter_manualdicemap = this->map_manualdicemap->find(TYPE_KEY_MANUALDICE(user_id, group_id));
 		if (iter_manualdicemap != this->map_manualdicemap->end()) {
 			this->map_manualdicemap->erase(iter_manualdicemap);
-			auto pair_insert_ret = this->map_manualdicemap->insert(TYPE_PAIR_MANUALDICE(TYPE_KEY_MANUALDICE(i_QQID, i_QQGroupID), md_manualdice));
+			auto pair_insert_ret = this->map_manualdicemap->insert(TYPE_PAIR_MANUALDICE(TYPE_KEY_MANUALDICE(user_id, group_id), md_manualdice));
 			if(pair_insert_ret.second){
 				md_manualdice_ret = & ((*(pair_insert_ret.first)).second);
 			}
 		}
 		else {
-			auto pair_insert_ret = this->map_manualdicemap->insert(TYPE_PAIR_MANUALDICE(TYPE_KEY_MANUALDICE(i_QQID, i_QQGroupID), md_manualdice));
+			auto pair_insert_ret = this->map_manualdicemap->insert(TYPE_PAIR_MANUALDICE(TYPE_KEY_MANUALDICE(user_id, group_id), md_manualdice));
 			if (pair_insert_ret.second) {
 				md_manualdice_ret = &((*(pair_insert_ret.first)).second);
 			}
@@ -61,7 +61,7 @@ namespace dicebot{
 			sqlite3 * database = database::database_manager::get_database();
 			std::string str_encoded_manualdice(md_manualdice.endcode());
 			std::ostringstream ostrs_sql_command(std::ostringstream::ate);
-			ostrs_sql_command << "SELECT * FROM " MANUALDICE_TABLE_NAME " where qqid =" << i_QQID << " and groupid =" << i_QQGroupID;
+			ostrs_sql_command << "SELECT * FROM " MANUALDICE_TABLE_NAME " where qqid =" << user_id << " and groupid =" << group_id;
 			std::string str_manualdice_read;
 			char * pchar_err_message = nullptr;
 			int ret_code = sqlite3_exec(database, ostrs_sql_command.str().c_str(), &sqlite3_callback_query_manualdice, (void*)&str_manualdice_read, &pchar_err_message);
@@ -70,7 +70,7 @@ namespace dicebot{
 					std::ostringstream ostrs_sql_command_2(std::ostringstream::ate);
 					ostrs_sql_command_2.str("update " MANUALDICE_TABLE_NAME " set ");
 					ostrs_sql_command_2 << " source ='" << str_encoded_manualdice << "'";
-					ostrs_sql_command_2 << " where qqid =" << i_QQID << " and groupid =" << i_QQGroupID;
+					ostrs_sql_command_2 << " where qqid =" << user_id << " and groupid =" << group_id;
 					int ret_code_2 = sqlite3_exec(database, ostrs_sql_command_2.str().c_str(), &database::database_manager::sqlite3_callback, (void*)&i_data_database_update, &pchar_err_message);
 	#ifdef _DEBUG
 					if (ret_code_2 != SQLITE_OK) {
@@ -81,7 +81,7 @@ namespace dicebot{
 				else {
 					std::ostringstream ostrs_sql_command_2(std::ostringstream::ate);
 					ostrs_sql_command_2.str("insert into " MANUALDICE_TABLE_NAME " values ( ");
-					ostrs_sql_command_2 << i_QQID << ", " << i_QQGroupID << ", '" << str_encoded_manualdice << "'" << ");";
+					ostrs_sql_command_2 << user_id << ", " << group_id << ", '" << str_encoded_manualdice << "'" << ");";
 					int ret_code_2 = sqlite3_exec(database, ostrs_sql_command_2.str().c_str(), &database::database_manager::sqlite3_callback, (void*)&i_data_database_update, &pchar_err_message);
 	#ifdef _DEBUG
 					if (ret_code_2 != SQLITE_OK) {
@@ -96,11 +96,11 @@ namespace dicebot{
 		return md_manualdice_ret;
 	}
 
-	manual_dice * manual_dice_control::roll_manual_dice(const int64_t i_QQID, const int64_t i_QQGroupID, const std::string & command)
+	manual_dice * manual_dice_control::roll_manual_dice(const int64_t user_id, const int64_t group_id, const std::string & command)
 	{
 		manual_dice * pmd_manualdice = nullptr;
 		char * pchar_err_message = nullptr;
-		TYPE_MAP_MANUALDICE::iterator iter_manualdicemap = this->map_manualdicemap->find(TYPE_KEY_MANUALDICE(i_QQID, i_QQGroupID));
+		TYPE_MAP_MANUALDICE::iterator iter_manualdicemap = this->map_manualdicemap->find(TYPE_KEY_MANUALDICE(user_id, group_id));
 		if (iter_manualdicemap != this->map_manualdicemap->end()) {
 			pmd_manualdice = &((*iter_manualdicemap).second);
 			pmd_manualdice->roll(command);
@@ -110,7 +110,7 @@ namespace dicebot{
 				std::ostringstream ostrs_sql_command_2(std::ostringstream::ate);
 				ostrs_sql_command_2.str("update " MANUALDICE_TABLE_NAME " set ");
 				ostrs_sql_command_2 << " source ='" << str_encoded_manualdice << "'";
-				ostrs_sql_command_2 << " where qqid =" << i_QQID << " and groupid =" << i_QQGroupID;
+				ostrs_sql_command_2 << " where qqid =" << user_id << " and groupid =" << group_id;
 				int ret_code_2 = sqlite3_exec(database, ostrs_sql_command_2.str().c_str(), &database::database_manager::sqlite3_callback, (void*)&i_data_database_update, &pchar_err_message);
 	#ifdef _DEBUG
 				if (ret_code_2 != SQLITE_OK) {
@@ -124,7 +124,7 @@ namespace dicebot{
 			if (!is_no_sql_mode) {
 				sqlite3 * database = database::database_manager::get_database();
 				std::ostringstream ostrs_sql_command(std::ostringstream::ate);
-				ostrs_sql_command << "SELECT * FROM " MANUALDICE_TABLE_NAME " where qqid =" << i_QQID << " and groupid =" << i_QQGroupID;
+				ostrs_sql_command << "SELECT * FROM " MANUALDICE_TABLE_NAME " where qqid =" << user_id << " and groupid =" << group_id;
 				std::string str_manualdice_read;
 				char * pchar_err_message = nullptr;
 				int ret_code = sqlite3_exec(database, ostrs_sql_command.str().c_str(), &sqlite3_callback_query_manualdice, (void*)&str_manualdice_read, &pchar_err_message);
@@ -133,7 +133,7 @@ namespace dicebot{
 						pmd_manualdice = new manual_dice();
 						pmd_manualdice->decode(str_manualdice_read);
 						pmd_manualdice->roll(command);
-						auto pair_insert_ret = this->map_manualdicemap->insert(TYPE_PAIR_MANUALDICE(TYPE_KEY_MANUALDICE(i_QQID, i_QQGroupID), *pmd_manualdice));
+						auto pair_insert_ret = this->map_manualdicemap->insert(TYPE_PAIR_MANUALDICE(TYPE_KEY_MANUALDICE(user_id, group_id), *pmd_manualdice));
 						delete(pmd_manualdice);
 						return &((*(pair_insert_ret.first)).second);
 					}
@@ -144,11 +144,11 @@ namespace dicebot{
 		return nullptr;
 	}
 
-	manual_dice * manual_dice_control::kill_manual_dice(const int64_t i_QQID, const int64_t i_QQGroupID, const std::string & command)
+	manual_dice * manual_dice_control::kill_manual_dice(const int64_t user_id, const int64_t group_id, const std::string & command)
 	{
 		manual_dice * pmd_manualdice = nullptr;
 		char * pchar_err_message = nullptr;
-		TYPE_MAP_MANUALDICE::iterator iter_manualdicemap = this->map_manualdicemap->find(TYPE_KEY_MANUALDICE(i_QQID, i_QQGroupID));
+		TYPE_MAP_MANUALDICE::iterator iter_manualdicemap = this->map_manualdicemap->find(TYPE_KEY_MANUALDICE(user_id, group_id));
 		if (iter_manualdicemap != this->map_manualdicemap->end()) {
 			pmd_manualdice = &((*iter_manualdicemap).second);
 			pmd_manualdice->kill(command);
@@ -158,7 +158,7 @@ namespace dicebot{
 				std::ostringstream ostrs_sql_command_2(std::ostringstream::ate);
 				ostrs_sql_command_2.str("update " MANUALDICE_TABLE_NAME " set ");
 				ostrs_sql_command_2 << " source ='" << str_encoded_manualdice << "'";
-				ostrs_sql_command_2 << " where qqid =" << i_QQID << " and groupid =" << i_QQGroupID;
+				ostrs_sql_command_2 << " where qqid =" << user_id << " and groupid =" << group_id;
 				int ret_code_2 = sqlite3_exec(database, ostrs_sql_command_2.str().c_str(), &database::database_manager::sqlite3_callback, (void*)&i_data_database_update, &pchar_err_message);
 	#ifdef _DEBUG
 				if (ret_code_2 != SQLITE_OK) {
@@ -172,7 +172,7 @@ namespace dicebot{
 			if (!is_no_sql_mode) {
 				sqlite3 * database = database::database_manager::get_database();
 				std::ostringstream ostrs_sql_command(std::ostringstream::ate);
-				ostrs_sql_command << "SELECT * FROM " MANUALDICE_TABLE_NAME " where qqid =" << i_QQID << " and groupid =" << i_QQGroupID;
+				ostrs_sql_command << "SELECT * FROM " MANUALDICE_TABLE_NAME " where qqid =" << user_id << " and groupid =" << group_id;
 				std::string str_manualdice_read;
 				char * pchar_err_message = nullptr;
 				int ret_code = sqlite3_exec(database, ostrs_sql_command.str().c_str(), &sqlite3_callback_query_manualdice, (void*)&str_manualdice_read, &pchar_err_message);
@@ -181,7 +181,7 @@ namespace dicebot{
 						pmd_manualdice = new manual_dice();
 						pmd_manualdice->decode(str_manualdice_read);
 						pmd_manualdice->kill(command);
-						auto pair_insert_ret = this->map_manualdicemap->insert(TYPE_PAIR_MANUALDICE(TYPE_KEY_MANUALDICE(i_QQID, i_QQGroupID), *pmd_manualdice));
+						auto pair_insert_ret = this->map_manualdicemap->insert(TYPE_PAIR_MANUALDICE(TYPE_KEY_MANUALDICE(user_id, group_id), *pmd_manualdice));
 						delete(pmd_manualdice);
 						return &((*(pair_insert_ret.first)).second);
 					}
@@ -192,11 +192,11 @@ namespace dicebot{
 		return nullptr;
 	}
 
-	manual_dice * manual_dice_control::add_manual_dice(const int64_t i_QQID, const int64_t i_QQGroupID, const std::string & command)
+	manual_dice * manual_dice_control::add_manual_dice(const int64_t user_id, const int64_t group_id, const std::string & command)
 	{
 		manual_dice * pmd_manualdice = nullptr;
 		char * pchar_err_message = nullptr;
-		TYPE_MAP_MANUALDICE::iterator iter_manualdicemap = this->map_manualdicemap->find(TYPE_KEY_MANUALDICE(i_QQID, i_QQGroupID));
+		TYPE_MAP_MANUALDICE::iterator iter_manualdicemap = this->map_manualdicemap->find(TYPE_KEY_MANUALDICE(user_id, group_id));
 		if (iter_manualdicemap != this->map_manualdicemap->end()) {
 			pmd_manualdice = &((*iter_manualdicemap).second);
 			pmd_manualdice->add(command);
@@ -206,7 +206,7 @@ namespace dicebot{
 				std::ostringstream ostrs_sql_command_2(std::ostringstream::ate);
 				ostrs_sql_command_2.str("update " MANUALDICE_TABLE_NAME " set ");
 				ostrs_sql_command_2 << " source ='" << str_encoded_manualdice << "'";
-				ostrs_sql_command_2 << " where qqid =" << i_QQID << " and groupid =" << i_QQGroupID;
+				ostrs_sql_command_2 << " where qqid =" << user_id << " and groupid =" << group_id;
 				int ret_code_2 = sqlite3_exec(database, ostrs_sql_command_2.str().c_str(), &database::database_manager::sqlite3_callback, (void*)&i_data_database_update, &pchar_err_message);
 	#ifdef _DEBUG
 				if (ret_code_2 != SQLITE_OK) {
@@ -220,7 +220,7 @@ namespace dicebot{
 			if (!is_no_sql_mode) {
 				sqlite3 * database = database::database_manager::get_database();
 				std::ostringstream ostrs_sql_command(std::ostringstream::ate);
-				ostrs_sql_command << "SELECT * FROM " MANUALDICE_TABLE_NAME " where qqid =" << i_QQID << " and groupid =" << i_QQGroupID;
+				ostrs_sql_command << "SELECT * FROM " MANUALDICE_TABLE_NAME " where qqid =" << user_id << " and groupid =" << group_id;
 				std::string str_manualdice_read;
 				char * pchar_err_message = nullptr;
 				int ret_code = sqlite3_exec(database, ostrs_sql_command.str().c_str(), &sqlite3_callback_query_manualdice, (void*)&str_manualdice_read, &pchar_err_message);
@@ -229,7 +229,7 @@ namespace dicebot{
 						pmd_manualdice = new manual_dice();
 						pmd_manualdice->decode(str_manualdice_read);
 						pmd_manualdice->kill(command);
-						auto pair_insert_ret = this->map_manualdicemap->insert(TYPE_PAIR_MANUALDICE(TYPE_KEY_MANUALDICE(i_QQID, i_QQGroupID), *pmd_manualdice));
+						auto pair_insert_ret = this->map_manualdicemap->insert(TYPE_PAIR_MANUALDICE(TYPE_KEY_MANUALDICE(user_id, group_id), *pmd_manualdice));
 						delete(pmd_manualdice);
 						return &((*(pair_insert_ret.first)).second);
 					}
@@ -240,11 +240,11 @@ namespace dicebot{
 		return nullptr;
 	}
 
-	manual_dice * manual_dice_control::killall_manual_dice(const int64_t i_QQID, const int64_t i_QQGroupID)
+	manual_dice * manual_dice_control::killall_manual_dice(const int64_t user_id, const int64_t group_id)
 	{
 		manual_dice * pmd_manualdice = nullptr;
 		char * pchar_err_message = nullptr;
-		TYPE_MAP_MANUALDICE::iterator iter_manualdicemap = this->map_manualdicemap->find(TYPE_KEY_MANUALDICE(i_QQID, i_QQGroupID));
+		TYPE_MAP_MANUALDICE::iterator iter_manualdicemap = this->map_manualdicemap->find(TYPE_KEY_MANUALDICE(user_id, group_id));
 		if (iter_manualdicemap != this->map_manualdicemap->end()) {
 			pmd_manualdice = &((*iter_manualdicemap).second);
 			pmd_manualdice->killall();
@@ -254,7 +254,7 @@ namespace dicebot{
 				std::ostringstream ostrs_sql_command_2(std::ostringstream::ate);
 				ostrs_sql_command_2.str("update " MANUALDICE_TABLE_NAME " set ");
 				ostrs_sql_command_2 << " source ='" << str_encoded_manualdice << "'";
-				ostrs_sql_command_2 << " where qqid =" << i_QQID << " and groupid =" << i_QQGroupID;
+				ostrs_sql_command_2 << " where qqid =" << user_id << " and groupid =" << group_id;
 				int ret_code_2 = sqlite3_exec(database, ostrs_sql_command_2.str().c_str(), &database::database_manager::sqlite3_callback, (void*)&i_data_database_update, &pchar_err_message);
 	#ifdef _DEBUG
 				if (ret_code_2 != SQLITE_OK) {
@@ -268,7 +268,7 @@ namespace dicebot{
 			if (!is_no_sql_mode) {
 				sqlite3 * database = database::database_manager::get_database();
 				std::ostringstream ostrs_sql_command(std::ostringstream::ate);
-				ostrs_sql_command << "SELECT * FROM " MANUALDICE_TABLE_NAME " where qqid =" << i_QQID << " and groupid =" << i_QQGroupID;
+				ostrs_sql_command << "SELECT * FROM " MANUALDICE_TABLE_NAME " where qqid =" << user_id << " and groupid =" << group_id;
 				std::string str_manualdice_read;
 				char * pchar_err_message = nullptr;
 				int ret_code = sqlite3_exec(database, ostrs_sql_command.str().c_str(), &sqlite3_callback_query_manualdice, (void*)&str_manualdice_read, &pchar_err_message);
@@ -277,7 +277,7 @@ namespace dicebot{
 						pmd_manualdice = new manual_dice();
 						pmd_manualdice->decode(str_manualdice_read);
 						pmd_manualdice->killall();
-						auto pair_insert_ret = this->map_manualdicemap->insert(TYPE_PAIR_MANUALDICE(TYPE_KEY_MANUALDICE(i_QQID, i_QQGroupID), *pmd_manualdice));
+						auto pair_insert_ret = this->map_manualdicemap->insert(TYPE_PAIR_MANUALDICE(TYPE_KEY_MANUALDICE(user_id, group_id), *pmd_manualdice));
 						delete(pmd_manualdice);
 						return &((*(pair_insert_ret.first)).second);
 					}

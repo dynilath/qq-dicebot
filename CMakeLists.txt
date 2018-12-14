@@ -27,6 +27,8 @@ find_package(Iconv REQUIRED)
 
 find_package(Sqlite3 REQUIRED)
 
+find_package(Boost REQUIRED COMPONENTS serialization)
+
 include(FixLinkConflict)
 
 file(GLOB_RECURSE SOURCE_FILES src/*.cpp)
@@ -35,6 +37,7 @@ add_library(${LIB_NAME} SHARED ${SOURCE_FILES})
 
 target_link_libraries(${LIB_NAME} ${ICONV_AND_DEPS_LIBRARIES})
 target_link_libraries(${LIB_NAME} sqlite3)
+target_link_libraries(${LIB_NAME} ${Boost_LIBRARIES})
 
 cotire(${LIB_NAME})
 

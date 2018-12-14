@@ -17,13 +17,17 @@
 #include "./database_manager.h"
 #include "./manual_dice_control.h"
 
+#include "../cqsdk/utils/base64.h"
+
+namespace base64 = cq::utils::base64;
+
 namespace dicebot{
     protocol_manager * dice_protocols;
     nickname_manager * nickCtrl;
     database::database_manager * dbCtrl;
     manual_dice_control * mdCtrl;
 
-	std::string str_help_message(u8"DiceBot by dynilath v1.4.2\r\n访问项目主页http://github.com/dynilath/CoolQDicebot\r\n获得使用说明以及了解更多内容。");
+	std::string str_help_message("RGljZUJvdCUyMGJ5JTIwZHluaWxhdGglMjB2MS40LjIlNUNyJTVDbiV1OEJCRiV1OTVFRSV1OTg3OSV1NzZFRSV1NEUzQiV1OTg3NWh0dHAlM0EvL2dpdGh1Yi5jb20vZHluaWxhdGgvQ29vbFFEaWNlYm90JTVDciU1Q24ldTgzQjcldTVGOTcldTRGN0YldTc1MjgldThCRjQldTY2MEUldTRFRTUldTUzQ0EldTRFODYldTg5RTMldTY2RjQldTU5MUEldTUxODUldTVCQjkldTMwMDI=");
 	
     void initialize(std::string app_dir){
         dbCtrl = new database::database_manager(app_dir);
@@ -45,6 +49,7 @@ namespace dicebot{
 
 	bool try_get_nickname(int64_t group_id, int64_t user_id, std::string &str_out_nick){
 		str_out_nick.assign("");
+		return true;
 	}
 
     bool group_message_pipeline(
@@ -57,7 +62,7 @@ namespace dicebot{
 		std::vector<std::string> source_splits;
 
 		if (source == ".help") {
-			output.assign(str_help_message);
+			output.assign(base64::decode(str_help_message));
 			return true;
 		}
 

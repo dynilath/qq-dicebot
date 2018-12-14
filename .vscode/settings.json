@@ -70,6 +70,15 @@
         "stack": "cpp",
         "string_view": "cpp",
         "typeindex": "cpp",
-        "variant": "cpp"
+        "variant": "cpp",
+        "atomic": "cpp",
+        "cctype": "cpp",
+        "condition_variable": "cpp",
+        "cwctype": "cpp",
+        "fstream": "cpp",
+        "future": "cpp",
+        "mutex": "cpp",
+        "queue": "cpp",
+        "thread": "cpp"
     }
 }

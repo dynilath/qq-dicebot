@@ -24,7 +24,6 @@ namespace dicebot::protocol{
 		this->method_map->insert(std::pair<std::string, MANUAL_DICE_CALL_TYPE_R>("r", &protocol_manual_dice::manualdice_roll));
 	}
 
-
 	protocol_manual_dice::~protocol_manual_dice()
 	{
 		delete this->identifier;

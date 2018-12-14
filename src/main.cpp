@@ -3,11 +3,11 @@
 
 #include "dicebot/dicebot.h"
 
-namespace app = cq::app; // 插件本身的生命周期事件和管理
-namespace event = cq::event; // 用于注册 QQ 相关的事件处理函数
+namespace cqapp = cq::app; // 插件本身的生命周期事件和管理
+namespace cqevent = cq::event; // 用于注册 QQ 相关的事件处理函数
 namespace api = cq::api; // 用于调用酷 Q 提供的接口
-namespace logging = cq::logging; // 用于日志
-namespace message = cq::message; // 提供封装了的 Message 等类
+namespace cqlogging = cq::logging; // 用于日志
+namespace cqmessage = cq::message; // 提供封装了的 Message 等类
 
 // 初始化 App ID
 CQ_INITIALIZE("com.dynilath.coolqdicebot");
@@ -16,29 +16,29 @@ CQ_INITIALIZE("com.dynilath.coolqdicebot");
 CQ_MAIN {
     cq::config.convert_unicode_emoji = true; // 配置 SDK 自动转换 Emoji 到 Unicode（默认就是 true）
 
-    app::on_enable = [] {
-        // logging、api、dir 等命名空间下的函数只能在事件回调函数内部调用，而不能直接在 CQ_MAIN 中调用
+    cqapp::on_enable = [] {
+        // cqlogging、api、dir 等命名空间下的函数只能在事件回调函数内部调用，而不能直接在 CQ_MAIN 中调用
         std::string dir = cq::dir::app();
         dicebot::initialize(dir);
-        dicebot::set_logger(logging::debug);
-        logging::debug(u8"启用", u8"插件已启动");
+        dicebot::set_logger(cqlogging::debug);
+        cqlogging::debug(u8"启用", u8"插件已启动");
     };
 
-    event::on_private_msg = [](const cq::PrivateMessageEvent &e) {
-        logging::debug(u8"消息", u8"收到私聊消息：" + e.message + u8"，发送者：" + std::to_string(e.user_id));
-        
+    cqevent::on_private_msg = [](const cq::PrivateMessageEvent &e) {
+        cqlogging::debug(u8"消息", u8"收到私聊消息：" + e.message + u8"，发送者：" + std::to_string(e.user_id));
+
         std::string output;
 
         try {
             if(dicebot::group_message_pipeline(e.raw_message, 1000,e.user_id,false,output)){
 
             }else{
-                logging::debug(u8"API", u8"调用失败，无法产生结果");
+                cqlogging::debug(u8"API", u8"调用失败，无法产生结果");
             }
 
             cq::Message message;
 
-            message.push_back(cq::message::MessageSegment::text(output));
+            message.push_back(cqmessage::MessageSegment::text(output));
 
             message.send(e.target);
 
@@ -51,13 +51,13 @@ CQ_MAIN {
             //msg.send(e.target); // 使用 Message 类的 send 成员函数
         } catch (const cq::exception::ApiError &err) {
             // API 调用失败
-            logging::debug(u8"API", u8"调用失败，错误码：" + std::to_string(err.code));
+            cqlogging::debug(u8"API", u8"调用失败，错误码：" + std::to_string(err.code));
         }
 
         e.block(); // 阻止事件继续传递给其它插件
     }; 
 /*
-    event::on_group_msg = [](const cq::GroupMessageEvent &e ) { // 使用 C++ 的 auto 关键字
+    cqevent::on_group_msg = [](const cq::GroupMessageEvent &e ) { // 使用 C++ 的 auto 关键字
         const auto memlist = api::get_group_member_list(e.group_id); // 获取数据接口
         cq::Message msg = u8"本群一共有 "; // string 到 Message 自动转换
         msg += std::to_string(memlist.size()) + u8" 个成员"; // Message 类可以进行加法运算

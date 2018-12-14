@@ -17,11 +17,11 @@ namespace dicebot{
 		TYPE_MAP_MANUALDICE * map_manualdicemap;
 		manual_dice_control();
 		~manual_dice_control();
-		manual_dice * create_manual_dice(const int64_t i_QQID, const int64_t i_QQGroupID, const std::string & command);
-		manual_dice * roll_manual_dice(const int64_t i_QQID, const int64_t i_QQGroupID, const std::string & command);
-		manual_dice * kill_manual_dice(const int64_t i_QQID, const int64_t i_QQGroupID, const std::string & command);
-		manual_dice * add_manual_dice(const int64_t i_QQID, const int64_t i_QQGroupID, const std::string & command);
-		manual_dice * killall_manual_dice(const int64_t i_QQID, const int64_t i_QQGroupID);
+		manual_dice * create_manual_dice(const int64_t user_id, const int64_t group_id, const std::string & command);
+		manual_dice * roll_manual_dice(const int64_t user_id, const int64_t group_id, const std::string & command);
+		manual_dice * kill_manual_dice(const int64_t user_id, const int64_t group_id, const std::string & command);
+		manual_dice * add_manual_dice(const int64_t user_id, const int64_t group_id, const std::string & command);
+		manual_dice * killall_manual_dice(const int64_t user_id, const int64_t group_id);
 		static int sqlite3_callback_query_manualdice(void * data, int argc, char ** argv, char ** azColName);
 	};
 }

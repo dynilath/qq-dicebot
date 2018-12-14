@@ -7,6 +7,7 @@
 #include <stack>
 #include <regex>
 #include <sstream>
+#include <memory>
 
 #include <functional>
 

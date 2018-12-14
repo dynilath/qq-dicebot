@@ -1,7 +1,10 @@
 #include "./manual_dice.h"
 
 #include "./dice_roller.h"
-#include "./encoder.h"
+#include "../cqsdk/utils/base64.h"
+
+#include <boost/archive/binary_oarchive.hpp>
+#include <boost/archive/binary_iarchive.hpp>
 
 namespace dicebot{
 	std::regex regex_filter_manual_dice_part("^((\\+)?\\d*d\\d+)");
@@ -37,13 +40,13 @@ namespace dicebot{
 						int i_face_of_die = std::stoi(command.substr(i_pos_of_d + 1));
 						
 						for (int i_iter = 0; i_iter < i_num_of_die; i_iter++) {
-							roll::dice_roller dice(1, i_face_of_die);
-							if (dice.status != roll::roll_status::FINISHED) {
-								this->status = dice.status;
+							roll::p_dice_roller dice = roll::dice_roller::roll_base(1, i_face_of_die);
+							if (dice && dice->status != roll::roll_status::FINISHED) {
+								this->status = dice->status;
 								return;
 							}
 							else {
-								int result = dice.i_sum_result;
+								int result = dice->i_sum_result;
 								this->pintlist_dice->push_back(TYPE_PAIR_DICE(i_face_of_die, result));
 								this->i_sum_result += result;
 							}
@@ -58,6 +61,9 @@ namespace dicebot{
 			}
 		}
 		catch (const std::invalid_argument& ia) {
+			#ifdef _DEBUG
+				logger::log("manual_dice",ia.what());
+			#endif
 			this->status = roll::roll_status::DICE_NOT_AVAILABLE;
 		}
 		if (this->status == roll::roll_status::UNINITIALIZED) this->status = roll::roll_status::FINISHED;
@@ -76,16 +82,19 @@ namespace dicebot{
 			TYPE_LIST_DICE::iterator iter_list = this->pintlist_dice->begin() + target;
 			int i_face_of_die = (*iter_list).first;
 			i_sum_result -= (*iter_list).second;
-			roll::dice_roller dice(1, i_face_of_die);
-			if (dice.status != roll::roll_status::FINISHED){
-				this->status = dice.status;
+			roll::p_dice_roller dice = roll::dice_roller::roll_base(1, i_face_of_die);
+			if (dice && dice->status != roll::roll_status::FINISHED){
+				this->status = dice->status;
 				return;
 			}
-			(*iter_list).second = dice.i_sum_result;
-			i_sum_result += dice.i_sum_result;
+			(*iter_list).second = dice->i_sum_result;
+			i_sum_result += dice->i_sum_result;
 			if (this->status == roll::roll_status::UNINITIALIZED) this->status = roll::roll_status::FINISHED;
 		}
 		catch (const std::invalid_argument& ia) {
+			#ifdef _DEBUG
+				logger::log("manual_dice", ia.what());
+			#endif
 			this->status = roll::roll_status::DICE_NOT_AVAILABLE;
 		}
 	}
@@ -106,6 +115,9 @@ namespace dicebot{
 			if (this->status == roll::roll_status::UNINITIALIZED) this->status = roll::roll_status::FINISHED;
 		}
 		catch (const std::invalid_argument& ia) {
+			#ifdef _DEBUG
+				logger::log("manual_dice", ia.what());
+			#endif
 			this->status = roll::roll_status::DICE_NOT_AVAILABLE;
 		}
 	}
@@ -127,13 +139,13 @@ namespace dicebot{
 						int i_face_of_die = std::stoi(command.substr(i_pos_of_d + 1));
 
 						for (int i_iter = 0; i_iter < i_num_of_die; i_iter++) {
-							roll::dice_roller dice(1, i_face_of_die);
-							if (dice.status != roll::roll_status::FINISHED) {
-								this->status = dice.status;
+							roll::p_dice_roller dice = roll::dice_roller::roll_base(1, i_face_of_die);
+							if (dice && dice->status != roll::roll_status::FINISHED) {
+								this->status = dice->status;
 								return;
 							}
 							else {
-								int result = dice.i_sum_result;
+								int result = dice->i_sum_result;
 								this->pintlist_dice->push_back(TYPE_PAIR_DICE(i_face_of_die, result));
 								this->i_sum_result += result;
 							}
@@ -148,6 +160,9 @@ namespace dicebot{
 			}
 		}
 		catch (const std::invalid_argument& ia) {
+			#ifdef _DEBUG
+				logger::log("manual_dice", ia.what());
+			#endif
 			this->status = roll::roll_status::DICE_NOT_AVAILABLE;
 		}
 	}
@@ -161,36 +176,44 @@ namespace dicebot{
 			if (this->status == roll::roll_status::UNINITIALIZED) this->status = roll::roll_status::FINISHED;
 		}
 		catch (const std::invalid_argument& ia) {
+			#ifdef _DEBUG
+				logger::log("manual_dice", ia.what());
+			#endif
 			this->status = roll::roll_status::DICE_NOT_AVAILABLE;
 		}
 	}
 
 	std::string manual_dice::endcode()
 	{
-		encoder enc_encoder;
-
-		enc_encoder.addInt(this->pintlist_dice->size());
+		std::ostringstream strs(std::ostringstream::ate);
+		boost::archive::binary_oarchive oa(strs);
+		oa << this->pintlist_dice->size();
 		TYPE_LIST_DICE::iterator iter_list = this->pintlist_dice->begin();
 		for (; iter_list != this->pintlist_dice->end(); iter_list++) {
-			enc_encoder.addInt((*iter_list).first);
-			enc_encoder.addInt((*iter_list).second);
+			oa << ((*iter_list).first);
+			oa << ((*iter_list).second);
 		}
-		return std::string(enc_encoder.getData());
+		return cq::utils::base64::encode((const unsigned char *)(strs.str().c_str()),strs.str().size());
 	}
 
 	void manual_dice::decode(std::string & source)
 	{
 		std::string source_copy(source);
+		source_copy = cq::utils::base64::decode(source_copy);
+		std::istringstream iss(source_copy);
+		boost::archive::binary_iarchive ia(iss);
+
 		if (this->pintlist_dice != nullptr) delete(this->pintlist_dice);
+
 		this->pintlist_dice = new TYPE_LIST_DICE();
 		this->i_sum_result = 0;
-		encoder enc_encoder;
-		enc_encoder.setBase64(source_copy);
-		//enc_encoder.setChar(source_copy.c_str(), source_copy.length());
-		int len = enc_encoder.getInt();
+		int len = 0;
+		ia >> len;
 		for (int i_iter = 0; i_iter < len; i_iter++) {
-			int first = enc_encoder.getInt();
-			int second = enc_encoder.getInt();
+			int first = 0;
+			ia >> first;
+			int second = 0;
+			ia >> second;
 			this->i_sum_result += second;
 			this->pintlist_dice->push_back(TYPE_PAIR_DICE(first, second));
 		}
