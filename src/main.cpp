@@ -31,17 +31,15 @@ CQ_MAIN {
 
         try {
             if(dicebot::group_message_pipeline(e.raw_message, 1000,e.user_id,false,output)){
+                cq::Message message;
+
+                message.push_back(cqmessage::MessageSegment::text(output));
+
+                message.send(e.target);
 
             }else{
                 cqlogging::debug(u8"API", u8"调用失败，无法产生结果");
             }
-
-            cq::Message message;
-
-            message.push_back(cqmessage::MessageSegment::text(output));
-
-            message.send(e.target);
-
             //api::send_private_msg(e.user_id, message); // echo 回去
 
             //api::send_msg(e.target, e.message); // 使用 e.target 指定发送目标
