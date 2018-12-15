@@ -22,7 +22,7 @@ include_directories(src)
 add_definitions(-DBOOST_CONFIG_SUPPRESS_OUTDATED_MESSAGE
                 -D_WIN32_WINNT=0x0501
                 -DWIN32_LEAN_AND_MEAN
-				-DNOMINMAX)
+                -DNOMINMAX)
 
 find_package(Iconv REQUIRED)
 find_package(Sqlite3 REQUIRED)
