@@ -2,7 +2,6 @@
 #include <string>
 #include <cstdint>
 #include <exception>
-#include <sstream>
 
 /*
 ** 2018-12
@@ -11,7 +10,7 @@
 */
 namespace dicebot{
 	#define ZERO_THRESHOLD 1e-16
-	#define P_INT32_MAX -(INT32_MIN)
+	#define P_INT32_MIN -(INT32_MAX)
 
 	class zero_divider_exception : public std::exception
 	{
@@ -24,7 +23,6 @@ namespace dicebot{
 	private:
 		int32_t i_value;
 		double d_value;
-		bool is_using_int;
 
 		void initialize(const std::string source) {
 			int pos_of_dot = source.find_first_of('.');
@@ -48,8 +46,21 @@ namespace dicebot{
 			}
 		}
 
+		void int_2_double(){
+			if(!this->is_using_int) return;
+			this->d_value = this->i_value;
+			this->is_using_int = false;
+		}
+
+		void double_2_int(){
+			if(this->is_using_int) return;
+			this->i_value = (int32_t)this->d_value;
+			this->is_using_int = true;
+		}
 
 	public:
+		bool is_using_int;
+
 		number()
 		{
 			this->i_value = 0;
@@ -87,6 +98,7 @@ namespace dicebot{
 				return *this + val1.i_value;
 			}
 			else {
+				this->int_2_double();
 				return *this + val1.d_value;
 			}
 		}
@@ -94,8 +106,9 @@ namespace dicebot{
 		inline number operator + (const int32_t &val1) {
 			if (this->is_using_int
 				&& (val1 == 0
-					|| (val1 > 0 && P_INT32_MAX - val1 < this->i_value)
-					|| (val1 < 0 && INT32_MIN - val1 > this->i_value))) {
+					|| (val1 > 0 && INT32_MAX - val1 > this->i_value)
+					|| (val1 < 0 && P_INT32_MIN - val1 < this->i_value)
+					)) {
 				return number(this->i_value + val1);
 			}
 			else {
@@ -107,13 +120,11 @@ namespace dicebot{
 			double value_this = this->is_using_int ? (double)(this->i_value) : this->d_value;
 			number ret(value_this + val1);
 
-			if (ret.d_value < P_INT32_MAX && ret.d_value > INT32_MIN) {
+			if (ret.d_value < INT32_MAX && ret.d_value > P_INT32_MIN) {
 				int32_t i_val = (int32_t)(ret.d_value);
 				double diff = ret.d_value - i_val;
-				if (diff < ZERO_THRESHOLD && diff > -ZERO_THRESHOLD) {
-					ret.is_using_int = true;
-					ret.i_value = i_val;
-				}
+				if (diff < ZERO_THRESHOLD && diff > -ZERO_THRESHOLD)
+					ret.double_2_int();
 			}
 
 			return ret;
@@ -125,6 +136,7 @@ namespace dicebot{
 				return *this - val1.i_value;
 			}
 			else {
+				this->int_2_double();
 				return *this - val1.d_value;
 			}
 		}
@@ -132,8 +144,8 @@ namespace dicebot{
 		inline number operator - (const int32_t val1) {
 			if (this->is_using_int
 				&& (val1 == 0
-					|| (val1 > 0 && INT32_MIN + val1 < this->i_value)
-					|| (val1 < 0 && P_INT32_MAX + val1 > this->i_value))) {
+					|| (val1 > 0 && P_INT32_MIN + val1 < this->i_value)
+					|| (val1 < 0 && INT32_MAX + val1 > this->i_value))) {
 				return number(this->i_value - val1);
 			}
 			else {
@@ -145,13 +157,11 @@ namespace dicebot{
 			double value_this = this->is_using_int ? (double)(this->i_value) : this->d_value;
 			number ret(value_this - val1);
 
-			if (ret.d_value < P_INT32_MAX && ret.d_value > INT32_MIN) {
+			if (ret.d_value < INT32_MAX && ret.d_value > P_INT32_MIN) {
 				int32_t i_val = (int32_t)(ret.d_value);
 				double diff = ret.d_value - i_val;
-				if (diff < ZERO_THRESHOLD && diff > -ZERO_THRESHOLD) {
-					ret.is_using_int = true;
-					ret.i_value = i_val;
-				}
+				if (diff < ZERO_THRESHOLD && diff > -ZERO_THRESHOLD) 
+					ret.double_2_int();
 			}
 
 			return ret;
@@ -163,6 +173,7 @@ namespace dicebot{
 				return (*this)*(val1.i_value);
 			}
 			else {
+				this->int_2_double();
 				return (*this)*(val1.d_value);
 			}
 		}
@@ -171,10 +182,10 @@ namespace dicebot{
 			if (this->is_using_int
 				&& (val1 == 0
 				|| this->i_value == 0 
-				|| (val1 > 0 && this->i_value > 0 && P_INT32_MAX / val1 > this->i_value)
-				|| (val1 < 0 && this->i_value < 0 && P_INT32_MAX / val1 < this->i_value)
-				|| (val1 < 0 && this->i_value > 0 && INT32_MIN / val1 > this->i_value)
-				|| (val1 > 0 && this->i_value < 0 && INT32_MIN / val1 < this->i_value))) {
+				|| (val1 > 0 && this->i_value > 0 && INT32_MAX / val1 > this->i_value)
+				|| (val1 < 0 && this->i_value < 0 && INT32_MAX / val1 < this->i_value)
+				|| (val1 < 0 && this->i_value > 0 && P_INT32_MIN / val1 > this->i_value)
+				|| (val1 > 0 && this->i_value < 0 && P_INT32_MIN / val1 < this->i_value))) {
 				return number(this->i_value * val1);
 			}
 			else {
@@ -186,13 +197,11 @@ namespace dicebot{
 			double value_this = this->is_using_int ? (double)(this->i_value) : this->d_value;
 			number ret(value_this * val1);
 
-			if (ret.d_value < P_INT32_MAX && ret.d_value > INT32_MIN) {
+			if (ret.d_value < INT32_MAX && ret.d_value > P_INT32_MIN) {
 				int32_t i_val = (int32_t)(ret.d_value);
 				double diff = ret.d_value - i_val;
-				if (diff < ZERO_THRESHOLD && diff > -ZERO_THRESHOLD) {
-					ret.is_using_int = true;
-					ret.i_value = i_val;
-				}
+				if (diff < ZERO_THRESHOLD && diff > -ZERO_THRESHOLD)
+					ret.double_2_int();
 			}
 			return ret;
 		}
@@ -208,6 +217,7 @@ namespace dicebot{
 				return *this / val1.i_value;
 			}
 			else {
+				this->int_2_double();
 				return *this / val1.d_value;
 			}
 		}
@@ -233,26 +243,22 @@ namespace dicebot{
 			double value_this = this->is_using_int ? (double)(this->i_value) : this->d_value;
 			number ret(value_this / val1);
 
-			if (ret.d_value < P_INT32_MAX && ret.d_value > INT32_MIN) {
+			if (ret.d_value < INT32_MAX && ret.d_value > P_INT32_MIN) {
 				int32_t i_val = (int32_t)(ret.d_value);
 				double diff = ret.d_value - i_val;
-				if (diff < ZERO_THRESHOLD && diff > -ZERO_THRESHOLD) {
-					ret.is_using_int = true;
-					ret.i_value = i_val;
-				}
+				if (diff < ZERO_THRESHOLD && diff > -ZERO_THRESHOLD) 
+					ret.double_2_int();
 			}
 			return ret;
 		}
 
 		std::string str() {
-			std::ostringstream ostrs(std::ostringstream::ate);
 			if (this->is_using_int)
-				ostrs << this->i_value;
+				return std::to_string(this->i_value);
 			else 
 			{
-				ostrs << this->d_value;
+				return std::to_string(this->d_value);
 			}
-			return ostrs.str();
 		}
 	};
 }
