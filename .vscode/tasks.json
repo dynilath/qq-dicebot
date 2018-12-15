@@ -49,7 +49,10 @@
                 "Debug"
             ],
             "problemMatcher": "$msCompile",
-            "group": "build",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
             "dependsOn": [
                 "generate debug"
             ]
