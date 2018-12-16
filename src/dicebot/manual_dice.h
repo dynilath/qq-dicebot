@@ -19,10 +19,8 @@ namespace dicebot{
 			void killall();
 			std::string endcode();
 			std::string str();
-
 			roll::roll_status status;
 			int i_sum_result;
-			
 			void decode(std::string & source);
 	};
 }

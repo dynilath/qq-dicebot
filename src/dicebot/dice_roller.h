@@ -3,25 +3,29 @@
 #include "./common.h"
 
 namespace dicebot::roll{
-	class dice_roll{
+
+
+	class dice_roller
+	{
 	private:
-		dice_roll(roll_status const & status) noexcept;
+		static bool is_using_pseudo_random;
+		static unsigned long ulong_prand_seed;
+		static unsigned long ulong_prand_stage;
 	public:
-		int result;
-		std::string detail;
 		roll_status status;
-		dice_roll(int const & i_result, std::string const & str_detail, roll_status const & stat) noexcept;
-		explicit operator bool() const noexcept;
-		static dice_roll ERR_ROLL_GENERAL;
-		static dice_roll ERR_ROLL_EXCEED;
+		dice_roller() noexcept;
+		~dice_roller();
+		dice_roller(int val1_i_num_of_dice, int val2_num_of_face);
+		dice_roller(int num_of_dice, int num_of_face, int keep, bool is_keeping_high);
+		dice_roller(int val1_bp);
+		std::string * pstr_detail_result = nullptr;
+		int i_sum_result = 0;
+		static std::shared_ptr<dice_roller> roll_base(int i_num_of_dice, int i_num_of_face) noexcept;
+		static std::shared_ptr<dice_roller> roll_rd(std::string & str_dice_command) noexcept;
+		static std::shared_ptr<dice_roller> roll_coc(std::string & str_dice_command) noexcept;
+		static std::shared_ptr<dice_roller> roll_wod(std::string & str_dice_command) noexcept;
+		static void random_initialize();
 	};
 
-	dice_roll roll_base(int const i_num_of_dice, int const i_num_of_face) noexcept;
-	dice_roll roll_rdk(int const i_num_of_dice, int const i_num_of_face, int const i_keep) noexcept;
-	dice_roll roll_rdk(std::string & const str_dice_command) noexcept;
-	dice_roll roll_coc(int const i_bp) noexcept;
-	dice_roll roll_coc(std::string & const str_dice_command) noexcept;
-
-
-	void random_initialize();
+	typedef std::shared_ptr<dice_roller> p_dice_roller;
 }

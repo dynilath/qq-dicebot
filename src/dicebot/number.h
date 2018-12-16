@@ -15,7 +15,7 @@ namespace dicebot{
 	class zero_divider_exception : public std::exception
 	{
 	public:
-		zero_divider_exception(): exception(){}
+		zero_divider_exception():exception("cannot divided by zero"){}
 	};
 
 	class number

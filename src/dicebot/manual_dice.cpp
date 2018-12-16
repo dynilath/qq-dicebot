@@ -40,13 +40,13 @@ namespace dicebot{
 						int i_face_of_die = std::stoi(command.substr(i_pos_of_d + 1));
 						
 						for (int i_iter = 0; i_iter < i_num_of_die; i_iter++) {
-							roll::dice_roll dr = roll::dice_roller::roll_base(1, i_face_of_die);
-							if (dr) {
-								this->status = dr.status;
+							roll::p_dice_roller dice = roll::dice_roller::roll_base(1, i_face_of_die);
+							if (dice && dice->status != roll::roll_status::FINISHED) {
+								this->status = dice->status;
 								return;
 							}
 							else {
-								int result = dr.result;
+								int result = dice->i_sum_result;
 								this->pintlist_dice->push_back(TYPE_PAIR_DICE(i_face_of_die, result));
 								this->i_sum_result += result;
 							}
@@ -139,13 +139,13 @@ namespace dicebot{
 						int i_face_of_die = std::stoi(command.substr(i_pos_of_d + 1));
 
 						for (int i_iter = 0; i_iter < i_num_of_die; i_iter++) {
-							roll::dice_roll dr = roll::roll_base(1, i_face_of_die);
-							if (dr) {
-								this->status = dr.status;
+							roll::p_dice_roller dice = roll::dice_roller::roll_base(1, i_face_of_die);
+							if (dice && dice->status != roll::roll_status::FINISHED) {
+								this->status = dice->status;
 								return;
 							}
 							else {
-								int result = dr.result;
+								int result = dice->i_sum_result;
 								this->pintlist_dice->push_back(TYPE_PAIR_DICE(i_face_of_die, result));
 								this->i_sum_result += result;
 							}
