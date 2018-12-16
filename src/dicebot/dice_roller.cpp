@@ -61,13 +61,11 @@ namespace dicebot::roll{
 			std::ostringstream ot(std::ostringstream::ate);
 			ot << '[';
 			bool first = true;
-
-			int i_dice = i_num_of_dice;
-			while(i_dice > 0){
+			while(i_num_of_dice > 0){
 				_RANDOM(single_result);
 				sum_result+= single_result;
 				ot << single_result;
-				if ((--i_dice) > 0) ot << " + ";
+				if ((--i_num_of_dice) > 0) ot << " + ";
 			}
 			ot<<']';
 			return dice_roll(sum_result,ot.str(),roll_status::FINISHED);
@@ -79,19 +77,24 @@ namespace dicebot::roll{
 
 	dice_roll roll_rdk(int const i_num_of_dice, int const i_num_of_face, int const i_keep) noexcept{
 		if(i_keep == 0){
-			return dice_roll(0,"(0)",roll_status::FINISHED);
+			dice_roll ret;
+			ret.status = roll_status::FINISHED;
+			ret.detail.assign("( 0 )");
+			ret.result = 0;
+			return ret;
 		}
 		int i_num_of_keep = i_keep >0 ? i_keep :(-i_keep);
 		if(i_num_of_keep >= i_num_of_keep) return roll_base(i_num_of_dice,i_num_of_face);
 
 
 		_RANDOMIZE(i_num_of_face,1);
+		dice_roll ret;
 
 		if(!CHECK_LIMITS(i_num_of_face,i_num_of_dice)) {
-			return dice_roll::ERR_ROLL_EXCEED;
+			ret.status = roll_status::TOO_MANY_DICE;
+			return ret;
 		}
 
-		int i_result = 0;
 		std::ostringstream ot(std::ostringstream::ate);
 		ot << '[';
 		std::vector<int> resultList;
@@ -122,7 +125,7 @@ namespace dicebot::roll{
 
 		for (int i_iter = 0; i_iter < i_num_of_dice; i_iter++) {
 			if (flagList[i_iter] == 1) {
-				i_result += resultList[i_iter];
+				ret.result += resultList[i_iter];
 				ot << resultList[i_iter];
 			}
 			else {
@@ -131,10 +134,11 @@ namespace dicebot::roll{
 			if (i_iter + 1 < i_num_of_dice) ot << " + ";
 		}
 		ot << ']';
-		return dice_roll(i_result,ot.str(),roll_status::FINISHED);
+		ret.status == roll_status::FINISHED;
+		return ret;
 	}
 
-	dice_roll roll_rdk(std::string const & str_dice_command) noexcept{
+	dice_roll roll_rdk(std::string & const str_dice_command) noexcept{
 		try {
 			std::string source(str_dice_command);
 			std::regex regex_rd("(\\d*)?[dD](\\d+)(?:[kK]([lL])?(\\d+))?");
@@ -182,7 +186,11 @@ namespace dicebot::roll{
 			int i_result = 0;
 			_RANDOMIZE(100,1);
 			_RANDOM(i_result);
-			return dice_roll(i_result,ot.str(),roll_status::FINISHED);
+			dice_roll ret;
+			ret.result = i_result;
+			ret.status = roll_status::FINISHED;
+			ret.detail.assign(ot.str());
+			return ret;
 		}
 		else{
 			int i_dice_count = i_bp > 0 ? (1 + i_bp):(1 - i_bp);
@@ -232,12 +240,17 @@ namespace dicebot::roll{
 				}
 				if (i_iter + 1 < i_dice_count) ot << " + ";
 			}
+			dice_roll ret;
+			ret.result = 10 * i_tens + i_units;
+
 			ot << '[' << ot_tens.str() << "] [" << i_units << "]";
-			return dice_roll(10 * i_tens + i_units, ot.str(), roll_status::FINISHED);
+			ret.detail.assign(ot.str());
+			ret.status = roll_status::FINISHED;
+			return ret;
 		}
 	}
 
-	dice_roll roll_coc(std::string const & str_dice_command) noexcept{
+	dice_roll roll_coc(std::string & const str_dice_command) noexcept{
 		try {
 			std::string source(str_dice_command);
 			std::regex regex_pb("^([bBpP])(\\d+)");
