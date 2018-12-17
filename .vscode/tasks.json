@@ -13,7 +13,7 @@
             ],
             "options": {
                 "env": {
-                    "VCPKG_TRIPLET": "my-x86-windows-static"
+                    "VCPKG_TRIPLET": "cqdicebot-x86-windows-static"
                 }
             },
             "group": "build",
@@ -33,7 +33,7 @@
             ],
             "options": {
                 "env": {
-                    "VCPKG_TRIPLET": "my-x86-windows-static"
+                    "VCPKG_TRIPLET": "cqdicebot-x86-windows-static"
                 }
             },
             "group": "build"

@@ -40,7 +40,7 @@ namespace dicebot{
 						int i_face_of_die = std::stoi(command.substr(i_pos_of_d + 1));
 						
 						for (int i_iter = 0; i_iter < i_num_of_die; i_iter++) {
-							roll::dice_roll dr = roll::dice_roller::roll_base(1, i_face_of_die);
+							roll::dice_roll dr = roll::roll_base(1, i_face_of_die);
 							if (dr) {
 								this->status = dr.status;
 								return;
@@ -82,13 +82,13 @@ namespace dicebot{
 			TYPE_LIST_DICE::iterator iter_list = this->pintlist_dice->begin() + target;
 			int i_face_of_die = (*iter_list).first;
 			i_sum_result -= (*iter_list).second;
-			roll::p_dice_roller dice = roll::dice_roller::roll_base(1, i_face_of_die);
-			if (dice && dice->status != roll::roll_status::FINISHED){
-				this->status = dice->status;
+			roll::dice_roll dr = roll::roll_base(1, i_face_of_die);
+			if (dr){
+				this->status = dr.status;
 				return;
 			}
-			(*iter_list).second = dice->i_sum_result;
-			i_sum_result += dice->i_sum_result;
+			(*iter_list).second = dr.result;
+			i_sum_result += dr.result;
 			if (this->status == roll::roll_status::UNINITIALIZED) this->status = roll::roll_status::FINISHED;
 		}
 		catch (const std::invalid_argument& ia) {

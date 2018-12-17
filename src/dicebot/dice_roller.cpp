@@ -285,10 +285,10 @@ namespace dicebot::roll{
 		this->status = stat;
 	}
 
-	dice_roll dice_roll::ERR_ROLL_EXCEED(roll_status::GENERAL_ERR);
+	dice_roll dice_roll::ERR_ROLL_GENERAL(roll_status::GENERAL_ERR);
 	dice_roll dice_roll::ERR_ROLL_EXCEED(roll_status::TOO_MANY_DICE);
 
-	explicit dice_roll::operator bool() const noexcept{
+	dice_roll::operator bool() const noexcept{
 		return this->status == roll_status::FINISHED;
 	}
 }

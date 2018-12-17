@@ -17,8 +17,10 @@ namespace dicebot::roll{
 	};
 
 	dice_roll roll_base(int const i_num_of_dice, int const i_num_of_face) noexcept;
+
 	dice_roll roll_rdk(int const i_num_of_dice, int const i_num_of_face, int const i_keep) noexcept;
 	dice_roll roll_rdk(std::string const & str_dice_command) noexcept;
+
 	dice_roll roll_coc(int const i_bp) noexcept;
 	dice_roll roll_coc(std::string const & str_dice_command) noexcept;
 
