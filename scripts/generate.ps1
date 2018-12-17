@@ -1,4 +1,5 @@
 $config_type = $args[0]
+$ci_config = $args[0]
 
 Set-Location $PSScriptRoot\..\  # enter the parent folder
 mkdir build\$config_type -ErrorAction SilentlyContinue  # create build folder if not exists
@@ -12,4 +13,5 @@ cmake -G "Visual Studio 15 2017" -T "v141" `
     -DVCPKG_TARGET_TRIPLET="$vcpkg_triplet" `
     -DCMAKE_CONFIGURATION_TYPES="$config_type" `
     -DCMAKE_BUILD_TYPE="$config_type" `
+    -DCMAKE_CI_CONFIG="$ci_config" `
     ..\..

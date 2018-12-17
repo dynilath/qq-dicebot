@@ -1,6 +1,6 @@
 #ifdef _DEBUG
 #pragma comment(lib,"gtestd.lib")
-#elif
+#else
 #pragma comment(lib,"gtest.lib")
 #endif
 
@@ -23,8 +23,6 @@ dicebot::number ret = num1 _Oper c;\
 double p = (double)c _Oper _Val2;\
 ASSERT_EQ(ret.str(), std::to_string(((double)_Val1) _Oper ((double)_Val2)));\
 ASSERT_EQ(ret.is_using_int,false);}
-
-
 
     TEST(NumberTest, Add_01_Int_Int){EASY_CASE_HACK( 12, + , 1234, true);}
     TEST(NumberTest, Add_02_Int_Float){EASY_CASE_HACK( 12, +, 123.4, false);}

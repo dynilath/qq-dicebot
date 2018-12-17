@@ -13,9 +13,14 @@ include(FindVcpkgIncludeDir)
 if(CMAKE_BUILD_TYPE MATCHES "^Debug$")
   # fix Vcpkg debug library lookup bug, see https://github.com/Microsoft/vcpkg/issues/1626
   list(APPEND CMAKE_IGNORE_PATH ${_VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/lib)
-  link_directories(${_VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/Debug/lib)
-else()
-  link_directories(${_VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/lib)
+endif()
+
+if(NOT CMAKE_CI_CONFIG MATCHES "^Appveryor$")
+  if(CMAKE_BUILD_TYPE MATCHES "^Debug$")
+    link_directories(${_VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/Debug/lib)
+  else()
+    link_directories(${_VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/lib)
+  endif()
 endif()
 
 include_directories(${VCPKG_INCLUDE_DIR})
@@ -32,6 +37,10 @@ find_package(Boost REQUIRED COMPONENTS serialization)
 
 enable_testing()
 include(GoogleTest)
+
+if(CMAKE_CI_CONFIG MATCHES "^Appveryor$")
+  find_package(GTest REQUIRED)
+endif()
 
 include(FixLinkConflict)
 
@@ -53,10 +62,14 @@ target_link_libraries(${TEST_BUILD_NAME} ${ICONV_AND_DEPS_LIBRARIES})
 target_link_libraries(${TEST_BUILD_NAME} sqlite3)
 target_link_libraries(${TEST_BUILD_NAME} ${Boost_LIBRARIES})
 
-if(CMAKE_BUILD_TYPE MATCHES "^Debug$")
-  target_link_libraries(${TEST_BUILD_NAME} gtestd)
+if(CMAKE_CI_CONFIG MATCHES "^Appveryor$")
+target_link_libraries(${TEST_BUILD_NAME} gtest)
 else()
-  target_link_libraries(${TEST_BUILD_NAME} gtest)
+  if(CMAKE_BUILD_TYPE MATCHES "^Debug$")
+    target_link_libraries(${TEST_BUILD_NAME} gtestd)
+  else()
+    target_link_libraries(${TEST_BUILD_NAME} gtest)
+  endif()
 endif()
 
 gtest_add_tests(TARGET ${TEST_BUILD_NAME}
