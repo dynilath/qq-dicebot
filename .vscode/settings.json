@@ -108,5 +108,5 @@
         ]
     },
     "gtest-adapter.debugConfig": "Debug",
-    "gtest-adapter.supportLocation": false
+    "gtest-adapter.supportLocation": true
 }

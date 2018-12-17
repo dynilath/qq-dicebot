@@ -1,3 +1,9 @@
+#ifdef _DEBUG
+#pragma comment(lib,"gtestd.lib")
+#elif
+#pragma comment(lib,"gtest.lib")
+#endif
+
 #include "gtest/gtest.h"
 #include "dicebot/number.h"
 
