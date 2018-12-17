@@ -105,7 +105,7 @@ namespace cq::utils {
                 }
 
                 const auto p = reinterpret_cast<const uint32_t *>(u32_str.data());
-                wstring_convert<codecvt_utf8<uint32_t>, uint32_t> conv;
+                wstring_convert< codecvt<uint32_t,char,std::mbstate_t> , uint32_t> conv;
                 return conv.to_bytes(p, p + u32_str.size());
             });
 
@@ -121,9 +121,13 @@ namespace cq::utils {
         return result;
     }
 
-    string ws2s(const wstring &ws) { return wstring_convert<codecvt_utf8<wchar_t>, wchar_t>().to_bytes(ws); }
+    string ws2s(const wstring &ws) { 
+        return wstring_convert<codecvt<wchar_t,char,std::mbstate_t>, wchar_t>().to_bytes(ws);
+    }
 
-    wstring s2ws(const string &s) { return wstring_convert<codecvt_utf8<wchar_t>, wchar_t>().from_bytes(s); }
+    wstring s2ws(const string &s) { 
+        return wstring_convert<codecvt<wchar_t,char,std::mbstate_t>, wchar_t>().from_bytes(s); 
+    }
 
     string ansi(const string &s) { return string_encode(s, Encoding::ANSI); }
 } // namespace cq::utils
