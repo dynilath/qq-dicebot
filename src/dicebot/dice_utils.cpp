@@ -1,7 +1,5 @@
 #include "./dice_utils.h"
 
-#include <vector>
-
 namespace dicebot{
 	void split_line(std::string & source, std::vector<std::string>& source_splits){
 		if (source.length() > 2) {

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include <vector>
 
 namespace dicebot{
 	extern void split_line(std::string & source, std::vector<std::string>& source_splits);
