@@ -80,7 +80,10 @@
         "mutex": "cpp",
         "queue": "cpp",
         "thread": "cpp",
-        "cstdarg": "cpp"
+        "cstdarg": "cpp",
+        "*.tcc": "cpp",
+        "clocale": "cpp",
+        "numeric": "cpp"
     },
     "editor.tokenColorCustomizations": {
         "textMateRules": [

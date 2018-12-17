@@ -174,11 +174,11 @@ namespace dicebot{
 		switch (this->mode)
 		{
 		case operation_mode::DICE:{
-			roll::p_dice_roller dice_roll = roll::dice_roller::roll_rd(this->mode_num_like_source);
-			if (dice_roll && dice_roll->status == roll::roll_status::FINISHED) {
-				this->ret_value = dice_roll->i_sum_result;
+			roll::dice_roll dr = roll::roll_rdk(this->mode_num_like_source);
+			if (dr) {
+				this->ret_value = dr.result;
 				this->str_cal_command.assign(this->mode_num_like_source);
-				this->str_cal_detail.assign(*(dice_roll->pstr_detail_result));
+				this->str_cal_detail.assign(dr.detail);
 				return this->successful();
 			}
 			else return this->fail();
@@ -444,10 +444,9 @@ namespace dicebot{
 	void operation::gen_tail()
 	{
 		std::ostringstream ostrs_stream(std::ostringstream::ate);
-		for each (std::shared_ptr<operation_item> var in *list_operations)
-		{
-			if (var->is_cal_successful) continue;
-			else ostrs_stream << var->source;
+		for(auto iter = list_operations->begin();iter != list_operations->end();iter ++){
+			if((*iter)->is_cal_successful) continue;
+			else ostrs_stream << (*iter)->source;
 		}
 		this->tail.assign(ostrs_stream.str());
 	}
