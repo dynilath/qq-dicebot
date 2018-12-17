@@ -1,5 +1,5 @@
 $config_type = $args[0]
-$ci_config = $args[0]
+$ci_config = $args[1]
 
 Set-Location $PSScriptRoot\..\  # enter the parent folder
 mkdir build\$config_type -ErrorAction SilentlyContinue  # create build folder if not exists
