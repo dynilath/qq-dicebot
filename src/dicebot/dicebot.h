@@ -34,7 +34,7 @@ namespace dicebot{
         nickCtrl = new nickname_manager();
         mdCtrl = new manual_dice_control();
 
-        roll::dice_roller::random_initialize();
+        roll::random_initialize();
         dice_protocols = new protocol_manager();
         dice_protocols->register_dice(std::shared_ptr<protocol::protocol_base>(new protocol::protocol_roll_dice()));
         dice_protocols->register_dice(std::shared_ptr<protocol::protocol_base>(new protocol::protocol_coc_dice()));

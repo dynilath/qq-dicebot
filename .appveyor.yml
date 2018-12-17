@@ -9,12 +9,12 @@ platform:
   - x86
 
 configuration:
-  - Release
   - Debug
+  - Release
 
 environment:
   VCPKG_ROOT: C:\tools\vcpkg
-  VCPKG_TRIPLET: my-x86-windows-static
+  VCPKG_TRIPLET: cqdicebot-x86-windows-static
 
 cache: c:\tools\vcpkg\installed\ -> .appveyor.yml  # cache the installed vcpkg packages
 

@@ -2,7 +2,7 @@
     "environments": [
         {
             "VCPKG_CMAKE": "${env.VCPKG_ROOT}\\scripts\\buildsystems\\vcpkg.cmake",
-            "VCPKG_TRIPLET": "my-x86-windows-static"
+            "VCPKG_TRIPLET": "cqdicebot-x86-windows-static"
         }
     ],
     "configurations": [
