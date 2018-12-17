@@ -64,7 +64,7 @@ target_link_libraries(${TEST_BUILD_NAME} ${ICONV_AND_DEPS_LIBRARIES})
 target_link_libraries(${TEST_BUILD_NAME} sqlite3)
 target_link_libraries(${TEST_BUILD_NAME} ${Boost_LIBRARIES})
 
-if(CMAKE_CI_CONFIG MATCHES "^Appveryor$")
+if(CMAKE_CI_CONFIG MATCHES "^Appveyor$")
   target_link_libraries(${TEST_BUILD_NAME} GTest::GTest)
 else()
   if(CMAKE_BUILD_TYPE MATCHES "^Debug$")
