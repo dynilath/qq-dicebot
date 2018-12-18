@@ -24,9 +24,9 @@ namespace dicebot::roll{
 		break; \
 	}
 
-	#define CHECK_LIMITS(_Face, _Num) \
+	#define CHECK_LIMITS(_Num, _Face) \
 	((_Face < MAX_DICE_FACE && _Num < MAX_DICE_NUM) &&\
-	(_Face > 0 && _Num > 0))
+	(_Face > 1 && _Num >= 1))
 
 	#define CREATING_OUTPUT(_Stream,_DiceRoll,_Sign) \
 	_Stream << "(" << *(_DiceRoll.pstr_detail_result) << ")";\
@@ -54,7 +54,7 @@ namespace dicebot::roll{
 	else _Target = dice(rd_generator)
 
 	dice_roll roll_base(int const i_num_of_dice, int const i_num_of_face) noexcept{
-		_RANDOMIZE(i_num_of_dice,i_num_of_face);
+		_RANDOMIZE(i_num_of_face,1);
 		if(CHECK_LIMITS(i_num_of_dice,i_num_of_face)) {
 			int single_result = 0;
 			int sum_result = 0;
@@ -82,12 +82,12 @@ namespace dicebot::roll{
 			return dice_roll(0,"(0)",roll_status::FINISHED);
 		}
 		int i_num_of_keep = i_keep >0 ? i_keep :(-i_keep);
-		if(i_num_of_keep >= i_num_of_keep) return roll_base(i_num_of_dice,i_num_of_face);
+		if(i_num_of_keep >= i_num_of_dice) return roll_base(i_num_of_dice,i_num_of_face);
 
 
 		_RANDOMIZE(i_num_of_face,1);
 
-		if(!CHECK_LIMITS(i_num_of_face,i_num_of_dice)) {
+		if(!CHECK_LIMITS(i_num_of_dice,i_num_of_face)) {
 			return dice_roll::ERR_ROLL_EXCEED;
 		}
 
@@ -109,7 +109,7 @@ namespace dicebot::roll{
 		flagList.assign(sortList.size(),0);
 		quick_sort(sortList.data(), pilotList.data(), 0, sortList.size() - 1);
 
-		if (i_keep > 0) {
+		if (i_keep < 0) {
 			for (int i_iter = 0; i_iter < i_num_of_keep; i_iter++) {
 				flagList[pilotList[i_iter]] = 1;
 			}
@@ -158,7 +158,7 @@ namespace dicebot::roll{
 				if(!is_keeping_high) i_num_of_keep = -i_num_of_keep;
 			}
 
-			if(!CHECK_LIMITS(i_num_of_face,i_num_of_die)) return dice_roll::ERR_ROLL_EXCEED;
+			if(!CHECK_LIMITS(i_num_of_die,i_num_of_face)) return dice_roll::ERR_ROLL_EXCEED;
 
 			if(is_keep){
 				return roll_rdk(i_num_of_die,i_num_of_face,i_num_of_keep);
@@ -178,7 +178,7 @@ namespace dicebot::roll{
 		if(i_bp > 0)  ot << " b" << i_bp << " = ";
 		else if(i_bp < 0) ot << " p" << (-i_bp) << " = ";
 
-		if(-i_bp == 0){
+		if(i_bp == 0){
 			int i_result = 0;
 			_RANDOMIZE(100,1);
 			_RANDOM(i_result);
@@ -186,6 +186,9 @@ namespace dicebot::roll{
 		}
 		else{
 			int i_dice_count = i_bp > 0 ? (1 + i_bp):(1 - i_bp);
+
+			if(!CHECK_LIMITS(i_dice_count,100)) return dice_roll::ERR_ROLL_EXCEED;
+
 			int i_units = 0;
 			{
 				_RANDOMIZE(10,0);
