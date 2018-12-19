@@ -11,27 +11,9 @@ namespace dicebot::roll{
 	unsigned long ulong_prand_seed = 0;
 	unsigned long ulong_prand_stage = 0;
 
-
-
-	#define FUNCTION_PARSE_DICE(_Str_target,_Pos_Start,_Pos_D,_Pos_K,_Pos_L) \
-	int i_num_of_die = _Pos_D > 0 ? std::stoi(_Str_target.substr(_Pos_Start, _Pos_D - (_Pos_Start))) : 1;\
-	int i_num_of_face = std::stoi(_Str_target.substr(_Pos_D + 1, _Pos_K - (_Pos_D + 1)));\
-	int i_num_of_keep = std::stoi(_Str_target.substr(_Pos_L + 1))
-
-	#define CHECK_DICE_LIMITS() \
-	if (i_num_of_face > MAX_DICE_FACE || i_num_of_keep > MAX_DICE_FACE || i_num_of_die > MAX_DICE_NUM) { \
-		this->status = roll_status::DICE_NOT_AVAILABLE; \
-		break; \
-	}
-
 	#define CHECK_LIMITS(_Num, _Face) \
 	((_Face < MAX_DICE_FACE && _Num < MAX_DICE_NUM) &&\
 	(_Face > 1 && _Num >= 1))
-
-	#define CREATING_OUTPUT(_Stream,_DiceRoll,_Sign) \
-	_Stream << "(" << *(_DiceRoll.pstr_detail_result) << ")";\
-	this->i_sum_result = _DiceRoll.i_sum_result * _Sign;\
-	this->pstr_detail_result = new std::string(_Stream.str())
 
 	#define _RANDOMIZE(_Face,_Min_Val)\
 	std::random_device rd_generator;\
@@ -42,16 +24,6 @@ namespace dicebot::roll{
 	#define _RANDOM(_Target)\
 	if (is_using_pseudo_random) { _Target = dice(mt_generator); ulong_prand_stage++;}\
 	else _Target = dice(rd_generator);
-
-	#define RANDOMIZE(_Max,_Min)\
-	std::random_device rd_generator;\
-	std::mt19937 mt_generator(ulong_prand_seed);\
-	if (dice_roller::is_using_pseudo_random) mt_generator.discard(ulong_prand_stage);\
-	std::uniform_int_distribution<> dice(_Min, _Max + _Min - 1)
-
-	#define RANDOM(_Target)\
-	if (dice_roller::is_using_pseudo_random) { _Target = dice(mt_generator); ulong_prand_stage++;}\
-	else _Target = dice(rd_generator)
 
 	dice_roll roll_base(int const i_num_of_dice, int const i_num_of_face) noexcept{
 		_RANDOMIZE(i_num_of_face,1);
