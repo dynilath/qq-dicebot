@@ -11,10 +11,6 @@ namespace dicebot::roll{
 	unsigned long ulong_prand_seed = 0;
 	unsigned long ulong_prand_stage = 0;
 
-	#define CHECK_LIMITS(_Num, _Face) \
-	((_Face < MAX_DICE_FACE && _Num < MAX_DICE_NUM) &&\
-	(_Face > 1 && _Num >= 1))
-
 	#define _RANDOMIZE(_Face,_Min_Val)\
 	std::random_device rd_generator;\
 	std::mt19937 mt_generator(ulong_prand_seed);\

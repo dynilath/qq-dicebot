@@ -3,6 +3,11 @@
 #include "./common.h"
 
 namespace dicebot::roll{
+
+	#define CHECK_LIMITS(_Num, _Face) \
+	((_Face < MAX_DICE_FACE && _Num < MAX_DICE_NUM) &&\
+	(_Face > 1 && _Num >= 1))
+	
 	class dice_roll{
 	private:
 		dice_roll(roll_status const & status) noexcept;
