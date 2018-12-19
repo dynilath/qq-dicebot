@@ -205,7 +205,7 @@ namespace dicebot::roll{
 				else {
 					ot_tens << "(" << resultList[i_iter] << ")";
 				}
-				if (i_iter + 1 < i_dice_count) ot << " + ";
+				if (i_iter + 1 < i_dice_count) ot_tens << " + ";
 			}
 			ot << '[' << ot_tens.str() << "] [" << i_units << "]";
 			return dice_roll(10 * i_tens + i_units, ot.str(), roll_status::FINISHED);
