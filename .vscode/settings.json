@@ -83,7 +83,8 @@
         "cstdarg": "cpp",
         "*.tcc": "cpp",
         "clocale": "cpp",
-        "numeric": "cpp"
+        "numeric": "cpp",
+        "xthread": "cpp"
     },
     "editor.tokenColorCustomizations": {
         "textMateRules": [

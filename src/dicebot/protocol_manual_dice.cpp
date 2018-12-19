@@ -68,8 +68,8 @@ namespace dicebot::protocol{
 			std::string str_command = match_list_roll_match.str();
 			std::string str_roll_message = match_list_roll_match.suffix().str();
 			remove_space_and_tab(str_command);
-			dicebot::manual_dice * md_manualdice = dicebot::manual_dice_control::instance->add_manual_dice(user_qq_id, group_id, str_command);
-			if ((*md_manualdice).status == dicebot::roll::roll_status::FINISHED) {
+			dicebot::p_manual md_manualdice = dicebot::manual_dice_control::instance->add_manual_dice(user_qq_id, group_id, str_command);
+			if (md_manualdice && (*md_manualdice)) {
 				std::ostringstream ostrs_output_stream(std::ostringstream::ate);
 				ostrs_output_stream << u8" * " << nick_name << u8" " << str_roll_message;
 				ostrs_output_stream << u8" 在桌上增加了这些骰子: " << str_command;
@@ -82,8 +82,8 @@ namespace dicebot::protocol{
 
 	std::string protocol_manual_dice::manualdice_killall(std::string message, std::string nick_name, int64_t group_id, int64_t user_qq_id)
 	{
-		dicebot::manual_dice * md_manualdice = dicebot::manual_dice_control::instance->killall_manual_dice(user_qq_id, group_id);
-		if ((*md_manualdice).status == dicebot::roll::roll_status::FINISHED) {
+		dicebot::p_manual md_manualdice = dicebot::manual_dice_control::instance->killall_manual_dice(user_qq_id, group_id);
+		if (md_manualdice && (*md_manualdice)) {
 			std::ostringstream ostrs_output_stream(std::ostringstream::ate);
 			ostrs_output_stream << u8" * " << nick_name << u8" " << message;
 			ostrs_output_stream << u8" 杀掉了所有的骰子 ";
@@ -102,8 +102,8 @@ namespace dicebot::protocol{
 			std::string str_roll_message = match_list_roll_match.suffix().str();
 			remove_space_and_tab(str_command);
 
-			dicebot::manual_dice * md_manualdice = dicebot::manual_dice_control::instance->kill_manual_dice(user_qq_id, group_id, str_command);
-			if ((*md_manualdice).status == dicebot::roll::roll_status::FINISHED) {
+			dicebot::p_manual md_manualdice = dicebot::manual_dice_control::instance->kill_manual_dice(user_qq_id, group_id, str_command);
+			if (md_manualdice && (*md_manualdice)) {
 				std::ostringstream ostrs_output_stream(std::ostringstream::ate);
 				ostrs_output_stream << u8" * " << nick_name << u8" " << str_roll_message;
 				ostrs_output_stream << u8" 杀死桌上的第 " << str_command << u8" 个骰子 ";
@@ -123,8 +123,8 @@ namespace dicebot::protocol{
 			std::string str_roll_message = match_list_roll_match.suffix().str();
 			remove_space_and_tab(str_command);
 
-			dicebot::manual_dice * md_manualdice = dicebot::manual_dice_control::instance->roll_manual_dice(user_qq_id, group_id, str_command);
-			if ((*md_manualdice).status == dicebot::roll::roll_status::FINISHED) {
+			dicebot::p_manual md_manualdice = dicebot::manual_dice_control::instance->roll_manual_dice(user_qq_id, group_id, str_command);
+			if (md_manualdice && (*md_manualdice)) {
 				std::ostringstream ostrs_output_stream(std::ostringstream::ate);
 				ostrs_output_stream << u8" * " << nick_name << u8" " << str_roll_message;
 				ostrs_output_stream << u8" 重骰桌上的第 " << str_command << u8" 个骰子 ";
@@ -144,8 +144,8 @@ namespace dicebot::protocol{
 			std::string str_roll_message = match_list_roll_match.suffix().str();
 			remove_space_and_tab(str_command);
 
-			dicebot::manual_dice * md_manualdice = dicebot::manual_dice_control::instance->create_manual_dice(user_qq_id, group_id, str_command);
-			if (md_manualdice->status == dicebot::roll::roll_status::FINISHED) {
+			dicebot::p_manual md_manualdice = dicebot::manual_dice_control::instance->create_manual_dice(user_qq_id, group_id, str_command);
+			if (md_manualdice && (*md_manualdice)) {
 				std::ostringstream ostrs_output_stream(std::ostringstream::ate);
 				ostrs_output_stream << u8" * " << nick_name << u8" " << str_roll_message;
 				ostrs_output_stream << u8" 在桌上放了这些骰子: " << str_command;

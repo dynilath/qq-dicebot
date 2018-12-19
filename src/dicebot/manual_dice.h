@@ -24,5 +24,6 @@ namespace dicebot{
 			int i_sum_result;
 			
 			void decode(std::string & source);
+			explicit operator bool() const noexcept;
 	};
 }
