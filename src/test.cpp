@@ -4,11 +4,38 @@
 #pragma comment(lib,"gtest.lib")
 #endif
 
+#include <list>
+
 #include "gtest/gtest.h"
 #include "dicebot/number.h"
 #include "dicebot/dice_roller.h"
+#include "dicebot/dice_spliter.h"
+
 
 namespace dicebot::test{
+
+double fun_chi_square(std::vector<int> sample, std::vector<int> expect){
+    if(sample.size()!= expect.size()) return INFINITY;
+    double sum_sample = 0.0;
+    for(size_t i =0;i<sample.size();i++){
+        sum_sample += sample[i];
+    }
+    double sum_expect = 0.0;
+    for(size_t i =0;i<expect.size();i++){
+        sum_expect += expect[i];
+    }
+
+    double chi_square = 0.0;
+
+    int re_type = sample.size() -1;
+    while(re_type >= 0){
+        double val_expect = expect[re_type]*sum_sample/sum_expect;
+        double fi_expect = sample[re_type] - val_expect;
+        chi_square += ((fi_expect*fi_expect)/val_expect);
+        re_type --;
+    }
+    return chi_square;
+}
 
 #define EASY_CASE_HACK( _Val1, _Oper, _Val2, _Is_Int) {dicebot::number num1 = _Val1;\
 dicebot::number ret = num1 _Oper _Val2;\
@@ -24,6 +51,8 @@ dicebot::number ret = num1 _Oper c;\
 double p = (double)c _Oper _Val2;\
 ASSERT_EQ(ret.str(), std::to_string(((double)_Val1) _Oper ((double)_Val2)));\
 ASSERT_EQ(ret.is_using_int,false);}
+
+
     TEST(NumberTest, Add_01_Int_Int){EASY_CASE_HACK( 12, + , 1234, true);}
     TEST(NumberTest, Add_02_Int_Float){EASY_CASE_HACK( 12, +, 123.4, false);}
     TEST(NumberTest, Add_03_Float_Int){EASY_CASE_HACK( 123.4, +, 12, false);}
@@ -57,21 +86,6 @@ ASSERT_EQ(ret.is_using_int,false);}
     TEST(NumberTest, Divide_06_MAX_B_DOWN){EASY_CEIL_HACK(-INT_MAX,/,3);}
     TEST(NumberTest, Divide_07_Int_Int){EASY_CASE_HACK( 32, / , 12, false);}
 
-
-    TEST(RollTest, Base_01){
-        dicebot::roll::dice_roll dr1 = dicebot::roll::roll_base(40,20);
-        dicebot::roll::dice_roll dr2 = dicebot::roll::roll_base(40,20);
-        dicebot::roll::dice_roll dr3 = dicebot::roll::roll_base(40,20);
-        dicebot::roll::dice_roll dr4 = dicebot::roll::roll_base(40,20);
-        dicebot::roll::dice_roll dr5 = dicebot::roll::roll_base(40,20);
-        long sum = dr1.result+dr2.result+dr3.result+dr4.result+dr5.result;
-        double aver = (sum) / 200.0;
-        EXPECT_GT(aver,9.8);
-        EXPECT_LT(aver,11.2);
-        ASSERT_GT(aver,1.0);
-        ASSERT_LT(aver,20.0);
-    }
-
 #define GENERATE_ROLL_RESULT(_list,_sample,_max,_min,_roll_method){\
 _list.assign(_max-_min+1,0);\
 int repeat = _sample;\
@@ -81,37 +95,24 @@ _list[dr.result-_min]++;\
 ASSERT_GE(dr.result,_min);\
 ASSERT_LE(dr.result,_max);}}
 
-#define CAL_CHI_SQUARE_SINGLE(_list_result, _compare, _output){\
-int re_type = _list_result.size()-1;\
-while(re_type >= 0){\
-double expect = _compare;\
-double fi_expect = _list_result[re_type] - expect;\
-_output += ((fi_expect*fi_expect)/expect);\
-re_type --;}}
-
-#define CAL_CHI_SQUARE_LIST(_list_result, _list_compare, _sum_compare, _sum_sample, _output){\
-int re_type = _list_result.size()-1;\
-while(re_type >= 0){\
-double expect = ((double)_list_compare[re_type])*_sum_sample/_sum_compare;\
-double fi_expect = _list_result[re_type] - expect;\
-_output += ((fi_expect*fi_expect)/expect);\
-re_type --;}}
-
-    TEST(RollTest, Base_02_d100){
-        int dice_count = 1;
-        int face_count = 100;
+    TEST(RollTest, Base_01_d100){
         int sample_sum = (4000);
+
+        int min_val = 1;
+        int max_val = 100;
+
         std::vector<int> result;
         GENERATE_ROLL_RESULT(
             result,
             sample_sum,
-            dice_count*face_count,
-            dice_count,
-            dicebot::roll::roll_base(dice_count,face_count));
+            max_val,
+            min_val,
+            dicebot::roll::roll_base(1,100));
 
-        double chi_square = 0.0;
-        double compare = ((double)sample_sum) / face_count;
-        CAL_CHI_SQUARE_SINGLE(result,compare,chi_square);
+        std::vector<int> compare;
+        compare.assign(result.size(),1);
+        double chi_square = fun_chi_square(result, compare);
+
         //chi-square check with 0.1% of coherence
         double chi_01_percent = 148.2303592;
         ASSERT_LT(chi_square,chi_01_percent);
@@ -120,30 +121,26 @@ re_type --;}}
     TEST(RollTest, Base_03_2d6){
         int sample_sum = (1200);
 
-        int dice_count = 2;
-        int face_count = 6;
+        int min_val = 2;
+        int max_val = 12;
 
         std::vector<int> result;
         GENERATE_ROLL_RESULT(
             result,
             sample_sum,
-            dice_count*face_count,
-            dice_count,
-            dicebot::roll::roll_base(dice_count,face_count));
+            max_val,
+            min_val,
+            dicebot::roll::roll_base(2,6));
 
         std::vector<int> compare;
         compare.assign(result.size(),0);
-        for(int i =1;i<=face_count;i++){
-            for(int j =1;j<=face_count;j++){
-                compare[i+j-dice_count]++;
+        for(int i =1;i<=6;i++){
+            for(int j =1;j<=6;j++){
+                compare[i+j-min_val]++;
             }
         }
-        double compare_counter = 0.0;
-        for(unsigned int i=0;i<compare.size();i++)
-            compare_counter += compare[i];
 
-        double chi_square = 0.0;
-        CAL_CHI_SQUARE_LIST(result, compare, compare_counter, sample_sum, chi_square);
+        double chi_square = fun_chi_square(result,compare);
         //chi-square check with 0.1% of coherence
         double chi_01_percent = 31.26413362;
         ASSERT_LT(chi_square,chi_01_percent);
@@ -152,38 +149,34 @@ re_type --;}}
     TEST(RollTest, RDK_01_4d6k3){
         int sample_sum = (1200);
 
-        int dice_count = 3;
-        int face_count = 6;
+        int min_val = 3;
+        int max_val = 18;
 
         std::vector<int> result;
         GENERATE_ROLL_RESULT(
             result,
             sample_sum,
-            dice_count*face_count,
-            dice_count,
-            dicebot::roll::roll_rdk(4,face_count,dice_count));
+            max_val,
+            min_val,
+            dicebot::roll::roll_rdk(4,6,3));
 
         std::vector<int> compare;
         compare.assign(result.size(),0);
-        for(int i =1;i<=face_count;i++){
-            for(int j =1;j<=face_count;j++){
-                for(int k =1;k<=face_count;k++){
-                    for(int l =1;l<=face_count;l++){
+        for(int i =1;i<=6;i++){
+            for(int j =1;j<=6;j++){
+                for(int k =1;k<=6;k++){
+                    for(int l =1;l<=6;l++){
                         int min = i;
                         min = min>j?j:min;
                         min = min>k?k:min;
                         min = min>l?l:min;
-                        compare[i+j+k+l-min-dice_count]++;
+                        compare[i+j+k+l-min-min_val]++;
                     }
                 }
             }
         }
-        double compare_counter = 0.0;
-        for(unsigned int i=0;i<compare.size();i++)
-            compare_counter += compare[i];
 
-        double chi_square = 0.0;
-        CAL_CHI_SQUARE_LIST(result, compare, compare_counter, sample_sum, chi_square);
+        double chi_square = fun_chi_square(result,compare);
         //chi-square check with 0.1% of coherence
         double chi_01_percent = 40.79021671;
         ASSERT_LT(chi_square,chi_01_percent);
@@ -192,38 +185,34 @@ re_type --;}}
     TEST(RollTest, RDK_02_4d6kl3){
         int sample_sum = (1200);
 
-        int dice_count = 3;
-        int face_count = 6;
+        int min_val = 3;
+        int max_val = 18;
 
         std::vector<int> result;
         GENERATE_ROLL_RESULT(
             result,
             sample_sum,
-            dice_count*face_count,
-            dice_count,
-            dicebot::roll::roll_rdk(4,face_count,-dice_count));
+            max_val,
+            min_val,
+            dicebot::roll::roll_rdk(4,6,-3));
 
         std::vector<int> compare;
         compare.assign(result.size(),0);
-        for(int i =1;i<=face_count;i++){
-            for(int j =1;j<=face_count;j++){
-                for(int k =1;k<=face_count;k++){
-                    for(int l =1;l<=face_count;l++){
-                        int min = i;
-                        min = min<j?j:min;
-                        min = min<k?k:min;
-                        min = min<l?l:min;
-                        compare[i+j+k+l-min-dice_count]++;
+        for(int i =1;i<=6;i++){
+            for(int j =1;j<=6;j++){
+                for(int k =1;k<=6;k++){
+                    for(int l =1;l<=6;l++){
+                        int max = i;
+                        max = max<j?j:max;
+                        max = max<k?k:max;
+                        max = max<l?l:max;
+                        compare[i+j+k+l-max-min_val]++;
                     }
                 }
             }
         }
-        double compare_counter = 0.0;
-        for(unsigned int i=0;i<compare.size();i++)
-            compare_counter += compare[i];
 
-        double chi_square = 0.0;
-        CAL_CHI_SQUARE_LIST(result, compare, compare_counter, sample_sum, chi_square);
+        double chi_square = fun_chi_square(result,compare);
         //chi-square check with 0.1% of coherence
         double chi_01_percent = 40.79021671;
         ASSERT_LT(chi_square,chi_01_percent);
@@ -232,24 +221,20 @@ re_type --;}}
     TEST(RollTest, COC_01_C){
         int sample_sum = (4000);
 
-        int dice_count = 1;
-        int face_count = 100;
-
-        int max_val = dice_count * face_count;
-        int min_val = dice_count;
-        int result_type_count = max_val - min_val + 1;
+        int min_val = 1;
+        int max_val = 100;
 
         std::vector<int> result;
         GENERATE_ROLL_RESULT(
             result,
             sample_sum,
-            dice_count*face_count,
-            dice_count,
+            max_val,
+            min_val,
             dicebot::roll::roll_coc(0));
 
-        double chi_square = 0.0;
-        double compare = ((double)sample_sum) / face_count;
-        CAL_CHI_SQUARE_SINGLE(result,compare,chi_square);
+        std::vector<int> compare;
+        compare.assign(max_val - min_val+1,1);
+        double chi_square = fun_chi_square(result,compare);
         //chi-square check with 0.1% of coherence
         double chi_01_percent = 148.2303592;
         ASSERT_LT(chi_square,chi_01_percent);
@@ -258,23 +243,17 @@ re_type --;}}
     TEST(RollTest, COC_02_CP2){
         int sample_sum = (4000);
 
-        int dice_count = 1;
-        int face_count = 100;
-
-        int max_val = dice_count * face_count;
-        int min_val = dice_count;
-        int result_type_count = max_val - min_val + 1;
+        int max_val = 100;
+        int min_val = 1;
 
         std::vector<int> result;
         GENERATE_ROLL_RESULT(
-            result,
-            sample_sum,
-            dice_count*face_count,
-            dice_count,
+            result,sample_sum,
+            max_val,min_val,
             dicebot::roll::roll_coc(2));
 
         std::vector<int> compare;
-        compare.assign(result_type_count,0);
+        compare.assign(max_val - min_val + 1,0);
         for(int i =1;i<=10;i++){
             for(int j =1;j<=10;j++){
                 for(int k =1;k<=10;k++){
@@ -295,12 +274,9 @@ re_type --;}}
                 }
             }
         }
-        double compare_counter = 0.0;
-        for(unsigned int i=0;i<compare.size();i++)
-            compare_counter += compare[i];
 
-        double chi_square = 0.0;
-        CAL_CHI_SQUARE_LIST(result, compare, compare_counter, sample_sum, chi_square);
+        double chi_square = fun_chi_square(result,compare);
+
         //chi-square check with 0.1% of coherence
         double chi_01_percent = 148.2303592;
         ASSERT_LT(chi_square,chi_01_percent);
@@ -330,6 +306,89 @@ re_type --;}}
 
         dr = dicebot::roll::roll_coc(MAX_DICE_NUM+1);
         ASSERT_EQ(dr.status,dicebot::roll::roll_status::TOO_MANY_DICE);
+    }
+    
+    TEST(DiceSPliter, TEST_01_2d6_1d4_1d8){
+        int sample_sum = (2000);
+
+        int max_val = 24;
+        int min_val = 4;
+
+        std::vector<int> result;
+        result.assign(max_val-min_val+1,0);
+
+        int repeat = sample_sum;
+        while(repeat--){
+            std::string scommand;
+            std::string sdetail;
+            std::string sresult;
+            std::string smessage;
+            dicebot::binary_tree_split_dice("2d6+1d4+1d8",scommand,sdetail,sresult,smessage);
+            int res = std::stoi(sresult);
+            ASSERT_GE(res,min_val);
+            ASSERT_LE(res,max_val);
+            result[res-min_val] ++;
+        }
+
+        std::vector<int> compare;
+        compare.assign(result.size(),0);
+        for(int i =1;i<=6;i++){
+            for(int j =1;j<=6;j++){
+                for(int k =1;k<=4;k++){
+                    for(int l =1;l<=8;l++){
+                        compare[i+j+k+l-min_val]++;
+                    }
+                }
+            }
+        }
+
+        double chi_square = fun_chi_square(result,compare);
+
+        //chi-square check with 0.1% of coherence
+        double chi_01_percent = 49.72823247;
+        ASSERT_LT(chi_square,chi_01_percent);
+    }
+    
+    TEST(DiceSPliter, TEST_02_2D6K1_1D4_1D8){
+        int sample_sum = (2000);
+
+        int max_val = 18;
+        int min_val = 3;
+
+        std::vector<int> result;
+        result.assign(max_val-min_val+1,0);
+
+        int repeat = sample_sum;
+        while(repeat--){
+            std::string scommand;
+            std::string sdetail;
+            std::string sresult;
+            std::string smessage;
+            dicebot::binary_tree_split_dice("2D6K1+1D4+1D8",scommand,sdetail,sresult,smessage);
+            int res = std::stoi(sresult);
+            ASSERT_GE(res,min_val);
+            ASSERT_LE(res,max_val);
+            result[res-min_val] ++;
+        }
+
+        std::vector<int> compare;
+        compare.assign(result.size(),0);
+        for(int i =1;i<=6;i++){
+            for(int j =1;j<=6;j++){
+                int i_1 = i>j?i:j;
+                for(int k =1;k<=4;k++){
+                    for(int l =1;l<=8;l++){
+                        compare[i_1+k+l-min_val]++;
+                    }
+                }
+            }
+        }
+
+        double chi_square = fun_chi_square(result,compare);
+
+        //chi-square check with 0.1% of coherence
+        double chi_01_percent = 49.72823247;
+        ASSERT_LT(chi_square,chi_01_percent);
     }
 
 } // test
