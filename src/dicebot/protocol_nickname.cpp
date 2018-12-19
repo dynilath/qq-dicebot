@@ -11,7 +11,8 @@ namespace dicebot::protocol{
 	protocol_nickname::protocol_nickname()
 	{
 		this->identifier = new std::string("n");
-		this->regex_detail_command = new std::regex("^s *");
+		this->regex_identifier = new std::string("[nN]");
+		this->regex_detail_command = new std::regex("^[sS] *");
 	}
 
 
@@ -19,6 +20,7 @@ namespace dicebot::protocol{
 	{
 		delete this->identifier;
 		delete this->regex_detail_command;
+		delete this->regex_identifier;
 	}
 
 	std::string protocol_nickname::resolve_request(

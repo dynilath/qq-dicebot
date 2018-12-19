@@ -14,9 +14,10 @@ namespace dicebot::protocol{
 	protocol_manual_dice::protocol_manual_dice()
 	{
 		this->identifier = new std::string("h");
-		this->regex_filter_full_dice = new std::regex("^ *((\\+)?\\d*d\\d+)(\\+\\d*d\\d+)* *");
+		this->regex_identifier = new std::string("[hH]");
+		this->regex_filter_full_dice = new std::regex("^ *((\\+)?\\d*[dD]\\d+)(\\+\\d*[dD]\\d+)* *");
 		this->regex_filter_integer_space = new std::regex("^ *\\d+ *");
-		this->regex_detail_command = new std::regex("^(ka|a|k|r) *");
+		this->regex_detail_command = new std::regex("^([kK][aA]|[aA]|[kK]|[rR]) *");
 		this->method_map = new std::map<std::string, MANUAL_DICE_CALL_TYPE_R>();
 		this->method_map->insert(std::pair<std::string, MANUAL_DICE_CALL_TYPE_R>("ka", &protocol_manual_dice::manualdice_killall));
 		this->method_map->insert(std::pair<std::string, MANUAL_DICE_CALL_TYPE_R>("k", &protocol_manual_dice::manualdice_kill));
@@ -27,6 +28,7 @@ namespace dicebot::protocol{
 	protocol_manual_dice::~protocol_manual_dice()
 	{
 		delete this->identifier;
+		delete this->regex_identifier;
 		delete this->regex_filter_full_dice;
 		delete this->regex_filter_integer_space;
 		delete this->method_map;
@@ -46,7 +48,10 @@ namespace dicebot::protocol{
 		std::regex_search(message, match_list_command_identifier_match, *this->regex_detail_command);
 		if (match_list_command_identifier_match.begin() == match_list_command_identifier_match.end())
 			return manualdice_create(message, str_nickname, group_id, user_qq_id);
+
 		std::string str_match = match_list_command_identifier_match[1];
+		std::transform(str_match.begin(),str_match.end(),str_match.begin(),tolower);
+
 		std::map<std::string, MANUAL_DICE_CALL_TYPE_R>::iterator iter = this->method_map->find(str_match);
 		if (iter != method_map->end()) {
 			MANUAL_DICE_CALL_TYPE(dice_call) = (*iter).second;

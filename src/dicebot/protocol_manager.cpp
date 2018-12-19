@@ -34,7 +34,7 @@ namespace dicebot{
 				is_first = false;
 			}
 			else ostrs_stream << "|";
-			ostrs_stream << (*iter).first;
+			ostrs_stream << (*iter).second->get_regex_identifier();
 		}
 		ostrs_stream << ")";
 		this->regex_command = new std::regex(ostrs_stream.str());
@@ -42,6 +42,7 @@ namespace dicebot{
 
 	protocol::protocol_base * protocol_manager::get_protocol(std::string command)
 	{
+		std::transform(command.begin(),command.end(),command.begin(),tolower);
 		std::map<std::string, std::shared_ptr<protocol::protocol_base> >::iterator  iter = this->dice_protocol_map->find(command);
 		if (iter == dice_protocol_map->end()) return nullptr;
 		else return (*iter).second.get();

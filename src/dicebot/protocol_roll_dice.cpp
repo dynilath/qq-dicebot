@@ -9,9 +9,9 @@
 namespace dicebot::protocol{
 	protocol_roll_dice::protocol_roll_dice()
 	{
-		this->regex_detail_command = new std::regex("^s *");
 		this->identifier = new std::string("r");
-		this->regex_filter_full_dice = new std::regex("^ *(\\+|\\-)?((\\d*d\\d+((k|kl)\\d+)?)|\\d+)((\\+|\\-|\\*|/)((\\d*d\\d+((k|kl)\\d+)?)|\\d+))* *");
+		this->regex_identifier = new std::string("[rR]");
+		this->regex_detail_command = new std::regex("^[sS] *");
 	}
 
 
@@ -19,7 +19,7 @@ namespace dicebot::protocol{
 	{
 		delete this->regex_detail_command;
 		delete this->identifier;
-		delete this->regex_filter_full_dice;
+		delete this->regex_identifier;
 	}
 
 	std::string protocol_roll_dice::resolve_request(

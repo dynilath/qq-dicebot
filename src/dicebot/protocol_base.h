@@ -14,10 +14,12 @@ namespace dicebot::protocol{
 	{
 	protected:
 		std::string * identifier;
+		std::string * regex_identifier;
 		std::regex * regex_filter_full_dice;
 	public:
 		int dynamic_protocol_id;
 		std::string get_identifier() { return *(this->identifier); };
+		std::string get_regex_identifier() { return *(this->regex_identifier); };
 		virtual std::string resolve_request(
 			std::string &message,
 			const int64_t group_id,

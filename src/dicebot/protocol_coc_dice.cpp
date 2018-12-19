@@ -8,6 +8,7 @@ namespace dicebot::protocol{
 	protocol_coc_dice::protocol_coc_dice()
 	{
 		this->identifier = new std::string("c");
+		this->regex_identifier = new std::string("[cC]");
 		this->regex_filter_full_dice = new std::regex("^ *([pPbB]\\d+ *)*");
 	}
 
@@ -16,6 +17,7 @@ namespace dicebot::protocol{
 	{
 		delete this->identifier;
 		delete this->regex_filter_full_dice;
+		delete this->regex_identifier;
 	}
 
 	std::string protocol_coc_dice::resolve_request(
