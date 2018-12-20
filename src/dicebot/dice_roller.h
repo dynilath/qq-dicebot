@@ -8,26 +8,40 @@ namespace dicebot::roll{
 	((_Face < MAX_DICE_FACE && _Num < MAX_DICE_NUM) &&\
 	(_Face > 1 && _Num >= 1))
 	
+	typedef std::pair<uint16_t,bool> dice_pair;
+
 	class dice_roll{
 	private:
 		dice_roll(roll_status const & status) noexcept;
 	public:
-		int result;
-		std::string detail;
+		uint16_t summary;
 		roll_status status;
-		dice_roll(int const & i_result, std::string const & str_detail, roll_status const & stat) noexcept;
+		std::vector<dice_pair> results;
+		std::string detail();
+		std::string dice_roll::detail_coc();
+		dice_roll() noexcept;
+		size_t add_result(uint16_t const result);
+		size_t add_ignored_result(uint16_t const result);
+		size_t update_result(uint16_t const result, size_t const target);
+		size_t set_ignore(size_t const target);
+		size_t set_good(size_t const target);
+		size_t clear();
+		roll_status finish_roll() noexcept;
+		roll_status finish_coc() noexcept;
+		roll_status dice_exceed() noexcept;
+		roll_status general_err() noexcept;
 		explicit operator bool() const noexcept;
-		static dice_roll ERR_ROLL_GENERAL;
-		static dice_roll ERR_ROLL_EXCEED;
 	};
+	
+	typedef std::shared_ptr<dice_roll> p_dice_roll;
 
-	dice_roll roll_base(int const i_num_of_dice, int const i_num_of_face) noexcept;
+	roll_status roll_base(dice_roll & dice, int const i_num_of_dice, int const i_num_of_face) noexcept;
 
-	dice_roll roll_rdk(int const i_num_of_dice, int const i_num_of_face, int const i_keep) noexcept;
-	dice_roll roll_rdk(std::string const & str_dice_command) noexcept;
+	roll_status roll_rdk(dice_roll & dice, int const i_num_of_dice, int const i_num_of_face, int const i_keep) noexcept;
+	roll_status roll_rdk(dice_roll & dice, std::string const & str_dice_command) noexcept;
 
-	dice_roll roll_coc(int const i_bp) noexcept;
-	dice_roll roll_coc(std::string const & str_dice_command) noexcept;
+	roll_status roll_coc(dice_roll & dice, int const i_bp) noexcept;
+	roll_status roll_coc(dice_roll & dice, std::string const & str_dice_command) noexcept;
 
 
 	void random_initialize();

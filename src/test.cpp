@@ -10,7 +10,7 @@
 #include "dicebot/number.h"
 #include "dicebot/dice_roller.h"
 #include "dicebot/dice_spliter.h"
-
+#include "dicebot/manual_dice.h"
 
 namespace dicebot::test{
 
@@ -90,10 +90,11 @@ ASSERT_EQ(ret.is_using_int,false);}
 _list.assign(_max-_min+1,0);\
 int repeat = _sample;\
 while(repeat--){\
-dicebot::roll::dice_roll dr = _roll_method;\
-_list[dr.result-_min]++;\
-ASSERT_GE(dr.result,_min);\
-ASSERT_LE(dr.result,_max);}}
+dicebot::roll::dice_roll dr;\
+_roll_method;\
+_list[dr.summary-_min]++;\
+ASSERT_GE(dr.summary,_min);\
+ASSERT_LE(dr.summary,_max);}}
 
     TEST(RollTest, Base_01_d100){
         int sample_sum = (4000);
@@ -107,7 +108,7 @@ ASSERT_LE(dr.result,_max);}}
             sample_sum,
             max_val,
             min_val,
-            dicebot::roll::roll_base(1,100));
+            dicebot::roll::roll_base(dr,1,100));
 
         std::vector<int> compare;
         compare.assign(result.size(),1);
@@ -130,7 +131,7 @@ ASSERT_LE(dr.result,_max);}}
             sample_sum,
             max_val,
             min_val,
-            dicebot::roll::roll_base(2,6));
+            dicebot::roll::roll_base(dr,2,6));
 
         std::vector<int> compare;
         compare.assign(result.size(),0);
@@ -158,7 +159,7 @@ ASSERT_LE(dr.result,_max);}}
             sample_sum,
             max_val,
             min_val,
-            dicebot::roll::roll_rdk(4,6,3));
+            dicebot::roll::roll_rdk(dr,4,6,3));
 
         std::vector<int> compare;
         compare.assign(result.size(),0);
@@ -194,7 +195,7 @@ ASSERT_LE(dr.result,_max);}}
             sample_sum,
             max_val,
             min_val,
-            dicebot::roll::roll_rdk(4,6,-3));
+            dicebot::roll::roll_rdk(dr,4,6,-3));
 
         std::vector<int> compare;
         compare.assign(result.size(),0);
@@ -230,7 +231,7 @@ ASSERT_LE(dr.result,_max);}}
             sample_sum,
             max_val,
             min_val,
-            dicebot::roll::roll_coc(0));
+            dicebot::roll::roll_coc(dr,0));
 
         std::vector<int> compare;
         compare.assign(max_val - min_val+1,1);
@@ -250,7 +251,7 @@ ASSERT_LE(dr.result,_max);}}
         GENERATE_ROLL_RESULT(
             result,sample_sum,
             max_val,min_val,
-            dicebot::roll::roll_coc(2));
+            dicebot::roll::roll_coc(dr,2));
 
         std::vector<int> compare;
         compare.assign(max_val - min_val + 1,0);
@@ -283,32 +284,33 @@ ASSERT_LE(dr.result,_max);}}
     }
     
     TEST(RollTest, DICE_LIMIT){
-        dicebot::roll::dice_roll dr = dicebot::roll::roll_base(1,6);
+        dicebot::roll::dice_roll dr;
+        dicebot::roll::roll_base(dr,1,6);
         ASSERT_EQ(dr.status,dicebot::roll::roll_status::FINISHED);
 
-        dr = dicebot::roll::roll_base(MAX_DICE_NUM+1,2);
+        dicebot::roll::roll_base(dr,MAX_DICE_NUM+1,2);
         ASSERT_EQ(dr.status,dicebot::roll::roll_status::TOO_MANY_DICE);
 
-        dr = dicebot::roll::roll_base(1,MAX_DICE_FACE+1);
+        dicebot::roll::roll_base(dr,1,MAX_DICE_FACE+1);
         ASSERT_EQ(dr.status,dicebot::roll::roll_status::TOO_MANY_DICE);
 
-        dr = dicebot::roll::roll_rdk(MAX_DICE_NUM+1,2,1);
+        dicebot::roll::roll_rdk(dr,MAX_DICE_NUM+1,2,1);
         ASSERT_EQ(dr.status,dicebot::roll::roll_status::TOO_MANY_DICE);
 
-        dr = dicebot::roll::roll_rdk(1,MAX_DICE_FACE+1,1);
+        dicebot::roll::roll_rdk(dr,1,MAX_DICE_FACE+1,1);
         ASSERT_EQ(dr.status,dicebot::roll::roll_status::TOO_MANY_DICE);
 
-        dr = dicebot::roll::roll_rdk(1,6,MAX_DICE_NUM+1);
+        dicebot::roll::roll_rdk(dr,1,6,MAX_DICE_NUM+1);
         ASSERT_EQ(dr.status,dicebot::roll::roll_status::FINISHED);
 
-        dr = dicebot::roll::roll_coc(-MAX_DICE_NUM-1);
+        dicebot::roll::roll_coc(dr,-MAX_DICE_NUM-1);
         ASSERT_EQ(dr.status,dicebot::roll::roll_status::TOO_MANY_DICE);
 
-        dr = dicebot::roll::roll_coc(MAX_DICE_NUM+1);
+        dicebot::roll::roll_coc(dr,MAX_DICE_NUM+1);
         ASSERT_EQ(dr.status,dicebot::roll::roll_status::TOO_MANY_DICE);
     }
     
-    TEST(DiceSPliter, TEST_01_2d6_1d4_1d8){
+    TEST(DiceSpliter, TEST_01_2d6_1d4_1d8){
         int sample_sum = (2000);
 
         int max_val = 24;
@@ -349,7 +351,7 @@ ASSERT_LE(dr.result,_max);}}
         ASSERT_LT(chi_square,chi_01_percent);
     }
     
-    TEST(DiceSPliter, TEST_02_2D6K1_1D4_1D8){
+    TEST(DiceSpliter, TEST_02_2D6K1_1D4_1D8){
         int sample_sum = (2000);
 
         int max_val = 18;
@@ -389,6 +391,82 @@ ASSERT_LE(dr.result,_max);}}
         //chi-square check with 0.1% of coherence
         double chi_01_percent = 49.72823247;
         ASSERT_LT(chi_square,chi_01_percent);
+    }
+
+    TEST(ManualDice, TEST_01_4d6_1d8){
+        int sample_sum = (4000);
+
+        int max_val = 18;
+        int min_val = 3;
+
+        std::vector<int> result;
+        result.assign(max_val-min_val+1,0);
+
+        int repeat = sample_sum;
+        while(repeat--){
+            dicebot::manual_dice md = manual_dice("4d6+1d8");
+            int result = 0;
+            result = md.i_sum_result;
+            ASSERT_GE(result, 5);
+            ASSERT_LE(result, 32);
+
+            md.kill("1");
+            result = md.i_sum_result;
+            ASSERT_GE(result, 4);
+            ASSERT_LE(result, 26);
+
+            md.kill("4");
+            result = md.i_sum_result;
+            ASSERT_GE(result, 3);
+            ASSERT_LE(result, 18);
+
+            md.add("2d6");
+            result = md.i_sum_result;
+            ASSERT_GE(result, 5);
+            ASSERT_LE(result, 30);
+
+            md.killall();
+            result = md.i_sum_result;
+            ASSERT_EQ(result, 0);
+        }
+    }
+
+    TEST(ManualDice, TEST_01_4D6_1D8){
+        int sample_sum = (4000);
+
+        int max_val = 18;
+        int min_val = 3;
+
+        std::vector<int> result;
+        result.assign(max_val-min_val+1,0);
+
+        int repeat = sample_sum;
+        while(repeat--){
+            dicebot::manual_dice md = manual_dice("4D6+1D8");
+            int result = 0;
+            result = md.i_sum_result;
+            ASSERT_GE(result, 5);
+            ASSERT_LE(result, 32);
+
+            md.kill("1");
+            result = md.i_sum_result;
+            ASSERT_GE(result, 4);
+            ASSERT_LE(result, 26);
+
+            md.kill("4");
+            result = md.i_sum_result;
+            ASSERT_GE(result, 3);
+            ASSERT_LE(result, 18);
+
+            md.add("2D6");
+            result = md.i_sum_result;
+            ASSERT_GE(result, 5);
+            ASSERT_LE(result, 30);
+
+            md.killall();
+            result = md.i_sum_result;
+            ASSERT_EQ(result, 0);
+        }
     }
 
 } // test

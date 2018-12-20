@@ -174,11 +174,12 @@ namespace dicebot{
 		switch (this->mode)
 		{
 		case operation_mode::DICE:{
-			roll::dice_roll dr = roll::roll_rdk(this->mode_num_like_source);
+			roll::dice_roll dr;
+			roll::roll_rdk(dr,this->mode_num_like_source);
 			if (dr) {
-				this->ret_value = dr.result;
+				this->ret_value = dr.summary;;
 				this->str_cal_command.assign(this->mode_num_like_source);
-				this->str_cal_detail.assign(dr.detail);
+				this->str_cal_detail = dr.detail();
 				return this->successful();
 			}
 			else return this->fail();

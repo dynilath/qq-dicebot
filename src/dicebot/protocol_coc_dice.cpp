@@ -34,15 +34,18 @@ namespace dicebot::protocol{
 			dicebot::remove_space_and_tab(str_roll_source);
 
 			//roll::dice_roller diceRoll(str_roll_source, roll::roll_mode::COC_PB);
-			roll::dice_roll dr = roll::roll_coc(str_roll_source);
+			roll::dice_roll dr;
+			roll::roll_coc(dr,str_roll_source);
 			if (dr) {
 				std::ostringstream ostrs_output_stream(std::ostringstream::ate);
 
 				std::string str_nickname;
 				(nickname_manager::instance)->get_nickname(group_id, user_qq_id, str_nickname, isfromGroup);
 
-				ostrs_output_stream << u8" * " << str_nickname << u8" " << str_roll_message << u8"  掷骰: ";
-				ostrs_output_stream << (dr.detail) << u8" = " << dr.result;
+				ostrs_output_stream << u8" * " << str_nickname << u8" " << str_roll_message << u8"  掷骰: d100" << str_roll_source ;
+				std::string detail = dr.detail_coc();
+				if(detail.size()>0) ostrs_output_stream << u8" = " << (dr.detail_coc());
+				ostrs_output_stream << u8" = " << dr.summary;
 				return ostrs_output_stream.str();
 			}
 		}

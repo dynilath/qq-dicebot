@@ -41,11 +41,12 @@ namespace dicebot{
 			else if (target < 0) return;
 			TYPE_LIST_DICE::iterator iter_list = this->pintlist_dice->begin() + target;
 			int i_face_of_die = (*iter_list).first;
-			roll::dice_roll dr = roll::roll_base(1, i_face_of_die);
+			roll::dice_roll dr;
+			roll::roll_base(dr, 1, i_face_of_die);
 			if (dr){
 				this->i_sum_result -= (*iter_list).second;
-				(*iter_list).second = dr.result;
-				this->i_sum_result += dr.result;
+				(*iter_list).second = dr.summary;
+				this->i_sum_result += dr.summary;
 			}
 			else{
 				this->status = dr.status;
@@ -103,10 +104,11 @@ namespace dicebot{
 				}
 
 				for (int i_iter = 0; i_iter < i_dice; i_iter++) {
-					roll::dice_roll dr = roll::roll_base(1, i_face);
+					roll::dice_roll dr;
+					roll::roll_base(dr, 1, i_face);
 					if (dr) {
-						this->pintlist_dice->push_back(TYPE_PAIR_DICE(i_face, dr.result));
-						this->i_sum_result += dr.result;
+						this->pintlist_dice->push_back(TYPE_PAIR_DICE(i_face, dr.summary));
+						this->i_sum_result += dr.summary;
 					}
 					else {
 						this->status = dr.status;

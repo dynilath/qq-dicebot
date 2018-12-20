@@ -11,114 +11,217 @@ namespace dicebot::roll{
 	unsigned long ulong_prand_seed = 0;
 	unsigned long ulong_prand_stage = 0;
 
+	std::string dice_roll::detail(){
+		std::ostringstream ost(std::ostringstream::ate);
+		ost << '[';
+		for(uint16_t i =0;i < this->results.size();i++){
+			dice_pair dp = results[i];
+			if(!dp.second) ost << '(' << dp.first << ')';
+			else ost << dp.first ;
+			if(i!=results.size() -1) ost<<" + ";
+		}
+		ost << ']';
+		return ost.str();
+	}
+
+	std::string dice_roll::detail_coc(){
+		std::ostringstream ost(std::ostringstream::ate);
+		if(this->results.size() > 1){
+			ost << '[';
+			for(uint16_t i =1;i < this->results.size();i++){
+				dice_pair dp = results[i];
+				if(!dp.second) ost << '(' << dp.first << ')';
+				else ost << dp.first ;
+				if(i!=results.size() -1) ost<<" + ";
+			}
+			ost << "] [";
+			ost << this->results[0].first;
+			ost << ']';
+		}
+		return ost.str();
+	}
+	
+	size_t dice_roll::add_result(uint16_t const result){
+		this->results.push_back(dice_pair(result,true));
+		return this->results.size();
+	}
+	
+	size_t dice_roll::add_ignored_result(uint16_t const result){
+		this->results.push_back(dice_pair(result,false));
+		return this->results.size();
+	}
+
+	size_t dice_roll::update_result(uint16_t const result, size_t const target){
+		if(target < this->results.size()){
+			this->results[target].first = result;
+		}
+		return results.size();
+	}
+	
+	size_t dice_roll::set_ignore(size_t const target){
+		if(this->results[target].second) {
+			this->results[target].second = false;
+		}
+		return this->results.size();
+	}
+	
+	size_t dice_roll::set_good(size_t target){
+		if(!this->results[target].second) {
+			this->results[target].second = true;
+		}
+		return this->results.size();
+	}
+	
+	size_t dice_roll::clear(){
+		this->status = roll_status::UNINITIALIZED;
+		this->results.clear();
+		this->summary = 0;
+		return this->results.size();
+	}
+
+	dice_roll::dice_roll() noexcept{
+		this->status = roll_status::UNINITIALIZED;
+		this->summary = 0;
+	}
+
+	roll_status dice_roll::finish_roll() noexcept{
+		for(uint16_t i = 0;i<this->results.size();i++){
+			if(this->results[i].second)
+				this->summary += this->results[i].first;
+		}
+		return this->status = roll_status::FINISHED;
+	}
+
+	roll_status dice_roll::finish_coc() noexcept{
+		if(this->results.size() == 0) return this->status = roll_status::UNINITIALIZED;
+		else if(this->results.size() == 1){
+			this->summary = this->results[0].first;
+		}
+		else{
+			uint16_t units = this->results[0].first;
+			uint16_t tens = 0;
+			for(uint16_t i = 1;i<this->results.size();i++){
+				if(this->results[i].second){
+					tens = this->results[i].first;
+					break;
+				}
+			}
+			this->summary = units + tens * 10;
+		}
+		return this->status = roll_status::FINISHED;
+	}
+
+	roll_status dice_roll::dice_exceed() noexcept{
+		return this->status = roll_status::TOO_MANY_DICE;
+	}
+
+	roll_status dice_roll::general_err() noexcept{
+		return this->status = roll_status::GENERAL_ERR;
+	}
+
+	dice_roll::dice_roll(roll_status const & stat) noexcept{
+		this->status = stat;
+	}
+
+	dice_roll::operator bool() const noexcept{
+		return this->status == roll_status::FINISHED;
+	}
+
 	#define _RANDOMIZE(_Face,_Min_Val)\
 	std::random_device rd_generator;\
 	std::mt19937 mt_generator(ulong_prand_seed);\
 	if (is_using_pseudo_random) mt_generator.discard(ulong_prand_stage);\
-	std::uniform_int_distribution<> dice(_Min_Val, _Face + _Min_Val - 1)
+	std::uniform_int_distribution<uint16_t> dice_distribution(_Min_Val, _Face + _Min_Val - 1)
 
 	#define _RANDOM(_Target)\
-	if (is_using_pseudo_random) { _Target = dice(mt_generator); ulong_prand_stage++;}\
-	else _Target = dice(rd_generator);
+	if (is_using_pseudo_random) { _Target = dice_distribution(mt_generator); ulong_prand_stage++;}\
+	else _Target = dice_distribution(rd_generator);
 
-	dice_roll roll_base(int const i_num_of_dice, int const i_num_of_face) noexcept{
+	roll_status roll_base(dice_roll & dice, int const i_num_of_dice, int const i_num_of_face) noexcept{
+		dice.clear();
+
 		_RANDOMIZE(i_num_of_face,1);
 		if(CHECK_LIMITS(i_num_of_dice,i_num_of_face)) {
-			int single_result = 0;
-			int sum_result = 0;
-			std::ostringstream ot(std::ostringstream::ate);
-			ot << '[';
+			uint16_t single_result = 0;
 			bool first = true;
-
 			int i_dice = i_num_of_dice;
-			while(i_dice > 0){
+			while(i_dice-- > 0){
 				_RANDOM(single_result);
-				sum_result+= single_result;
-				ot << single_result;
-				if ((--i_dice) > 0) ot << " + ";
+				dice.add_result(single_result);
 			}
-			ot<<']';
-			return dice_roll(sum_result,ot.str(),roll_status::FINISHED);
+			return dice.finish_roll();
 		}
 		else{
-			return dice_roll::ERR_ROLL_EXCEED;
+			return dice.dice_exceed();
 		}
 	}
 
-	dice_roll roll_rdk(int const i_num_of_dice, int const i_num_of_face, int const i_keep) noexcept{
+	roll_status roll_rdk(dice_roll & dice, int const i_num_of_dice, int const i_num_of_face, int const i_keep) noexcept{
+		dice.clear();
+
 		if(i_keep == 0){
-			return dice_roll(0,"(0)",roll_status::FINISHED);
+			return dice.general_err();
 		}
 		int i_num_of_keep = i_keep >0 ? i_keep :(-i_keep);
-		if(i_num_of_keep >= i_num_of_dice) return roll_base(i_num_of_dice,i_num_of_face);
+		if(i_num_of_keep >= i_num_of_dice) return roll_base(dice,i_num_of_dice,i_num_of_face);
 
 
 		_RANDOMIZE(i_num_of_face,1);
 
 		if(!CHECK_LIMITS(i_num_of_dice,i_num_of_face)) {
-			return dice_roll::ERR_ROLL_EXCEED;
+			return dice.dice_exceed();
 		}
 
 		int i_result = 0;
-		std::ostringstream ot(std::ostringstream::ate);
-		ot << '[';
+
 		std::vector<int> resultList;
 		std::vector<int> sortList;
 		std::vector<int> pilotList;
-		std::vector<int> flagList;
+		std::vector<bool> flagList;
 
-		for (int i_count = 0; i_count < i_num_of_dice; i_count++) {
-			int i_temp_result = 0;
+		for (uint16_t i_count = 0; i_count < i_num_of_dice; i_count++) {
+			uint16_t i_temp_result = 0;
 			_RANDOM(i_temp_result);
-			resultList.push_back(i_temp_result);
+			dice.add_ignored_result(i_temp_result);
 			pilotList.push_back(i_count);
+			sortList.push_back(i_temp_result);
 		}
-		sortList.assign(resultList.begin(),resultList.end());
+
 		flagList.assign(sortList.size(),0);
 		quick_sort(sortList.data(), pilotList.data(), 0, sortList.size() - 1);
 
 		if (i_keep < 0) {
 			for (int i_iter = 0; i_iter < i_num_of_keep; i_iter++) {
-				flagList[pilotList[i_iter]] = 1;
+				dice.set_good(pilotList[i_iter]);
 			}
 		}
 		else {
 			for (int i_iter = 1; i_iter <= i_num_of_keep; i_iter++) {
-				flagList[pilotList[pilotList.size() - i_iter]] = 1;
+				dice.set_good(pilotList[pilotList.size() - i_iter]);
 			}
 		}
-
-		for (int i_iter = 0; i_iter < i_num_of_dice; i_iter++) {
-			if (flagList[i_iter] == 1) {
-				i_result += resultList[i_iter];
-				ot << resultList[i_iter];
-			}
-			else {
-				ot << "(" << resultList[i_iter] << ")";
-			}
-			if (i_iter + 1 < i_num_of_dice) ot << " + ";
-		}
-		ot << ']';
-		return dice_roll(i_result,ot.str(),roll_status::FINISHED);
+		return dice.finish_roll();
 	}
 
-	dice_roll roll_rdk(std::string const & str_dice_command) noexcept{
+	roll_status roll_rdk(dice_roll & dice, std::string const & str_dice_command) noexcept{	
+		dice.clear();
+
+		std::string source(str_dice_command);
+		std::regex regex_rd("(\\d*)?[dD](\\d+)(?:[kK]([lL])?(\\d+))?");
+		std::smatch smatch_rd;
+		std::regex_match(str_dice_command,smatch_rd,regex_rd);
+
+		if(smatch_rd.begin() == smatch_rd.end()) return dice.general_err();
+
+		int i_num_of_die = 1;
+		int i_num_of_face = 0;
+		int i_num_of_keep = 0;
+		bool is_keep = false;
+		bool is_keeping_high = true;
 		try {
-			std::string source(str_dice_command);
-			std::regex regex_rd("(\\d*)?[dD](\\d+)(?:[kK]([lL])?(\\d+))?");
-			std::smatch smatch_rd;
-			std::regex_match(str_dice_command,smatch_rd,regex_rd);
-			if(smatch_rd.begin() == smatch_rd.end()) return dice_roll::ERR_ROLL_GENERAL;
-
-			int i_num_of_die = 1;
-			int i_num_of_face = 0;
-			int i_num_of_keep = 0;
-			bool is_keep = false;
-			bool is_keeping_high = true;
-
 			if(smatch_rd[1].matched) i_num_of_die = std::stoi(smatch_rd[1].str());
 			if(smatch_rd[2].matched) i_num_of_face = std::stoi(smatch_rd[2].str());
-			else return dice_roll::ERR_ROLL_GENERAL;
+			else return dice.general_err();
 			if(smatch_rd[3].matched) is_keeping_high = false;
 			if(smatch_rd[4].matched) {
 				is_keep = true;
@@ -126,89 +229,76 @@ namespace dicebot::roll{
 				if(!is_keeping_high) i_num_of_keep = -i_num_of_keep;
 			}
 
-			if(!CHECK_LIMITS(i_num_of_die,i_num_of_face)) return dice_roll::ERR_ROLL_EXCEED;
+			if(!CHECK_LIMITS(i_num_of_die,i_num_of_face)) return dice.dice_exceed();
 
 			if(is_keep){
-				return roll_rdk(i_num_of_die,i_num_of_face,i_num_of_keep);
-			}return roll_base(i_num_of_die,i_num_of_face);
+				return roll_rdk(dice,i_num_of_die,i_num_of_face,i_num_of_keep);
+			}return roll_base(dice,i_num_of_die,i_num_of_face);
 		}
 		catch (const std::invalid_argument& ia) {
 			#ifdef _DEBUG
 			logger::log("dice_roller", ia.what());
 			#endif
-			return dice_roll::ERR_ROLL_GENERAL;
+			return dice.general_err();
 		}
 	}
 
-	dice_roll roll_coc(int const i_bp) noexcept{
-		std::ostringstream ot(std::ostringstream::ate);
-		ot << "d100";
-		if(i_bp > 0)  ot << " b" << i_bp << " = ";
-		else if(i_bp < 0) ot << " p" << (-i_bp) << " = ";
-
+	roll_status roll_coc(dice_roll & dice, int const i_bp) noexcept{	
+		dice.clear();
 		if(i_bp == 0){
-			int i_result = 0;
-			_RANDOMIZE(100,1);
-			_RANDOM(i_result);
-			return dice_roll(i_result,ot.str(),roll_status::FINISHED);
+			return roll_base(dice,1,100);
 		}
 		else{
-			int i_dice_count = i_bp > 0 ? (1 + i_bp):(1 - i_bp);
+			uint16_t i_dice_count = i_bp > 0 ? (1 + i_bp):(1 - i_bp);
 
-			if(!CHECK_LIMITS(i_dice_count,100)) return dice_roll::ERR_ROLL_EXCEED;
+			if(!CHECK_LIMITS(i_dice_count,100)) return dice.dice_exceed();
 
-			int i_units = 0;
+			uint16_t i_units = 0;
 			{
 				_RANDOMIZE(10,0);
 				_RANDOM(i_units);
+				dice.add_result(i_units);
 			}
-			std::vector<int> resultList;
 			if(i_units == 0){
 				_RANDOMIZE(10,1);
-				for (int i_count = 0; i_count < i_dice_count; i_count++) {
-					int i_temp_result = 0;
+				for (uint16_t i_count = 0; i_count < i_dice_count; i_count++) {
+					uint16_t i_temp_result = 0;
 					_RANDOM(i_temp_result);
-					resultList.push_back(i_temp_result);
+					dice.add_ignored_result(i_temp_result);
 				}
 				
 			}
 			else{
 				_RANDOMIZE(10,0);
-				for (int i_count = 0; i_count < i_dice_count; i_count++) {
-					int i_temp_result = 0;
+				for (uint16_t i_count = 0; i_count < i_dice_count; i_count++) {
+					uint16_t i_temp_result = 0;
 					_RANDOM(i_temp_result);
-					resultList.push_back(i_temp_result);
+					dice.add_ignored_result(i_temp_result);
 				}
 			}
-			int i_tens = 0;
-			int i_target = 0;
-			for(int i = 1;i<i_dice_count;i++){
-				if(i_bp > 0 && resultList[i] < resultList[i_target]) {
-					i_target = i;
-				}
-				else if(i_bp < 0 && resultList[1] > resultList[i_target]){
-					i_target = i;
+			uint16_t i_target = 1;
+			if(i_bp > 0){
+				for(uint16_t i = 1;i<dice.results.size();i++){
+					if(dice.results[i].first < dice.results[i_target].first) {
+						i_target = i;
+					}
 				}
 			}
+			else if(i_bp < 0){
+				for(uint16_t i = 1;i<dice.results.size();i++){
+					if(dice.results[i].first > dice.results[i_target].first){
+						i_target = i;
+					}
+				}
+			}
+			dice.results[i_target].second = true;
 
-			std::ostringstream ot_tens(std::ostringstream::ate);
-
-			for (int i_iter = 0; i_iter < i_dice_count; i_iter++) {
-				if (i_iter == i_target) {
-					i_tens = resultList[i_iter];
-					ot_tens << resultList[i_iter];
-				}
-				else {
-					ot_tens << "(" << resultList[i_iter] << ")";
-				}
-				if (i_iter + 1 < i_dice_count) ot_tens << " + ";
-			}
-			ot << '[' << ot_tens.str() << "] [" << i_units << "]";
-			return dice_roll(10 * i_tens + i_units, ot.str(), roll_status::FINISHED);
+			return dice.finish_coc();
 		}
 	}
 
-	dice_roll roll_coc(std::string const & str_dice_command) noexcept{
+	roll_status roll_coc(dice_roll & dice, std::string const & str_dice_command) noexcept{
+		dice.clear();
 		try {
 			std::string source(str_dice_command);
 			std::regex regex_pb("^([bBpP])(\\d+)");
@@ -228,13 +318,13 @@ namespace dicebot::roll{
 				source.assign(smatch_coc.suffix().str());
 				if(source.length() < 2) break;
 			}
-			return roll_coc(i_bp_count);
+			return roll_coc(dice, i_bp_count);
 		}
 		catch (const std::invalid_argument& ia) {
 			#ifdef _DEBUG
 				logger::log("dice_roller", ia.what());
 			#endif
-			return dice_roll::ERR_ROLL_GENERAL;
+			return dice.general_err();
 		}
 	}
 
@@ -244,22 +334,5 @@ namespace dicebot::roll{
 			is_using_pseudo_random = false;
 		}
 		else is_using_pseudo_random = true;
-	}
-
-	dice_roll::dice_roll(int const & i_result, std::string const & str_detail, roll_status const & stat) noexcept{
-		this->result = i_result;
-		this->detail.assign(str_detail);
-		this->status = stat;
-	}
-
-	dice_roll::dice_roll(roll_status const & stat) noexcept{
-		this->status = stat;
-	}
-
-	dice_roll dice_roll::ERR_ROLL_GENERAL(roll_status::GENERAL_ERR);
-	dice_roll dice_roll::ERR_ROLL_EXCEED(roll_status::TOO_MANY_DICE);
-
-	dice_roll::operator bool() const noexcept{
-		return this->status == roll_status::FINISHED;
 	}
 }
