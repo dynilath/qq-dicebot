@@ -231,7 +231,7 @@ namespace dicebot::roll{
 		dice.clear();
 
 		std::string source(str_dice_command);
-		std::regex regex_rd("(\\d*)?[dD](\\d+)(?:[kK]([lL])?(\\d+))?");
+		std::regex regex_rd("(\\d+)?[dD](\\d+)(?:[kK]([lL])?(\\d+))?");
 		std::smatch smatch_rd;
 		std::regex_match(str_dice_command,smatch_rd,regex_rd);
 
