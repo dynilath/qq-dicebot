@@ -44,7 +44,7 @@ namespace dicebot::protocol{
 
 				ostrs_output_stream << u8" * " << str_nickname << u8" " << str_roll_message << u8"  掷骰: d100" << str_roll_source ;
 				std::string detail = dr.detail_coc();
-				if(detail.size()>0) ostrs_output_stream << u8" = " << (dr.detail_coc());
+				if(detail.size()>0) ostrs_output_stream << u8" = " << detail;
 				ostrs_output_stream << u8" = " << dr.summary;
 				return ostrs_output_stream.str();
 			}

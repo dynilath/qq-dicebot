@@ -11,34 +11,12 @@ namespace dicebot::roll{
 	unsigned long ulong_prand_seed = 0;
 	unsigned long ulong_prand_stage = 0;
 
-	std::string dice_roll::detail(){
-		std::ostringstream ost(std::ostringstream::ate);
-		ost << '[';
-		for(uint16_t i =0;i < this->results.size();i++){
-			dice_pair dp = results[i];
-			if(!dp.second) ost << '(' << dp.first << ')';
-			else ost << dp.first ;
-			if(i!=results.size() -1) ost<<" + ";
+	void random_initialize(){
+		std::random_device rd;
+		if (rd.entropy() > 0.0) {
+			is_using_pseudo_random = false;
 		}
-		ost << ']';
-		return ost.str();
-	}
-
-	std::string dice_roll::detail_coc(){
-		std::ostringstream ost(std::ostringstream::ate);
-		if(this->results.size() > 1){
-			ost << '[';
-			for(uint16_t i =1;i < this->results.size();i++){
-				dice_pair dp = results[i];
-				if(!dp.second) ost << '(' << dp.first << ')';
-				else ost << dp.first ;
-				if(i!=results.size() -1) ost<<" + ";
-			}
-			ost << "] [";
-			ost << this->results[0].first;
-			ost << ']';
-		}
-		return ost.str();
+		else is_using_pseudo_random = true;
 	}
 	
 	size_t dice_roll::add_result(uint16_t const result){
@@ -92,6 +70,19 @@ namespace dicebot::roll{
 		return this->status = roll_status::FINISHED;
 	}
 
+	std::string dice_roll::detail(){
+		std::ostringstream ost(std::ostringstream::ate);
+		ost << '[';
+		for(uint16_t i =0;i < this->results.size();i++){
+			dice_pair dp = results[i];
+			if(!dp.second) ost << '(' << dp.first << ')';
+			else ost << dp.first ;
+			if(i!=results.size() -1) ost<<" + ";
+		}
+		ost << ']';
+		return ost.str();
+	}
+
 	roll_status dice_roll::finish_coc() noexcept{
 		if(this->results.size() == 0) return this->status = roll_status::UNINITIALIZED;
 		else if(this->results.size() == 1){
@@ -107,6 +98,33 @@ namespace dicebot::roll{
 				}
 			}
 			this->summary = units + tens * 10;
+		}
+		return this->status = roll_status::FINISHED;
+	}
+
+	std::string dice_roll::detail_coc(){
+		std::ostringstream ost(std::ostringstream::ate);
+		if(this->results.size() > 1){
+			ost << '[';
+			for(uint16_t i =1;i < this->results.size();i++){
+				dice_pair dp = results[i];
+				if(!dp.second) ost << '(' << dp.first << ')';
+				else ost << dp.first ;
+				if(i!=results.size() -1) ost<<" + ";
+			}
+			ost << "] [";
+			ost << this->results[0].first;
+			ost << ']';
+		}
+		return ost.str();
+	}
+
+	roll_status dice_roll::finish_wod(unsigned int const i_d) noexcept{
+		for(uint16_t i = 0;i<this->results.size();i++){
+			if(this->results[i].first >= i_d){
+				this->results[i].second = true;
+				this->summary += 1;
+			}
 		}
 		return this->status = roll_status::FINISHED;
 	}
@@ -328,11 +346,44 @@ namespace dicebot::roll{
 		}
 	}
 
-	void random_initialize(){
-		std::random_device rd;
-		if (rd.entropy() > 0.0) {
-			is_using_pseudo_random = false;
+	roll_status roll_wod(dice_roll & dice, int const i_val, int const i_d) noexcept{
+		dice.clear();
+		_RANDOMIZE(10,1);
+		if(CHECK_LIMITS(i_val,10)) {
+			uint16_t single_result = 0;
+			bool first = true;
+			int i_dice = i_val;
+			while(i_dice-- > 0){
+				_RANDOM(single_result);
+				dice.add_ignored_result(single_result);
+			}
+			return dice.finish_wod(i_d);
 		}
-		else is_using_pseudo_random = true;
+		else{
+			return dice.dice_exceed();
+		}
+	}
+
+	
+	roll_status roll_wod(dice_roll & dice, std::string const & str_dice_command) noexcept{
+		dice.clear();
+		try {
+			std::string source(str_dice_command);
+			std::regex regex_pb("^(\\d+)[dD](\\d+)");
+			std::smatch smatch_coc;
+			std::regex_search(source,smatch_coc,regex_pb);
+			if(smatch_coc.begin() == smatch_coc.end()) return dice.general_err();
+
+			uint16_t i_dice = std::stoi(smatch_coc[1].str());
+			uint16_t i_diff = std::stoi(smatch_coc[2].str());
+
+			return roll_wod(dice, i_dice, i_diff);
+		}
+		catch (const std::invalid_argument& ia) {
+			#ifdef _DEBUG
+				logger::log("dice_roller", ia.what());
+			#endif
+			return dice.general_err();
+		}
 	}
 }

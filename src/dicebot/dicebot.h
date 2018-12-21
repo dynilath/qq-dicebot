@@ -13,6 +13,7 @@
 #include "./protocol_nickname.h"
 #include "./protocol_roll_dice.h"
 #include "./protocol_manual_dice.h"
+#include "./protocol_wod_dice.h"
 #include "./nick_manager.h"
 #include "./database_manager.h"
 #include "./manual_dice_control.h"
@@ -40,6 +41,7 @@ namespace dicebot{
         dice_protocols->register_dice(std::make_shared<protocol::protocol_coc_dice>());
         dice_protocols->register_dice(std::make_shared<protocol::protocol_manual_dice>());
         dice_protocols->register_dice(std::make_shared<protocol::protocol_nickname>());
+        dice_protocols->register_dice(std::make_shared<protocol::protocol_wod_dice>());
 	    dice_protocols->create_command_regex();
     }
 
