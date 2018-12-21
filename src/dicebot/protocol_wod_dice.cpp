@@ -39,7 +39,9 @@ namespace dicebot::protocol{
 				std::string str_nickname;
 				(nickname_manager::instance)->get_nickname(group_id, user_qq_id, str_nickname, isfromGroup);
 
-				ostr << u8" * " << str_nickname << u8" " << str_roll_msg << u8"  掷骰: WoD " << str_roll_source ;
+				ostr << u8" * " << str_nickname ;
+				if(str_roll_msg.size() > 0) ostr << u8" " << str_roll_msg ;
+				ostr << u8" 掷骰: WoD " << str_roll_source ;
 				std::string detail = dr.detail();
 				if(detail.size()>0) ostr << u8" = " << detail;
 				ostr << u8" = " << dr.summary;

@@ -70,11 +70,12 @@ namespace dicebot::protocol{
 			remove_space_and_tab(str_command);
 			dicebot::p_manual md_manualdice = dicebot::manual_dice_control::instance->add_manual_dice(user_qq_id, group_id, str_command);
 			if (md_manualdice && (*md_manualdice)) {
-				std::ostringstream ostrs_output_stream(std::ostringstream::ate);
-				ostrs_output_stream << u8" * " << nick_name << u8" " << str_roll_message;
-				ostrs_output_stream << u8" 在桌上增加了这些骰子: " << str_command;
-				ostrs_output_stream << u8" 当前状态: " << md_manualdice->str();
-				return ostrs_output_stream.str();
+				std::ostringstream ostr(std::ostringstream::ate);
+				ostr << u8" * " << nick_name;
+				if(str_roll_message.size() > 0) ostr << u8" " << str_roll_message;
+				ostr << u8" 在桌上增加了这些骰子: " << str_command;
+				ostr << u8" 当前状态: " << md_manualdice->str();
+				return ostr.str();
 			}
 		}
 		return std::string();
@@ -84,11 +85,12 @@ namespace dicebot::protocol{
 	{
 		dicebot::p_manual md_manualdice = dicebot::manual_dice_control::instance->killall_manual_dice(user_qq_id, group_id);
 		if (md_manualdice && (*md_manualdice)) {
-			std::ostringstream ostrs_output_stream(std::ostringstream::ate);
-			ostrs_output_stream << u8" * " << nick_name << u8" " << message;
-			ostrs_output_stream << u8" 杀掉了所有的骰子 ";
-			ostrs_output_stream << u8"当前状态: " << md_manualdice->str();
-			return ostrs_output_stream.str();
+			std::ostringstream ostr(std::ostringstream::ate);
+			ostr << u8" * " << nick_name;
+			if(message.size() > 0) ostr << u8" " << message;
+			ostr << u8" 杀掉了所有的骰子 ";
+			ostr << u8"当前状态: " << md_manualdice->str();
+			return ostr.str();
 		}
 		return std::string();
 	}
@@ -104,11 +106,12 @@ namespace dicebot::protocol{
 
 			dicebot::p_manual md_manualdice = dicebot::manual_dice_control::instance->kill_manual_dice(user_qq_id, group_id, str_command);
 			if (md_manualdice && (*md_manualdice)) {
-				std::ostringstream ostrs_output_stream(std::ostringstream::ate);
-				ostrs_output_stream << u8" * " << nick_name << u8" " << str_roll_message;
-				ostrs_output_stream << u8" 杀死桌上的第 " << str_command << u8" 个骰子 ";
-				ostrs_output_stream << u8"当前状态: " << md_manualdice->str();
-				return ostrs_output_stream.str();
+				std::ostringstream ostr(std::ostringstream::ate);
+				ostr << u8" * " << nick_name;
+				if(str_roll_message.size() > 0) ostr << u8" " << str_roll_message;
+				ostr << u8" 杀死桌上的第 " << str_command << u8" 个骰子 ";
+				ostr << u8"当前状态: " << md_manualdice->str();
+				return ostr.str();
 			}
 		}
 		return std::string();
@@ -125,11 +128,12 @@ namespace dicebot::protocol{
 
 			dicebot::p_manual md_manualdice = dicebot::manual_dice_control::instance->roll_manual_dice(user_qq_id, group_id, str_command);
 			if (md_manualdice && (*md_manualdice)) {
-				std::ostringstream ostrs_output_stream(std::ostringstream::ate);
-				ostrs_output_stream << u8" * " << nick_name << u8" " << str_roll_message;
-				ostrs_output_stream << u8" 重骰桌上的第 " << str_command << u8" 个骰子 ";
-				ostrs_output_stream << u8"当前状态: " << md_manualdice->str();
-				return ostrs_output_stream.str();
+				std::ostringstream ostr(std::ostringstream::ate);
+				ostr << u8" * " << nick_name;
+				if(str_roll_message.size() > 0) ostr << u8" " << str_roll_message;
+				ostr << u8" 重骰桌上的第 " << str_command << u8" 个骰子 ";
+				ostr << u8"当前状态: " << md_manualdice->str();
+				return ostr.str();
 			}
 		}
 		return std::string();
@@ -146,11 +150,12 @@ namespace dicebot::protocol{
 
 			dicebot::p_manual md_manualdice = dicebot::manual_dice_control::instance->create_manual_dice(user_qq_id, group_id, str_command);
 			if (md_manualdice && (*md_manualdice)) {
-				std::ostringstream ostrs_output_stream(std::ostringstream::ate);
-				ostrs_output_stream << u8" * " << nick_name << u8" " << str_roll_message;
-				ostrs_output_stream << u8" 在桌上放了这些骰子: " << str_command;
-				ostrs_output_stream << u8" 当前状态: " << md_manualdice->str();
-				return ostrs_output_stream.str();
+				std::ostringstream ostr(std::ostringstream::ate);
+				ostr << u8" * " << nick_name;
+				if(str_roll_message.size() > 0) ostr << u8" " << str_roll_message;
+				ostr << u8" 在桌上放了这些骰子: " << str_command;
+				ostr << u8" 当前状态: " << md_manualdice->str();
+				return ostr.str();
 			}
 		}
 		return std::string();

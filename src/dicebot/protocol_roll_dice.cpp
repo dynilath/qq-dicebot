@@ -43,17 +43,18 @@ namespace dicebot::protocol{
 		binary_tree_split_dice(message, str_roll_command, str_roll_detail, str_result, str_message);
 
 		if (str_roll_command.size() > 0) {
-			std::ostringstream ostrs_output_stream(std::ostringstream::ate);
+			std::ostringstream ostr(std::ostringstream::ate);
 
 			std::string str_nickname;
 			(nickname_manager::instance)->get_nickname(group_id, user_qq_id, str_nickname, isfromGroup);
 
-			ostrs_output_stream << u8" * " << str_nickname << u8" " << str_message << u8" 掷骰: ";
-			ostrs_output_stream << str_roll_command << u8" = ";
-			if (detailed_roll_message && str_roll_detail.size() > 0) ostrs_output_stream << str_roll_detail << u8" = ";
-			ostrs_output_stream << str_result;
+			ostr << u8" * " << str_nickname;
+			if(str_message.size() > 0) ostr << u8" " << str_message;
+			ostr << u8" 掷骰: " << str_roll_command << u8" = ";
+			if (detailed_roll_message && str_roll_detail.size() > 0) ostr << str_roll_detail << u8" = ";
+			ostr << str_result;
 
-			return ostrs_output_stream.str();
+			return ostr.str();
 		}
 		return std::string();
 	}
