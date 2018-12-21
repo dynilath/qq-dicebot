@@ -1,0 +1,77 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "generate debug",
+            "type": "shell",
+            "command": "powershell",
+            "args": [
+                "-NoProfile",
+                "-File",
+                "'${workspaceFolder}/scripts/generate.ps1'",
+                "Debug"
+            ],
+            "options": {
+                "env": {
+                    "VCPKG_TRIPLET": "cqdicebot-x86-windows-static"
+                }
+            },
+            "group": "build",
+            "problemMatcher": [
+                "$msCompile"
+            ]
+        },
+        {
+            "label": "generate release",
+            "type": "shell",
+            "command": "powershell",
+            "args": [
+                "-NoProfile",
+                "-File",
+                "'${workspaceFolder}/scripts/generate.ps1'",
+                "Release"
+            ],
+            "options": {
+                "env": {
+                    "VCPKG_TRIPLET": "cqdicebot-x86-windows-static"
+                }
+            },
+            "group": "build"
+        },
+        {
+            "label": "build debug",
+            "type": "shell",
+            "command": "powershell",
+            "args": [
+                "-NoProfile",
+                "-File",
+                "'${workspaceFolder}/scripts/build.ps1'",
+                "Debug"
+            ],
+            "problemMatcher": "$msCompile",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "dependsOn": [
+                "generate debug"
+            ]
+        },
+        {
+            "label": "build release",
+            "type": "shell",
+            "command": "powershell",
+            "args": [
+                "-NoProfile",
+                "-File",
+                "'${workspaceFolder}/scripts/build.ps1'",
+                "Release"
+            ],
+            "problemMatcher": "$msCompile",
+            "group": "build",
+            "dependsOn": [
+                "generate release"
+            ]
+        }
+    ]
+}

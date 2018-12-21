@@ -1,0 +1,29 @@
+branches:
+  except:
+    - /dev.*/  # do not build dev branch
+
+image:
+  - Visual Studio 2017
+
+platform:
+  - x86
+
+configuration:
+  - Debug
+  - Release
+
+environment:
+  VCPKG_ROOT: C:\tools\vcpkg
+  VCPKG_TRIPLET: cqdicebot-x86-windows-static
+
+cache: c:\tools\vcpkg\installed\ -> scripts\deps.ps1  # cache the installed vcpkg packages
+
+install:
+  - powershell scripts\deps.ps1
+
+build_script:
+  - powershell scripts\generate.ps1 %CONFIGURATION% Appveyor
+  - powershell scripts\build.ps1 %CONFIGURATION%
+
+test_script:
+  - '%APPVEYOR_BUILD_FOLDER%/build/%CONFIGURATION%/%CONFIGURATION%/dicebot.gtest.exe'
