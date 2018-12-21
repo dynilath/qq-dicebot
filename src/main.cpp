@@ -64,6 +64,7 @@ CQ_MAIN {
 
             }else{
                 cqlogging::debug(u8"API", u8"调用失败，无法产生结果");
+            }
         } catch (const cq::exception::ApiError &err) {
             // API 调用失败
             cqlogging::debug(u8"API", u8"调用失败，错误码：" + std::to_string(err.code));
