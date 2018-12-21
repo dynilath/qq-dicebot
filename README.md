@@ -28,9 +28,14 @@ QQ：1701687847
 
 > DiceBot：
 > ``` 
-> DiceBot by dynilath v1.4.2
-> 访问项目主页http://github.com/dynilath/CoolQDicebot
+> DiceBot by dynilath v1.5.0
+> 访问项目主页http://github.com/dynilath/coolq-dicebot
 > 获得使用说明以及了解更多内容。
+> 使用方式简介：
+> .r 2d6+3 普通骰子
+> .c coc骰子
+> 详细指令参考请前往项目主页。
+> 如果在使用中遇到了bug，或者有什么功能建议，欢迎在项目主页通过issue反馈，感谢您的帮助。
 > ```
 
 ## 最简单的骰子
