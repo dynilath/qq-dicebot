@@ -44,7 +44,7 @@ namespace dicebot::roll{
 	roll_status roll_coc(dice_roll & dice, int const i_bp) noexcept;
 	roll_status roll_coc(dice_roll & dice, std::string const & str_dice_command) noexcept;
 
-	roll_status roll_wod(dice_roll & dice, int const i_val, int const i_d) noexcept;
+	roll_status roll_wod(dice_roll & dice, int const i_val, int const i_d, int const i_bonus) noexcept;
 	roll_status roll_wod(dice_roll & dice, std::string const & str_dice_command) noexcept;
 
 
