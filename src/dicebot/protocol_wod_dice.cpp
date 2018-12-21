@@ -7,13 +7,13 @@ namespace dicebot::protocol{
     protocol_wod_dice::protocol_wod_dice(){
 		this->identifier = new std::string("w");
 		this->regex_identifier = new std::string("[wW]");
-		this->regex_filter_full_dice = new std::regex("^ *(\\d+)[dD](\\d+)*");
+		this->regex_filter_full_dice = new std::regex("^ *(\\d+)[tT](\\d+)(?:[bB](\\d+))?");
 	}
 
 
 	protocol_wod_dice::~protocol_wod_dice(){
-		delete this->regex_detail_command;
 		delete this->identifier;
+		delete this->regex_identifier;
 		delete this->regex_filter_full_dice;
 	}
 
@@ -39,7 +39,7 @@ namespace dicebot::protocol{
 				std::string str_nickname;
 				(nickname_manager::instance)->get_nickname(group_id, user_qq_id, str_nickname, isfromGroup);
 
-				ostr << u8" * " << str_nickname << u8" " << str_roll_msg << u8"  掷骰: WOD" << str_roll_source ;
+				ostr << u8" * " << str_nickname << u8" " << str_roll_msg << u8"  掷骰: WoD " << str_roll_source ;
 				std::string detail = dr.detail();
 				if(detail.size()>0) ostr << u8" = " << detail;
 				ostr << u8" = " << dr.summary;
