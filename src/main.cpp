@@ -24,17 +24,16 @@ CQ_MAIN {
         cqlogging::debug(u8"启用", u8"插件已启动");
     };
 
+    cqapp::on_disable = []{
+        dicebot::salvage();
+    };
+
     cqevent::on_private_msg = [](const cq::PrivateMessageEvent &e) {
-        cqlogging::debug(u8"消息", u8"收到私聊消息：" + e.message + u8"，发送者：" + std::to_string(e.user_id));
-
-        std::string output;
-
         try {
+            std::string output;
             if(dicebot::group_message_pipeline(e.raw_message, 1000,e.user_id,false,output)){
                 cq::Message message;
-
                 message.push_back(cqmessage::MessageSegment::text(output));
-
                 message.send(e.target);
 
             }else{
@@ -54,13 +53,21 @@ CQ_MAIN {
 
         e.block(); // 阻止事件继续传递给其它插件
     }; 
-/*
-    cqevent::on_group_msg = [](const cq::GroupMessageEvent &e ) { // 使用 C++ 的 auto 关键字
-        const auto memlist = api::get_group_member_list(e.group_id); // 获取数据接口
-        cq::Message msg = u8"本群一共有 "; // string 到 Message 自动转换
-        msg += std::to_string(memlist.size()) + u8" 个成员"; // Message 类可以进行加法运算
-        message::send(e.target, msg); // 使用 message 命名空间的 send 函数
+
+    cqevent::on_group_msg = [](const cq::GroupMessageEvent &e ) { 
+        try {
+            std::string output;
+            if(dicebot::group_message_pipeline(e.raw_message, e.group_id,e.user_id,false,output)){
+                cq::Message message;
+                message.push_back(cqmessage::MessageSegment::text(output));
+                message.send(e.target);
+
+            }else{
+                cqlogging::debug(u8"API", u8"调用失败，无法产生结果");
+        } catch (const cq::exception::ApiError &err) {
+            // API 调用失败
+            cqlogging::debug(u8"API", u8"调用失败，错误码：" + std::to_string(err.code));
+        }
     };
-*/
 
 }

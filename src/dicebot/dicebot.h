@@ -23,25 +23,32 @@ namespace base64 = cq::utils::base64;
 
 namespace dicebot{
     protocol_manager * dice_protocols;
-    nickname_manager * nickCtrl;
-    database::database_manager * dbCtrl;
-    manual_dice_control * mdCtrl;
+    nickname_manager * nick_ctrl;
+    database::database_manager * db_ctrl;
+    manual_dice_control * md_ctrl;
 
 	std::string str_help_message("RGljZUJvdCBieSBkeW5pbGF0aCB2MS41LjAK6K6/6Zeu6aG555uu5Li76aG1aHR0cDovL2dpdGh1Yi5jb20vZHluaWxhdGgvY29vbHEtZGljZWJvdArojrflvpfkvb/nlKjor7TmmI7ku6Xlj4rkuobop6Pmm7TlpJrlhoXlrrnjgIIK5L2/55So5pa55byP566A5LuL77yaCi5yIDJkNiszIOaZrumAmumqsOWtkAouYyBjb2PpqrDlrZAK6K+m57uG5oyH5Luk5Y+C6ICD6K+35YmN5b6A6aG555uu5Li76aG144CCCuWmguaenOWcqOS9v+eUqOS4remBh+WIsOS6hmJ1Z++8jOaIluiAheacieS7gOS5iOWKn+iDveW7uuiuru+8jOasoui/juWcqOmhueebruS4u+mhtemAmui/h2lzc3Vl5Y+N6aaI77yM5oSf6LCi5oKo55qE5biu5Yqp44CC");
 	
     void initialize(std::string app_dir){
-        dbCtrl = new database::database_manager(app_dir);
-        nickCtrl = new nickname_manager();
-        mdCtrl = new manual_dice_control();
+        db_ctrl = new database::database_manager(app_dir);
+        nick_ctrl = new nickname_manager();
+        md_ctrl = new manual_dice_control();
 
         roll::random_initialize();
         dice_protocols = new protocol_manager();
-        dice_protocols->register_dice(std::shared_ptr<protocol::protocol_base>(new protocol::protocol_roll_dice()));
-        dice_protocols->register_dice(std::shared_ptr<protocol::protocol_base>(new protocol::protocol_coc_dice()));
-        dice_protocols->register_dice(std::shared_ptr<protocol::protocol_base>(new protocol::protocol_manual_dice()));
-        dice_protocols->register_dice(std::shared_ptr<protocol::protocol_base>(new protocol::protocol_nickname()));
+        dice_protocols->register_dice(std::make_shared<protocol::protocol_roll_dice>());
+        dice_protocols->register_dice(std::make_shared<protocol::protocol_coc_dice>());
+        dice_protocols->register_dice(std::make_shared<protocol::protocol_manual_dice>());
+        dice_protocols->register_dice(std::make_shared<protocol::protocol_nickname>());
 	    dice_protocols->create_command_regex();
     }
+
+	void salvage(){
+		if(dice_protocols) delete dice_protocols;
+		if(nick_ctrl) delete nick_ctrl;
+		if(db_ctrl) delete db_ctrl;
+		if(md_ctrl) delete md_ctrl;
+	}
 
     void set_logger(std::function<void(std::string,std::string)> varlog){
         logger::log = varlog;
