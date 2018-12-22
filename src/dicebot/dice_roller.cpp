@@ -387,7 +387,7 @@ namespace dicebot::roll{
 			if(smatch_coc[2].matched) i_diff = std::stoi(smatch_coc[2].str());
 			uint16_t i_bonus = 10;
 			if(smatch_coc[3].matched) i_bonus = std::stoi(smatch_coc[3].str());
-
+			if(i_bonus < 6) i_bonus = 10;
 			return roll_wod(dice, i_dice, i_diff, i_bonus, false);
 		}
 		catch (const std::invalid_argument& ia) {
@@ -412,7 +412,7 @@ namespace dicebot::roll{
 			if(smatch_coc[2].matched) i_diff = std::stoi(smatch_coc[2].str());
 			uint16_t i_bonus = 11;
 			if(smatch_coc[3].matched) i_bonus = std::stoi(smatch_coc[3].str());
-
+			if(i_bonus < 6) i_bonus = 10;
 			return roll_wod(dice, i_dice, i_diff, i_bonus, true);
 		}
 		catch (const std::invalid_argument& ia) {
