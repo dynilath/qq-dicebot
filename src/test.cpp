@@ -488,7 +488,7 @@ ASSERT_LE(dr.summary,_max);}}
         }
     }
     
-    TEST(RollTest, WOD_01_5T8){
+    TEST(RollTest, WOD_01_O_5D8){
         int sample_sum = (1000);
 
         int min_val = 0;
@@ -500,7 +500,7 @@ ASSERT_LE(dr.summary,_max);}}
             sample_sum,
             max_val,
             min_val,
-            dicebot::roll::roll_owod(dr,"5T8"));
+            dicebot::roll::roll_owod(dr,"5D8"));
 
         std::vector<int> compare;
         compare.assign(max_val - min_val+1,0);
