@@ -39,25 +39,16 @@ CQ_MAIN {
             }else{
                 cqlogging::debug(u8"API", u8"调用失败，无法产生结果");
             }
-            //api::send_private_msg(e.user_id, message); // echo 回去
-
-            //api::send_msg(e.target, e.message); // 使用 e.target 指定发送目标
-
-            // MessageSegment 类提供一些静态成员函数以快速构造消息段
-            //cq::Message msg = cq::MessageSegment::contact(cq::MessageSegment::ContactType::GROUP, 201865589);
-            //msg.send(e.target); // 使用 Message 类的 send 成员函数
         } catch (const cq::exception::ApiError &err) {
-            // API 调用失败
             cqlogging::debug(u8"API", u8"调用失败，错误码：" + std::to_string(err.code));
         }
-
-        e.block(); // 阻止事件继续传递给其它插件
+        e.block(); 
     }; 
 
     cqevent::on_group_msg = [](const cq::GroupMessageEvent &e ) { 
         try {
             std::string output;
-            if(dicebot::group_message_pipeline(e.raw_message, e.group_id,e.user_id,false,output)){
+            if(dicebot::group_message_pipeline(e.raw_message, e.group_id,e.user_id,true,output)){
                 cq::Message message;
                 message.push_back(cqmessage::MessageSegment::text(output));
                 message.send(e.target);
@@ -66,7 +57,22 @@ CQ_MAIN {
                 cqlogging::debug(u8"API", u8"调用失败，无法产生结果");
             }
         } catch (const cq::exception::ApiError &err) {
-            // API 调用失败
+            cqlogging::debug(u8"API", u8"调用失败，错误码：" + std::to_string(err.code));
+        }
+    };
+
+    cqevent::on_discuss_msg = [](const cq::DiscussMessageEvent &e ) { 
+        try {
+            std::string output;
+            if(dicebot::group_message_pipeline(e.raw_message, e.discuss_id,e.user_id,false,output)){
+                cq::Message message;
+                message.push_back(cqmessage::MessageSegment::text(output));
+                message.send(e.target);
+
+            }else{
+                cqlogging::debug(u8"API", u8"调用失败，无法产生结果");
+            }
+        } catch (const cq::exception::ApiError &err) {
             cqlogging::debug(u8"API", u8"调用失败，错误码：" + std::to_string(err.code));
         }
     };
