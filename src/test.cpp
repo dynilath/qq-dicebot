@@ -500,7 +500,7 @@ ASSERT_LE(dr.summary,_max);}}
             sample_sum,
             max_val,
             min_val,
-            dicebot::roll::roll_wod(dr,"5T8"));
+            dicebot::roll::roll_owod(dr,"5T8"));
 
         std::vector<int> compare;
         compare.assign(max_val - min_val+1,0);

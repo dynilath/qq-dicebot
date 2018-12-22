@@ -119,14 +119,14 @@ namespace dicebot::roll{
 		return ost.str();
 	}
 
-	roll_status dice_roll::finish_wod(unsigned int const i_d) noexcept{
+	roll_status dice_roll::finish_wod(unsigned int const i_d, bool const failing) noexcept{
 		int penalty = 0;
 		for(uint16_t i = 0;i<this->results.size();i++){
 			if(this->results[i].first >= i_d){
 				this->results[i].second = true;
 				this->summary ++;
 			}
-			else if(this->results[i].first == 1){
+			else if(failing && this->results[i].first == 1){
 				penalty ++ ;
 			}
 		}
@@ -352,7 +352,7 @@ namespace dicebot::roll{
 		}
 	}
 
-	roll_status roll_wod(dice_roll & dice, int const i_val, int const i_d, int const i_bonus) noexcept{
+	roll_status roll_wod(dice_roll & dice, int const i_val, int const i_d, int const i_bonus, bool failing) noexcept{
 		dice.clear();
 
 		_RANDOMIZE(10,1);
@@ -366,33 +366,58 @@ namespace dicebot::roll{
 				if(dice.results.size() > MAX_DICE_NUM) break;
 				dice.add_ignored_result(single_result);
 			}
-			return dice.finish_wod(i_d);
+			return dice.finish_wod(i_d,failing);
 		}
 		else{
 			return dice.dice_exceed();
 		}
 	}
 
-	//4t5b10
-	roll_status roll_wod(dice_roll & dice, std::string const & str_dice_command) noexcept{
+	roll_status roll_nwod(dice_roll & dice, std::string const & str_dice_command) noexcept{
 		dice.clear();
 		try {
 			std::string source(str_dice_command);
-			std::regex regex_pb("^(\\d+)[tT](\\d+)(?:[bB](\\d+))?");
+			std::regex regex_pb("^(\\d+)(?:[dD](\\d+))?(?:[bB](\\d+))?");
 			std::smatch smatch_coc;
 			std::regex_search(source,smatch_coc,regex_pb);
 			if(smatch_coc.begin() == smatch_coc.end()) return dice.general_err();
 
 			uint16_t i_dice = std::stoi(smatch_coc[1].str());
-			uint16_t i_diff = std::stoi(smatch_coc[2].str());
-			uint16_t i_bonus = 11;
+			uint16_t i_diff = 8;
+			if(smatch_coc[2].matched) i_diff = std::stoi(smatch_coc[2].str());
+			uint16_t i_bonus = 10;
 			if(smatch_coc[3].matched) i_bonus = std::stoi(smatch_coc[3].str());
 
-			return roll_wod(dice, i_dice, i_diff, i_bonus);
+			return roll_wod(dice, i_dice, i_diff, i_bonus, false);
 		}
 		catch (const std::invalid_argument& ia) {
 			#ifdef _DEBUG
-				logger::log("dice_roller", ia.what());
+				logger::log("roll_nwod", ia.what());
+			#endif
+			return dice.general_err();
+		}
+	}
+
+	roll_status roll_owod(dice_roll & dice, std::string const & str_dice_command) noexcept{
+		dice.clear();
+		try {
+			std::string source(str_dice_command);
+			std::regex regex_pb("^(\\d+)(?:[dD](\\d+))?(?:[bB](\\d+))?");
+			std::smatch smatch_coc;
+			std::regex_search(source,smatch_coc,regex_pb);
+			if(smatch_coc.begin() == smatch_coc.end()) return dice.general_err();
+
+			uint16_t i_dice = std::stoi(smatch_coc[1].str());
+			uint16_t i_diff = 6;
+			if(smatch_coc[2].matched) i_diff = std::stoi(smatch_coc[2].str());
+			uint16_t i_bonus = 11;
+			if(smatch_coc[3].matched) i_bonus = std::stoi(smatch_coc[3].str());
+
+			return roll_wod(dice, i_dice, i_diff, i_bonus, true);
+		}
+		catch (const std::invalid_argument& ia) {
+			#ifdef _DEBUG
+				logger::log("roll_owod", ia.what());
 			#endif
 			return dice.general_err();
 		}
