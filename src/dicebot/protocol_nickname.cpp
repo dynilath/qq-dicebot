@@ -38,20 +38,30 @@ namespace dicebot::protocol{
 			int pos_t = message.find_first_not_of(" \t");
 			if(pos_t != std::string ::npos) message = message.substr(pos_t);
 
-			if (message.length() > 0) {
-				std::string str_origin_name;
+			std::string str_origin_name;
+			if(isfromGroup){
+				cq::GroupMember group_member = cqapi::get_group_member_info(group_id, user_qq_id);
+				str_origin_name.assign(group_member.nickname);
+			}
+			else{
+				cq::User ano = cqapi::get_stranger_info(user_qq_id);
+				str_origin_name.assign(ano.nickname);
+			}
 
-				if(isfromGroup){
-					cq::GroupMember group_member = cqapi::get_group_member_info(group_id, user_qq_id);
-					str_origin_name.assign(group_member.nickname);
-				}
-				else{
-					cq::User ano = cqapi::get_stranger_info( user_qq_id);
-					str_origin_name.assign(ano.nickname);
-				}
+			if (message.length() > 0) {
+				std::string s_message(message);
+				if(s_message.length() > 0)
+					(nickname_manager::instance)->set_nickname(group_id, user_qq_id, s_message, isfromGroup);
 
 				std::ostringstream ostrs_output_stream(std::ostringstream::ate);
 				ostrs_output_stream << u8" * " << str_origin_name << u8" 的新名字是 " << message;
+				return ostrs_output_stream.str();
+			}
+			else{
+				std::string s_message;
+				(nickname_manager::instance)->get_nickname(group_id, user_qq_id, s_message, isfromGroup);
+				std::ostringstream ostrs_output_stream(std::ostringstream::ate);
+				ostrs_output_stream << u8" * " << str_origin_name << u8" 的名字是 " << s_message;
 				return ostrs_output_stream.str();
 			}
 		}
