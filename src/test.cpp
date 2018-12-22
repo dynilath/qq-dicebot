@@ -41,7 +41,11 @@ double fun_chi_square(std::vector<int> sample, std::vector<int> expect){
 dicebot::number ret = num1 _Oper _Val2;\
 std::string compare;\
 if(_Is_Int) compare = std::to_string((int32_t)(((double)_Val1) _Oper ((double)_Val2)));\
-else compare = std::to_string(((double)_Val1) _Oper ((double)_Val2));\
+else {\
+    compare = std::to_string(((double)_Val1) _Oper ((double)_Val2));\
+    int pos = compare.find_last_not_of('0');\
+    if(pos != std::string::npos) compare.assign(compare.substr(0,pos+1));\
+}\
 ASSERT_EQ(ret.str(), compare);\
 ASSERT_EQ(ret.is_using_int,_Is_Int);}
 
@@ -49,7 +53,11 @@ ASSERT_EQ(ret.is_using_int,_Is_Int);}
 int c = _Val2;\
 dicebot::number ret = num1 _Oper c;\
 double p = (double)c _Oper _Val2;\
-ASSERT_EQ(ret.str(), std::to_string(((double)_Val1) _Oper ((double)_Val2)));\
+std::string compare = std::to_string(((double)_Val1) _Oper ((double)_Val2));\
+int pos = compare.find_last_not_of('0');\
+if(pos != std::string::npos) compare.assign(compare.substr(0,pos+1));\
+else compare = std::to_string(((double)_Val1) _Oper ((double)_Val2));\
+ASSERT_EQ(ret.str(), compare);\
 ASSERT_EQ(ret.is_using_int,false);}
 
 
