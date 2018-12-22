@@ -257,7 +257,11 @@ namespace dicebot{
 				return std::to_string(this->i_value);
 			else 
 			{
-				return std::to_string(this->d_value);
+				std::string ret = std::to_string(this->d_value);
+				int pos = ret.find_last_not_of('0');
+				if(pos != std::string::npos)
+					ret.assign(ret.substr(0,pos+1));
+				return ret;
 			}
 		}
 	};
