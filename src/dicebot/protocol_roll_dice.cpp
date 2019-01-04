@@ -30,7 +30,7 @@ namespace dicebot::protocol{
 		bool detailed_roll_message = false;
 		std::smatch match_list_command_detail;
 		std::regex_search(message, match_list_command_detail, *this->regex_detail_command);
-		if (match_list_command_detail.begin() != match_list_command_detail.end()) {
+		if (match_list_command_detail.size() > 0) {
 			detailed_roll_message = true;
 			message = match_list_command_detail.suffix().str();
 		}
@@ -43,7 +43,7 @@ namespace dicebot::protocol{
 		binary_tree_split_dice(message, str_roll_command, str_roll_detail, str_result, str_message);
 
 		if (str_roll_command.size() > 0) {
-			std::ostringstream ostr(std::ostringstream::ate);
+			ostrs ostr(ostrs::ate);
 
 			std::string str_nickname;
 			(nickname_manager::instance)->get_nickname(group_id, user_qq_id, str_nickname, isfromGroup);

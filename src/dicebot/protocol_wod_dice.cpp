@@ -34,18 +34,18 @@ namespace dicebot::protocol{
 		std::string str_nickname;
 		(nickname_manager::instance)->get_nickname(group_id, user_qq_id, str_nickname, isfromGroup);
 
-		std::smatch match_list_command_identifier_match;
-		std::regex_search(message, match_list_command_identifier_match, *this->regex_detail_command);
-		if (match_list_command_identifier_match.begin() == match_list_command_identifier_match.end())
+		std::smatch command_match;
+		std::regex_search(message, command_match, *this->regex_detail_command);
+		if (command_match.size() == 0)
 			return std::string();
 
-		std::string str_match = match_list_command_identifier_match[1];
+		std::string str_match = command_match[1];
 		std::transform(str_match.begin(),str_match.end(),str_match.begin(),tolower);
 
 		std::map<std::string, WOD_DICE_CALL_TYPE_R>::iterator iter = this->method_map->find(str_match);
 		if (iter != method_map->end()) {
 			WOD_DICE_CALL_TYPE(dice_call) = (*iter).second;
-			return (this->*dice_call)(match_list_command_identifier_match.suffix().str(), str_nickname);
+			return (this->*dice_call)(command_match.suffix().str(), str_nickname);
 		}
 
 		return std::string();
@@ -53,9 +53,9 @@ namespace dicebot::protocol{
 
 	std::string protocol_wod_dice::nwod(std::string message, std::string nick_name){
 		std::smatch command_match;
-		std::ostringstream ostr(std::ostringstream::ate);
+		ostrs ostr(ostrs::ate);
 		std::regex_search(message, command_match, *this->regex_filter_full_dice);
-		if (command_match.begin() != command_match.end()) {
+		if (command_match.size() > 0) {
 			std::string str_roll_msg = command_match.suffix().str();
 			std::string str_roll_source = command_match.str();
 			dicebot::remove_space_and_tab(str_roll_source);
@@ -76,9 +76,9 @@ namespace dicebot::protocol{
 
 	std::string protocol_wod_dice::owod(std::string message, std::string nick_name){
 		std::smatch command_match;
-		std::ostringstream ostr(std::ostringstream::ate);
+		ostrs ostr(ostrs::ate);
 		std::regex_search(message, command_match, *this->regex_filter_full_dice);
-		if (command_match.begin() != command_match.end()) {
+		if (command_match.size() > 0) {
 			std::string str_roll_msg = command_match.suffix().str();
 			std::string str_roll_source = command_match.str();
 			dicebot::remove_space_and_tab(str_roll_source);

@@ -24,7 +24,7 @@ namespace dicebot{
 		operation oper_target;
 		while (true) {
 			std::regex_search(source, smatch_split_dice, regex_dice);
-			if (smatch_split_dice.begin() != smatch_split_dice.end()) {
+			if (smatch_split_dice.size() > 0) {
 				bool oper_state = oper_target.add_operation(
 					operation_mode::DICE, 
 					smatch_split_dice[1].str(), 
@@ -34,7 +34,7 @@ namespace dicebot{
 				continue;
 			}
 			std::regex_search(source, smatch_split_dice, regex_num);
-			if (smatch_split_dice.begin() != smatch_split_dice.end()) {
+			if (smatch_split_dice.size() > 0) {
 				bool oper_state = oper_target.add_operation(
 					operation_mode::NUMBER,
 					smatch_split_dice[1].str(),
@@ -44,7 +44,7 @@ namespace dicebot{
 				continue;
 			}
 			std::regex_search(source, smatch_split_dice, regex_operator);
-			if (smatch_split_dice.begin() != smatch_split_dice.end()) {
+			if (smatch_split_dice.size() > 0) {
 				bool oper_state = oper_target.add_operation(
 					operation_mode::OPERATOR,
 					smatch_split_dice[1].str(),
@@ -54,7 +54,7 @@ namespace dicebot{
 				continue;
 			}
 			std::regex_search(source, smatch_split_dice, regex_bracket);
-			if (smatch_split_dice.begin() != smatch_split_dice.end()) {
+			if (smatch_split_dice.size() > 0) {
 				bool oper_state = oper_target.add_operation(
 					operation_mode::BRACKET,
 					smatch_split_dice[1].str(),
@@ -270,13 +270,13 @@ namespace dicebot{
 			default:
 				return this->is_cal_successful = false;
 			}
-			std::ostringstream cal_command(std::ostringstream::ate);
+			ostrs cal_command(ostrs::ate);
 			cal_command << item1->str_cal_command << ' ';
 			cal_command << this->mode_oper_like_operator << ' ';
 			cal_command << item2->str_cal_command;
 			this->str_cal_command.assign(cal_command.str());
 
-			std::ostringstream cal_detail(std::ostringstream::ate);
+			ostrs cal_detail(ostrs::ate);
 			cal_detail << item1->str_cal_detail << ' ';
 			cal_detail << this->mode_oper_like_operator << ' ';
 			cal_detail << item2->str_cal_detail;
@@ -291,7 +291,7 @@ namespace dicebot{
 	{
 		if (this->mode == operation_mode::OPERATOR) {
 			if (this->mode_oper_like_operator == '-') {
-				std::ostringstream cal_oper(std::ostringstream::ate);
+				ostrs cal_oper(ostrs::ate);
 				cal_oper << this->mode_oper_like_operator;
 
 				this->ret_value = number(0) - this->second->ret_value;
@@ -328,9 +328,9 @@ namespace dicebot{
 
 	operation::operation()
 	{
-		this->list_operations = new std::list<std::shared_ptr<operation_item>>();
-		this->list_output = new std::list<std::shared_ptr<operation_item>>();
-		this->stack_temp = new std::stack<std::shared_ptr<operation_item>>();
+		this->list_operations = new std::list<p_item>();
+		this->list_output = new std::list<p_item>();
+		this->stack_temp = new std::stack<p_item>();
 		this->left_bracket_location = new std::list<size_t>();
 	}
 
@@ -354,7 +354,7 @@ namespace dicebot{
 				operation_mode::DICE,
 				str_oper,
 				source);
-			std::shared_ptr<operation_item> p_oper_item(oper_item);
+			p_item p_oper_item(oper_item);
 			this->list_output->push_back(p_oper_item);
 			this->list_operations->push_back(p_oper_item);
 			this->no_dice = false;
@@ -369,7 +369,7 @@ namespace dicebot{
 				operation_mode::NUMBER,
 				str_oper,
 				source);
-			std::shared_ptr<operation_item> p_oper_item(oper_item);
+			p_item p_oper_item(oper_item);
 			this->list_output->push_back(p_oper_item);
 			this->list_operations->push_back(p_oper_item);
 
@@ -394,7 +394,7 @@ namespace dicebot{
 				this->list_output->push_back(stack_temp->top());
 				this->stack_temp->pop();
 			}
-			std::shared_ptr<operation_item> p_oper_item(oper_item);
+			p_item p_oper_item(oper_item);
 			this->stack_temp->push(p_oper_item);
 			this->list_operations->push_back(p_oper_item);
 
@@ -412,7 +412,7 @@ namespace dicebot{
 						|| list_operations->back()->is_right_bracket())) return false;
 
 				this->left_bracket_location->push_back(this->list_output->size());
-				std::shared_ptr<operation_item> p_oper_item(oper_item);
+				p_item p_oper_item(oper_item);
 				this->stack_temp->push(p_oper_item);
 				this->list_operations->push_back(p_oper_item);
 				return true;
@@ -426,7 +426,7 @@ namespace dicebot{
 					this->stack_temp->pop();
 					is_empty_bracket = false;
 				}
-				std::shared_ptr<operation_item> p_oper_item(oper_item);
+				p_item p_oper_item(oper_item);
 				if (!is_empty_bracket) {
 					this->list_output->back()->is_bracket_surrounded = true;
 					this->list_output->back()->left_bracket = this->stack_temp->top();
@@ -444,12 +444,13 @@ namespace dicebot{
 
 	void operation::gen_tail()
 	{
-		std::ostringstream ostrs_stream(std::ostringstream::ate);
-		for(auto iter = list_operations->begin();iter != list_operations->end();iter ++){
+		using ostrs = ostrs;
+		ostrs ot(ostrs::ate);
+		for(auto iter = list_operations->cbegin();iter != list_operations->cend();iter ++){
 			if((*iter)->is_cal_successful) continue;
-			else ostrs_stream << (*iter)->source;
+			else ot << (*iter)->source;
 		}
-		this->tail.assign(ostrs_stream.str());
+		this->tail.assign(ot.str());
 	}
 
 	bool operation::calculate()
@@ -484,7 +485,7 @@ namespace dicebot{
 
 		if (this->list_output->size() == 0) return false;
 
-		std::list<std::shared_ptr<operation_item>> list_vals;
+		std::list<p_item> list_vals;
 
 		while (this->list_output->size() > 0) {
 			if (this->list_output->front()->is_num_like()) {

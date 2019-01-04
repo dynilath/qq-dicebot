@@ -13,6 +13,8 @@
 
 namespace dicebot{
 
+	using ostrs = std::ostringstream;
+    
     namespace roll{
         enum class roll_status{
             FINISHED = 0,

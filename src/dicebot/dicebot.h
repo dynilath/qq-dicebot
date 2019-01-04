@@ -79,7 +79,7 @@ namespace dicebot{
 
 		std::vector<std::string>::iterator iterator_sources = source_splits.begin();
 
-		std::ostringstream ostrs_output_stream(std::ostringstream::ate);
+		ostrs ot(ostrs::ate);
 
 		bool is_output_available = false;
 		bool does_last_line_have_output = false;
@@ -100,8 +100,8 @@ namespace dicebot{
 			);
 
 			if (response.size() > 0) {
-				if (is_output_available) ostrs_output_stream << std::endl;
-				ostrs_output_stream << response;
+				if (is_output_available) ot << std::endl;
+				ot << response;
 				is_output_available = true;
 				continue;
 			}
@@ -109,7 +109,7 @@ namespace dicebot{
 		}
 
 		if (is_output_available) {
-			output.assign(ostrs_output_stream.str());
+			output.assign(ot.str());
 		}
 		return is_output_available;
 	}

@@ -56,7 +56,7 @@ namespace dicebot{
 				}
 			}
 			else {
-				std::ostringstream ostrs_sql_command(std::ostringstream::ate);
+				ostrs ostrs_sql_command(ostrs::ate);
 				ostrs_sql_command << "SELECT * FROM " NICK_TABLE_NAME " where qqid =" << fromQQ << " and groupid =" << fromGroupOrDiscuss;
 				std::string str_nick_endcoded;
 				char * pchar_err_message = nullptr;
@@ -95,14 +95,14 @@ namespace dicebot{
 		if (!is_no_sql_mode) {
 			std::string str_encoded_nickname;
 			str_encoded_nickname = base64::encode((const unsigned char*)(nickname.c_str()), nickname.length());
-			std::ostringstream ostrs_sql_command(std::ostringstream::ate);
+			ostrs ostrs_sql_command(ostrs::ate);
 			ostrs_sql_command<<"SELECT * FROM " NICK_TABLE_NAME " where qqid =" << fromQQ << " and groupid =" << fromGroupOrDiscuss;
 			std::string str_nick_endcoded;
 			char * pchar_err_message = nullptr;
 			int ret_code = sqlite3_exec(database, ostrs_sql_command.str().c_str(), &sqlite3_callback_query_name, (void*)&str_nick_endcoded, &pchar_err_message);
 			if (ret_code == SQLITE_OK) {
 				if (str_nick_endcoded.length() > 0) {
-					std::ostringstream ostrs_sql_command_2(std::ostringstream::ate);
+					ostrs ostrs_sql_command_2(ostrs::ate);
 					ostrs_sql_command_2.str("update " NICK_TABLE_NAME " set ");
 					ostrs_sql_command_2 << " name ='" << str_encoded_nickname << "'";
 					ostrs_sql_command_2 << " where qqid =" << fromQQ << " and groupid =" << fromGroupOrDiscuss;
@@ -114,7 +114,7 @@ namespace dicebot{
 	#endif
 				}
 				else {
-					std::ostringstream ostrs_sql_command_2(std::ostringstream::ate);
+					ostrs ostrs_sql_command_2(ostrs::ate);
 					ostrs_sql_command_2.str("insert into " NICK_TABLE_NAME " values ( ");
 					ostrs_sql_command_2 << fromQQ << ", " << fromGroupOrDiscuss << ", '" << str_encoded_nickname << "'" << ");";
 					int ret_code_2 = sqlite3_exec(database, ostrs_sql_command_2.str().c_str(), &database::database_manager::sqlite3_callback, (void*)&i_data_database_update, &pchar_err_message);

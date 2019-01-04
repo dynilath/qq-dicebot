@@ -71,7 +71,7 @@ namespace dicebot::roll{
 	}
 
 	std::string dice_roll::detail(){
-		std::ostringstream ost(std::ostringstream::ate);
+		ostrs ost(ostrs::ate);
 		ost << '[';
 		for(uint16_t i =0;i < this->results.size();i++){
 			dice_pair dp = results[i];
@@ -103,7 +103,7 @@ namespace dicebot::roll{
 	}
 
 	std::string dice_roll::detail_coc(){
-		std::ostringstream ost(std::ostringstream::ate);
+		ostrs ost(ostrs::ate);
 		if(this->results.size() > 1){
 			ost << '[';
 			for(uint16_t i =1;i < this->results.size();i++){
@@ -235,7 +235,7 @@ namespace dicebot::roll{
 		std::smatch smatch_rd;
 		std::regex_match(str_dice_command,smatch_rd,regex_rd);
 
-		if(smatch_rd.begin() == smatch_rd.end()) return dice.general_err();
+		if(smatch_rd.size() == 0) return dice.general_err();
 
 		int i_num_of_die = 1;
 		int i_num_of_face = 0;
@@ -330,7 +330,7 @@ namespace dicebot::roll{
 			int i_bp_count = 0;
 			while(true){
 				std::regex_search(source,smatch_coc,regex_pb);
-				if(smatch_coc.begin() == smatch_coc.end()) break;
+				if(smatch_coc.size() == 0) break;
 				int this_bp = std::stoi(smatch_coc[2].str());
 
 				if(smatch_coc[1].str()[0] == 'p' || smatch_coc[1].str()[0] == 'P' ){
@@ -380,7 +380,7 @@ namespace dicebot::roll{
 			std::regex regex_pb("^(\\d+)(?:[dD](\\d+))?(?:[bB](\\d+))?");
 			std::smatch smatch_coc;
 			std::regex_search(source,smatch_coc,regex_pb);
-			if(smatch_coc.begin() == smatch_coc.end()) return dice.general_err();
+			if(smatch_coc.size() == 0) return dice.general_err();
 
 			uint16_t i_dice = std::stoi(smatch_coc[1].str());
 			uint16_t i_diff = 8;
@@ -405,7 +405,7 @@ namespace dicebot::roll{
 			std::regex regex_pb("^(\\d+)(?:[dD](\\d+))?(?:[bB](\\d+))?");
 			std::smatch smatch_coc;
 			std::regex_search(source,smatch_coc,regex_pb);
-			if(smatch_coc.begin() == smatch_coc.end()) return dice.general_err();
+			if(smatch_coc.size() == 0) return dice.general_err();
 
 			uint16_t i_dice = std::stoi(smatch_coc[1].str());
 			uint16_t i_diff = 6;

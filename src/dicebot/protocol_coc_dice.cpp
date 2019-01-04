@@ -26,29 +26,25 @@ namespace dicebot::protocol{
 			const int64_t user_qq_id,
 			bool isfromGroup)
 	{
-		std::smatch match_list_command_coc_dice_roll_match;
-		std::regex_search(message, match_list_command_coc_dice_roll_match, *this->regex_filter_full_dice);
-		if (match_list_command_coc_dice_roll_match.begin() != match_list_command_coc_dice_roll_match.end()) {
-			std::string str_roll_message = match_list_command_coc_dice_roll_match.suffix().str();
-			std::string str_roll_source = match_list_command_coc_dice_roll_match.str();
+		std::smatch roll_match;
+		std::regex_search(message, roll_match, *this->regex_filter_full_dice);
+		if (roll_match.size() > 0) {
+			std::string str_roll_message = roll_match.suffix().str();
+			std::string str_roll_source = roll_match.str();
 			dicebot::remove_space_and_tab(str_roll_source);
 
 			//roll::dice_roller diceRoll(str_roll_source, roll::roll_mode::COC_PB);
 			roll::dice_roll dr;
 			roll::roll_coc(dr,str_roll_source);
 			if (dr) {
-				std::ostringstream ostr(std::ostringstream::ate);
-
 				std::string str_nickname;
 				(nickname_manager::instance)->get_nickname(group_id, user_qq_id, str_nickname, isfromGroup);
+				
+				this->create_std_output(str_nickname);
+				if(str_roll_message.size() > 0) this->append_message(str_roll_message);
+				this->append_roll("d100" + str_roll_source, dr.detail_coc(), dr.summary);
 
-				ostr << u8" * " << str_nickname;
-				if(str_roll_message.size() > 0) ostr << u8" " << str_roll_message;
-				ostr << u8"  掷骰: d100" << str_roll_source ;
-				std::string detail = dr.detail_coc();
-				if(detail.size()>0) ostr << u8" = " << detail;
-				ostr << u8" = " << dr.summary;
-				return ostr.str();
+				return this->str();
 			}
 		}
 		return std::string();

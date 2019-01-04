@@ -20,7 +20,7 @@ namespace dicebot::protocol{
 			std::string &message,
 			const int64_t group_id,
 			const int64_t user_qq_id,
-			bool isfromGroup);
+			bool isfromGroup) override;
 
 		std::string nwod(std::string message, std::string nick_name);
 		std::string owod(std::string message, std::string nick_name);

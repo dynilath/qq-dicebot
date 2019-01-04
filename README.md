@@ -10,8 +10,7 @@ Just a simple dicebot for coolq in development.
 * 所有的骰子指令支持多行输入。  
 * 使用硬件随机器，如果硬件随机器不可用，则改用mt19937随机器。  
 * 支持coc7的奖惩骰。  
-* 可以识别整数、小数、百分数。
-* 注意：该骰子机器人不会回应私聊消息。
+* 可以识别整数、小数、百分数。  
 
 # 安装
 点击[下载cpk](https://github.com/decterous/CoolQDicebot/releases/latest)前往下载本骰子机器人最新cpk。  
@@ -20,6 +19,7 @@ Just a simple dicebot for coolq in development.
   
 # 实例  
 QQ：1701687847  
+它能够自动接受好友请求和加群邀请。请温柔对待它。  
 
 # 使用示范
 ## help

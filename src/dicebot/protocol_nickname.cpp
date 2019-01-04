@@ -33,7 +33,7 @@ namespace dicebot::protocol{
 		std::smatch match_list_silence;
 		std::regex_search(message, match_list_silence, *this->regex_detail_command);
 
-		if (match_list_silence.begin() == match_list_silence.end()) {
+		if (match_list_silence.size() == 0) {
 
 			int pos_t = message.find_first_not_of(" \t");
 			if(pos_t != std::string ::npos) message = message.substr(pos_t);
@@ -53,14 +53,14 @@ namespace dicebot::protocol{
 				if(s_message.length() > 0)
 					(nickname_manager::instance)->set_nickname(group_id, user_qq_id, s_message, isfromGroup);
 
-				std::ostringstream ostrs_output_stream(std::ostringstream::ate);
+				ostrs ostrs_output_stream(ostrs::ate);
 				ostrs_output_stream << u8" * " << str_origin_name << u8" 的新名字是 " << message;
 				return ostrs_output_stream.str();
 			}
 			else{
 				std::string s_message;
 				(nickname_manager::instance)->get_nickname(group_id, user_qq_id, s_message, isfromGroup);
-				std::ostringstream ostrs_output_stream(std::ostringstream::ate);
+				ostrs ostrs_output_stream(ostrs::ate);
 				ostrs_output_stream << u8" * " << str_origin_name << u8" 的名字是 " << s_message;
 				return ostrs_output_stream.str();
 			}

@@ -143,7 +143,7 @@ namespace dicebot{
 	}
 
 	std::string manual_dice::endcode(){
-		std::ostringstream strs(std::ostringstream::ate);
+		ostrs strs(ostrs::ate);
 		boost::archive::binary_oarchive oa(strs);
 		oa << this->pintlist_dice->size();
 		TYPE_LIST_DICE::iterator iter_list = this->pintlist_dice->begin();
@@ -177,7 +177,7 @@ namespace dicebot{
 	}
 
 	std::string manual_dice::str(){
-		std::ostringstream ostrs_result(std::ostringstream::ate);
+		ostrs ostrs_result(ostrs::ate);
 		int i_sum_result = 0;
 		TYPE_LIST_DICE::iterator iter_list = this->pintlist_dice->begin();
 

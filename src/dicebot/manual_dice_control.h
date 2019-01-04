@@ -5,11 +5,11 @@
 namespace dicebot{
 	class manual_dice;
 
-	typedef std::shared_ptr<manual_dice> p_manual;
-	typedef std::pair<int64_t, int64_t> manual_kpair;
-	typedef std::map<manual_kpair, p_manual> manual_map;
-	typedef std::pair<manual_kpair, p_manual> manual_pair;
-
+	using p_manual = std::shared_ptr<manual_dice>;
+	using manual_kpair = std::pair<int64_t, int64_t>;
+	using manual_map = std::map<manual_kpair, p_manual>;
+	using manual_pair = std::pair<manual_kpair, p_manual>;
+	
 	class manual_dice_control:public std::map<manual_kpair, p_manual>
 	{
 	private:

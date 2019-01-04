@@ -18,18 +18,18 @@ namespace dicebot{
 	void protocol_manager::register_dice(std::shared_ptr<protocol::protocol_base> protocol)
 	{
 		std::string command = protocol->get_identifier();
-		std::map<std::string, std::shared_ptr<protocol::protocol_base> >::iterator  iter = this->dice_protocol_map->find(command);
+		auto iter = this->dice_protocol_map->find(command);
 		if (iter != dice_protocol_map->end()) return;
 		dice_protocol_map->insert(std::pair<std::string, std::shared_ptr<protocol::protocol_base> >(command, protocol));
 	}
 
 	void protocol_manager::create_command_regex()
 	{
-		std::ostringstream ostrs_stream(std::ostringstream::ate);
+		ostrs ostrs_stream(ostrs::ate);
 		ostrs_stream << "^ *\\. *(";
 		bool is_first = true;
-		std::map<std::string, std::shared_ptr<protocol::protocol_base>>::iterator  iter = this->dice_protocol_map->begin();
-		for (; iter != this->dice_protocol_map->end(); iter++) {
+		auto iter = this->dice_protocol_map->cbegin();
+		for (; iter != this->dice_protocol_map->cend(); iter++) {
 			if (is_first) {
 				is_first = false;
 			}
@@ -43,7 +43,7 @@ namespace dicebot{
 	protocol::protocol_base * protocol_manager::get_protocol(std::string command)
 	{
 		std::transform(command.begin(),command.end(),command.begin(),tolower);
-		std::map<std::string, std::shared_ptr<protocol::protocol_base> >::iterator  iter = this->dice_protocol_map->find(command);
+		auto  iter = this->dice_protocol_map->find(command);
 		if (iter == dice_protocol_map->end()) return nullptr;
 		else return (*iter).second.get();
 	}

@@ -163,7 +163,7 @@ namespace dicebot{
 		sqlite3 * database = database::database_manager::get_database();
 		char * pchar_err_message = nullptr;
 		std::string str_encoded_manualdice(manual_dice_target->endcode());
-		std::ostringstream ostrs_sql_command(std::ostringstream::ate);
+		ostrs ostrs_sql_command(ostrs::ate);
 		ostrs_sql_command.str("insert into " MANUALDICE_TABLE_NAME " values ( ");
 		ostrs_sql_command << manual_dice_key.first << ", " << manual_dice_key.second << ", '" << str_encoded_manualdice << "'" << ");";
 		int ret_code_2 = sqlite3_exec(database, ostrs_sql_command.str().c_str(), &database::database_manager::sqlite3_callback, (void*)&i_data_database_update, &pchar_err_message);
@@ -178,7 +178,7 @@ namespace dicebot{
 		char * pchar_err_message = nullptr;
 		std::string str_encoded_manualdice(manual_dice_target->endcode());
 
-		std::ostringstream ostrs_sql_command(std::ostringstream::ate);
+		ostrs ostrs_sql_command(ostrs::ate);
 		ostrs_sql_command.str("update " MANUALDICE_TABLE_NAME " set ");
 		ostrs_sql_command << " source ='" << str_encoded_manualdice << "'";
 		ostrs_sql_command << " where qqid =" << manual_dice_key.first << " and groupid =" << manual_dice_key.second;
@@ -192,7 +192,7 @@ namespace dicebot{
 	bool manual_dice_control::read_database(manual_kpair manual_dice_key,p_manual manual_dice_target){
 		sqlite3 * database = database::database_manager::get_database();
 		std::string str_encoded_manualdice(manual_dice_target->endcode());
-		std::ostringstream ostrs_sql_command(std::ostringstream::ate);
+		ostrs ostrs_sql_command(ostrs::ate);
 		ostrs_sql_command << "SELECT * FROM " MANUALDICE_TABLE_NAME " where qqid =" << manual_dice_key.first << " and groupid =" << manual_dice_key.second;
 		std::string str_manualdice_read;
 		char * pchar_err_message = nullptr;
@@ -214,7 +214,7 @@ namespace dicebot{
 
 	bool manual_dice_control::exist_database(manual_kpair manual_dice_key){
 		sqlite3 * database = database::database_manager::get_database();
-		std::ostringstream ostrs_sql_command(std::ostringstream::ate);
+		ostrs ostrs_sql_command(ostrs::ate);
 		ostrs_sql_command << "SELECT * FROM " MANUALDICE_TABLE_NAME " where qqid =" << manual_dice_key.first << " and groupid =" << manual_dice_key.second;
 		std::string str_manualdice_read;
 		char * pchar_err_message = nullptr;

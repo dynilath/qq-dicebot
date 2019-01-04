@@ -58,16 +58,18 @@ namespace dicebot{
 		~operation_item();
 	};
 
+	using p_item = std::shared_ptr<operation_item>;
+	
 	class operation {
 	private:
-		std::list<std::shared_ptr<operation_item>> * list_operations;
+		std::list<p_item> * list_operations;
 
 		int i_num_like_count = 0;
 		int i_binary_operator_count = 0;
 
 
-		std::list<std::shared_ptr<operation_item>> * list_output = nullptr;
-		std::stack<std::shared_ptr<operation_item>> * stack_temp = nullptr;
+		std::list<p_item> * list_output = nullptr;
+		std::stack<p_item> * stack_temp = nullptr;
 		std::list<size_t> * left_bracket_location = nullptr;
 	public:
 		bool no_dice = true;
