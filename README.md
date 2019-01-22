@@ -42,7 +42,7 @@ QQ：1701687847
     - [展示变量(.list var或.lv)](#展示变量list-var或lv)
 - [删除变量和骰子(.delete或.d)](#删除变量和骰子delete或d)
     - [全部删除(.delete all)](#全部删除delete-all)
-    - [展示骰子(.delete roll或.dr)](#展示骰子delete-roll或dr)
+    - [删除骰子(.delete roll或.dr)](#删除骰子delete-roll或dr)
     - [删除变量(.delete var或.dv)](#删除变量delete-var或dv)
 - [为特定规则定制的骰子](#为特定规则定制的骰子)
     - [coc定制骰子(.coc或者.c)](#coc定制骰子coc或者c)
@@ -337,7 +337,7 @@ QQ：1701687847
 > dynilath：```.delete all```   
 > DiceBot：``` * dynilath 已删除所有骰子指令和变量。```
 
-### 展示骰子(.delete roll或.dr)
+### 删除骰子(.delete roll或.dr)
 使用```.delete roll```指令来删除你所保存的骰子。    
 当然你也可以用```.dr```。  
 另外，这不会删除你的默认骰子。  
