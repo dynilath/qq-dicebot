@@ -12,6 +12,9 @@ namespace cqmessage = cq::message; // 提供封装了的 Message 等类
 // 初始化 App ID
 CQ_INITIALIZE("com.dynilath.coolqdicebot");
 
+std::string get_group_nickname(uint64_t const group_id, uint64_t const user_id);
+std::string get_nickname(uint64_t const user_id);
+
 // 插件入口，在静态成员初始化之后，app::on_initialize 事件发生之前被执行，用于配置 SDK 和注册事件回调
 CQ_MAIN {
     cq::config.convert_unicode_emoji = true; // 配置 SDK 自动转换 Emoji 到 Unicode（默认就是 true）
@@ -29,52 +32,80 @@ CQ_MAIN {
     };
 
     cqevent::on_private_msg = [](const cq::PrivateMessageEvent &e) {
+
+        dicebot::event_info ei(e.user_id);
+        if(!dicebot::try_fill_nickname(ei)){
+            ei.nickname = get_nickname(e.user_id);
+        }
+
         try {
             std::string output;
-            if(dicebot::group_message_pipeline(e.raw_message, 1000,e.user_id,false,output)){
+            if(dicebot::message_pipeline(e.raw_message,ei,output)){
                 cq::Message message;
                 message.push_back(cqmessage::MessageSegment::text(output));
                 message.send(e.target);
 
             }else{
-                cqlogging::debug(u8"API", u8"调用失败，无法产生结果");
+                cqlogging::debug(u8"DICE", u8"调用失败，无法产生结果");
             }
         } catch (const cq::exception::ApiError &err) {
-            cqlogging::debug(u8"API", u8"调用失败，错误码：" + std::to_string(err.code));
+            cqlogging::debug(u8"DICE", u8"调用失败，错误码：" + std::to_string(err.code));
         }
         e.block(); 
     }; 
 
     cqevent::on_group_msg = [](const cq::GroupMessageEvent &e ) { 
+        
+        dicebot::event_info ei(e.user_id,e.group_id,dicebot::event_type::group);
+        if(!dicebot::try_fill_nickname(ei)){
+            ei.nickname = get_group_nickname(e.group_id,e.user_id);
+        }
+
         try {
             std::string output;
-            if(dicebot::group_message_pipeline(e.raw_message, e.group_id,e.user_id,true,output)){
+            if(dicebot::message_pipeline(e.raw_message, ei, output)){
+                cq::Message message;
+                message.push_back(cqmessage::MessageSegment::text(output));
+                message.send(e.target);
+            }else{
+                cqlogging::debug(u8"DICE", u8"调用失败，无法产生结果");
+            }
+        } catch (const cq::exception::ApiError &err) {
+            cqlogging::debug(u8"DICE", u8"调用失败，错误码：" + std::to_string(err.code));
+        }
+        e.block();
+    };
+
+    cqevent::on_discuss_msg = [](const cq::DiscussMessageEvent &e ) {
+
+        dicebot::event_info ei(e.user_id,e.discuss_id,dicebot::event_type::discuss);
+        if(!dicebot::try_fill_nickname(ei)){
+            ei.nickname = get_nickname(e.user_id);
+        }
+
+        try {
+            std::string output;
+            if(dicebot::message_pipeline(e.raw_message, ei, output)){
                 cq::Message message;
                 message.push_back(cqmessage::MessageSegment::text(output));
                 message.send(e.target);
 
             }else{
-                cqlogging::debug(u8"API", u8"调用失败，无法产生结果");
+                cqlogging::debug(u8"DICE", u8"调用失败，无法产生结果");
             }
         } catch (const cq::exception::ApiError &err) {
-            cqlogging::debug(u8"API", u8"调用失败，错误码：" + std::to_string(err.code));
+            cqlogging::debug(u8"DICE", u8"调用失败，错误码：" + std::to_string(err.code));
         }
+        e.block();
     };
+}
 
-    cqevent::on_discuss_msg = [](const cq::DiscussMessageEvent &e ) { 
-        try {
-            std::string output;
-            if(dicebot::group_message_pipeline(e.raw_message, e.discuss_id,e.user_id,false,output)){
-                cq::Message message;
-                message.push_back(cqmessage::MessageSegment::text(output));
-                message.send(e.target);
+std::string get_group_nickname(uint64_t const group_id, uint64_t const user_id){
+    cq::GroupMember member = cq::api::get_group_member_info(group_id,user_id);
+    return member.nickname;
+}
 
-            }else{
-                cqlogging::debug(u8"API", u8"调用失败，无法产生结果");
-            }
-        } catch (const cq::exception::ApiError &err) {
-            cqlogging::debug(u8"API", u8"调用失败，错误码：" + std::to_string(err.code));
-        }
-    };
-
+std::string get_nickname(uint64_t const user_id){
+    cq::User user = cq::api::get_stranger_info(user_id);
+    return user.nickname;
 }

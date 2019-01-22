@@ -4,7 +4,11 @@
 #pragma comment(lib,"gtest.lib")
 #endif
 
+#define NO_COOLQ
+
 #include <list>
+#include <cmath>
+#include <climits>
 
 #include "gtest/gtest.h"
 #include "dicebot/number.h"
@@ -431,7 +435,7 @@ ASSERT_LE(dr.summary,_max);}}
 
         int repeat = sample_sum;
         while(repeat--){
-            dicebot::manual_dice md = manual_dice("4d6+1d8");
+            manual::manual_dice md = manual::manual_dice("4d6+1d8");
             int result = 0;
             result = md.i_sum_result;
             ASSERT_GE(result, 5);
@@ -469,7 +473,7 @@ ASSERT_LE(dr.summary,_max);}}
 
         int repeat = sample_sum;
         while(repeat--){
-            dicebot::manual_dice md = manual_dice("4D6+1D8");
+            manual::manual_dice md = manual::manual_dice("4D6+1D8");
             int result = 0;
             result = md.i_sum_result;
             ASSERT_GE(result, 5);
@@ -528,6 +532,41 @@ ASSERT_LE(dr.summary,_max);}}
         double chi_01_percent = 20.51500565;
         ASSERT_LT(chi_square,chi_01_percent);
     }
+    
+    TEST(RollTest, FATE_01){
+        int sample_sum = (1000);
+
+        int min_val = -4;
+        int max_val = 4;
+
+        std::vector<int> result;
+        result.assign(9,0);
+        int t = sample_sum;
+        while(t--){
+            roll::dice_roll dr;
+            roll::roll_fate(dr);
+            result[dr.summary + 4]++;
+        }
+
+        std::vector<int> compare;
+        compare.assign(9,0);
+        dice_result_structor drs(4,3);
+        do{
+            int result = 0;
+            for(uint16_t i=0;i<drs.d_vals.size();i++){
+                result += drs.d_vals[i];
+            }
+            result -= 4;
+            compare[result]++;
+        }while(drs.increase());
+
+        double chi_square = fun_chi_square(result,compare);
+        //chi-square check with 0.1% of coherence
+        double chi_01_percent = 16.2662361962381;
+        ASSERT_LT(chi_square,chi_01_percent);
+    }
+
+
 
 } // test
 

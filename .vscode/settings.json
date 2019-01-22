@@ -109,5 +109,7 @@
         ]
     },
     "gtest-adapter.debugConfig": "Debug",
-    "gtest-adapter.supportLocation": true
+    "gtest-adapter.supportLocation": true,
+    "files.eol": "\n",
+    "markdown-toc.depthFrom": 2
 }

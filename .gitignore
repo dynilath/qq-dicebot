@@ -3,3 +3,4 @@
 build
 !lib/*.lib
 scripts/install.ps1
+.vscode/settings.json

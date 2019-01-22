@@ -2,8 +2,8 @@
     "ret":1,
     "apiver":9,
     "name":"骰子机器人",	
-    "version":"1.5.0",
-    "version_id":5,
+    "version":"1.6.0",
+    "version_id":6,
     "author":"dynilath",
     "description":"一个骰子机器人，访问项目github页面：http://github.com/dynilath/CoolQDicebot",
     "event":[
@@ -48,10 +48,10 @@
     "status":[
     ],
   "auth": [
-    101, // sendGroupMsg
-    103, // sendDiscussMsg
-    106, // sendPrivateMsg
-    130, // getGroupMemberInfoV2 / getGroupMemberInfo
-    131, // getStrangerInfo
+    101,
+    103,
+    106,
+    130,
+    131
   ]
 }

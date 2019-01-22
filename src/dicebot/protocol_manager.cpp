@@ -2,54 +2,44 @@
 
 #include <memory>
 
-namespace dicebot{
-	protocol_manager::protocol_manager()
-	{
-		this->dice_protocol_map = new std::map<std::string, std::shared_ptr<protocol::protocol_base> >();
-	}
+using namespace dicebot;
 
+void protocol_manager::register_dice(protocol::p_protocol protocol){
+    for(std::string const & s : protocol->identifier_list){
+        auto iter = this->protocol_map.find(s);
+        if(iter != protocol_map.end()) continue;
+        protocol_map.insert(
+            protocol_pair_t(s,protocol)
+        );
+    }
 
-	protocol_manager::~protocol_manager()
-	{
-		delete this->dice_protocol_map;
-		if (this->regex_command != nullptr) delete this->regex_command;
-	}
+    protocol_regex_list.push_back(protocol->identifier_regex);
+}
 
-	void protocol_manager::register_dice(std::shared_ptr<protocol::protocol_base> protocol)
-	{
-		std::string command = protocol->get_identifier();
-		auto iter = this->dice_protocol_map->find(command);
-		if (iter != dice_protocol_map->end()) return;
-		dice_protocol_map->insert(std::pair<std::string, std::shared_ptr<protocol::protocol_base> >(command, protocol));
-	}
+void protocol_manager::create_command_regex(){
+    ostrs ostrs_stream(ostrs::ate);
+    ostrs_stream << "^(";
+    bool is_first = true;
+    auto iter = this->protocol_regex_list.cbegin();
+    for(; iter != this->protocol_regex_list.cend(); iter++){
+        if(is_first){
+            is_first = false;
+        }
+        else ostrs_stream << "|";
+        ostrs_stream << *iter;
+    }
+    ostrs_stream << ") *";
+    this->regex_command = 
+        std::regex(ostrs_stream.str(), std::regex_constants::icase);
+}
 
-	void protocol_manager::create_command_regex()
-	{
-		ostrs ostrs_stream(ostrs::ate);
-		ostrs_stream << "^ *\\. *(";
-		bool is_first = true;
-		auto iter = this->dice_protocol_map->cbegin();
-		for (; iter != this->dice_protocol_map->cend(); iter++) {
-			if (is_first) {
-				is_first = false;
-			}
-			else ostrs_stream << "|";
-			ostrs_stream << (*iter).second->get_regex_identifier();
-		}
-		ostrs_stream << ")";
-		this->regex_command = new std::regex(ostrs_stream.str());
-	}
+protocol::p_protocol protocol_manager::get_protocol(std::string command) const{
+    std::transform(command.begin(),command.end(),command.begin(),tolower);
+    auto iter = this->protocol_map.find(command);
+    if(iter == protocol_map.cend()) return nullptr;
+    else return (*iter).second;
+}
 
-	protocol::protocol_base * protocol_manager::get_protocol(std::string command)
-	{
-		std::transform(command.begin(),command.end(),command.begin(),tolower);
-		auto  iter = this->dice_protocol_map->find(command);
-		if (iter == dice_protocol_map->end()) return nullptr;
-		else return (*iter).second.get();
-	}
-
-	std::regex * protocol_manager::get_regex_command()
-	{
-		return this->regex_command;
-	}
+std::regex const * protocol_manager::get_regex_command() const{
+    return &(this->regex_command);
 }

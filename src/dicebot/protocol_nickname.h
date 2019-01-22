@@ -3,17 +3,14 @@
 #include "./common.h"
 #include "./protocol_base.h"
 namespace dicebot::protocol{
-	class protocol_nickname :public protocol_base
-	{
-	private:
-		std::regex * regex_detail_command;
-	public:
-		protocol_nickname();
-		~protocol_nickname(); 
-		std::string resolve_request(
-			std::string &message,
-			const int64_t group_id,
-			const int64_t user_qq_id,
-			bool isfromGroup) override;
-	};
+    class protocol_nickname :public protocol_base{
+    private:
+        std::regex filter_command;
+    public:
+        protocol_nickname();
+        bool resolve_request(
+            std::string const & message,
+            event_info & event,
+            std::string & response) override;
+    };
 }
