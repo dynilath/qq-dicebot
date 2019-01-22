@@ -9,8 +9,9 @@ Just a simple dicebot for coolq in development.
 # 特性
 * 所有的骰子指令支持多行输入。  
 * 使用硬件随机器，如果硬件随机器不可用，则改用mt19937随机器。  
-* 支持coc7的奖惩骰。  
-* 可以识别整数、小数、百分数。  
+* 为coc，wod，fate规则定制骰子。  
+* 骰子指令支持算式，并且可以使用整数、小数、百分数。  
+* 用户能够设置自定的骰子指令，以及保存一些变量。
 
 # 安装
 点击[下载cpk](https://github.com/dynilath/coolq-dicebot/releases/latest)前往下载本骰子机器人最新cpk。  
