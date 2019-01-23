@@ -73,8 +73,10 @@ protocol_help::protocol_help(){
 bool protocol_help::register_help(p_protocol v_protocol){
     this->protocol_regex_list.push_back(v_protocol->identifier_regex);
     for(const std::string & var: v_protocol->identifier_list){
-        this->help_map.insert(help_pair_t(var,v_protocol->help_message));
+        auto i = this->help_map.insert(help_pair_t(var,v_protocol->help_message));
+        if(!i.second) return false;
     }
+    return true;
 }
 
 void protocol_help::generate_filter_command(){
