@@ -90,7 +90,7 @@ bool protocol_wod_dice::owod(std::string const & message, std::string const & ni
 
 #pragma region coc
 protocol_coc_dice::protocol_coc_dice(){
-    this->full_dice = std::regex("^ *([pb]\\d+ *)*", std::regex_constants::icase);
+    this->full_dice = std::regex("^([pb]\\d+ *)* *", std::regex_constants::icase);
     this->identifier_regex = "c(?:oc)?";
     this->identifier_list ={"coc","c"};
 }
@@ -124,6 +124,7 @@ bool protocol_coc_dice::resolve_request(
 
 #pragma region fate
 protocol_fate_dice::protocol_fate_dice(){
+    this->full_dice = "^([\\+|\\-]\\d+)? *";
     this->identifier_regex = "f(?:ate)?";
     this->identifier_list ={"fate","f"};
 }
@@ -133,14 +134,27 @@ bool protocol_fate_dice::resolve_request(
     event_info & event,
     std::string & response){
 
-    std::string str_roll_message = message;
+    std::smatch roll_match;
+    std::regex_search(message, roll_match, full_dice);
+
+    std::string str_roll_message;
 
     roll::dice_roll dr;
-    roll::roll_fate(dr);
+
+    if(roll_match[1].matched){
+        std::string str_command = roll_match[1];
+        std::string str_roll_message = roll_match.suffix();
+        roll::roll_fate(dr,str_command);
+    }
+    else{
+        str_roll_message = message;
+        roll::roll_fate(dr);
+    }
+
     if(dr){
         output_constructor oc(event.nickname);
         if(str_roll_message.size() > 0) oc.append_message(str_roll_message);
-        oc.append_roll("FATE", dr.detail(), dr.summary);
+        oc.append_roll("FATE", dr.detail_fate(), dr.summary);
         response = oc.str();
         return true;
     }

@@ -35,6 +35,7 @@ namespace dicebot::protocol{
     };
 
     class protocol_fate_dice : public protocol_base{
+        std::regex full_dice;
     public:
         protocol_fate_dice();
         bool resolve_request(

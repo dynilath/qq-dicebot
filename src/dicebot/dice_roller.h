@@ -18,7 +18,6 @@ namespace dicebot::roll{
         roll_status status;
         std::vector<dice_pair> results;
         std::string detail();
-        std::string dice_roll::detail_coc();
         dice_roll() noexcept;
         size_t add_result(int32_t const result);
         size_t add_ignored_result(int32_t const result);
@@ -28,7 +27,9 @@ namespace dicebot::roll{
         size_t clear();
         roll_status finish_roll() noexcept;
         roll_status finish_coc() noexcept;
+        std::string detail_coc() noexcept;
         roll_status finish_wod(int const i_d, bool const failing) noexcept;
+        std::string detail_fate() noexcept;
         roll_status dice_exceed() noexcept;
         roll_status general_err() noexcept;
         explicit operator bool() const noexcept;
@@ -49,6 +50,8 @@ namespace dicebot::roll{
     roll_status roll_owod(dice_roll & dice, std::string const & str_dice_command) noexcept;
 
     roll_status roll_fate(dice_roll & dice) noexcept;
+    roll_status roll_fate(dice_roll & dice, int const i_val) noexcept;
+    roll_status roll_fate(dice_roll & dice, std::string const & str_dice_command) noexcept;
 
     void random_initialize();
 }

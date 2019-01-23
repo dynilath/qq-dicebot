@@ -103,7 +103,7 @@ roll_status dice_roll::finish_coc() noexcept{
     return this->status = roll_status::FINISHED;
 }
 
-std::string dice_roll::detail_coc(){
+std::string dice_roll::detail_coc() noexcept{
     ostrs ost(ostrs::ate);
     if(this->results.size() > 1){
         ost << "[";
@@ -134,6 +134,24 @@ roll_status dice_roll::finish_wod(int const i_d, bool const failing) noexcept{
     if(this->summary > penalty) this->summary -= penalty;
     else this->summary = 0;
     return this->status = roll_status::FINISHED;
+}
+
+std::string dice_roll::detail_fate() noexcept{
+    ostrs ost(ostrs::ate);
+    ost << "[";
+    for(uint16_t i =1;i < 4;i++){
+        dice_pair dp = results[i];
+        ost << dp.first ;
+        if(i!=3) ost<<" + ";
+    }
+    if(this->results.size() > 4){
+        int val = this->results[4].first;
+        if(val < 0) ost << "] - ";
+        else ost << "] + ";
+        val = val > 0 ? val : -val;
+        ost << val;
+    }
+    return ost.str();
 }
 
 roll_status dice_roll::dice_exceed() noexcept{
@@ -440,4 +458,39 @@ roll_status roll::roll_fate(dice_roll & dice) noexcept{
         dice.add_result(single_result);
     }
     return dice.finish_roll();
+}
+
+roll_status roll::roll_fate(dice_roll & dice, int const i_val) noexcept{
+    dice.clear();
+    
+    _RANDOMIZE(3,-1);
+    int16_t single_result = 0;
+    bool first = true;
+    int i_dice = 4;
+    while(i_dice-- > 0){
+        _RANDOM(single_result);
+        dice.add_result(single_result);
+    }
+    dice.add_result(i_val);
+    return dice.finish_roll();
+}
+
+roll_status roll::roll_fate(dice_roll & dice, std::string const & str_dice_command) noexcept{
+    dice.clear();
+    try{
+        std::string source(str_dice_command);
+        std::regex regex_d("^([\\+\\-]\\d+)");
+        std::smatch smatch_fate;
+        std::regex_search(source,smatch_fate,regex_d);
+        if(smatch_fate.size() == 0) return dice.general_err();
+
+        uint16_t i_val = std::stoi(smatch_fate[1].str());
+        return roll::roll_fate(dice, i_val);
+    }
+    catch (const std::invalid_argument& ia){
+        #ifdef _DEBUG
+        logger::log("roll_fate", ia.what());
+        #endif
+        return dice.general_err();
+    }
 }
