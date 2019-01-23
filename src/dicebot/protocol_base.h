@@ -43,8 +43,10 @@ namespace dicebot::protocol{
 
     class protocol_base{
     public:
+        bool is_stand_alone = false;
         std::string identifier_regex;
         std::list<std::string> identifier_list;
+        std::string help_message;
         virtual bool resolve_request(
             std::string const & message,
             event_info & event,

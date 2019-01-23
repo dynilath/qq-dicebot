@@ -12,6 +12,7 @@ using namespace dicebot::protocol;
 
 
 protocol_roll_dice::protocol_roll_dice(){
+    this->is_stand_alone = false;
     this->filter_command = std::regex("^s(?:ource)? *", std::regex_constants::icase);
     this->identifier_regex = "r(?:oll)?";
     this->identifier_list = {"roll","r"};

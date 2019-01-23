@@ -12,6 +12,7 @@ using namespace dicebot::protocol;
 
 #pragma region set roll
 protocol_set_roll::protocol_set_roll(){
+    this->is_stand_alone = false;
     this->identifier_regex = "s(?:et)?";
     this->identifier_list = {"set","s"};
     this->filter_name = "^([^\\+\\-\\*/\\(\\)\\s]+)";
@@ -67,6 +68,7 @@ bool protocol_set_roll::resolve_request(
 
 #pragma region set var
 protocol_set_var::protocol_set_var(){
+    this->is_stand_alone = false;
     this->filter_var = std::regex("^ *(\\+|-)? *(\\d+) *");
     this->filter_command = std::regex("^ *reset");
     this->identifier_regex = "v(?:ar)?";
@@ -198,6 +200,7 @@ protocol_list::gen_macro_t protocol_list::macro_msg = [](
     };
 
 protocol_list::protocol_list(){
+    this->is_stand_alone = true;
     this->filter_command = std::regex("^(all|v(?:ar)?|r(?:oll)?) *");
     this->identifier_regex = "l(?:ist)?";
     this->identifier_list ={"list","l"};
@@ -284,6 +287,7 @@ bool protocol_list::resolve_request(
 
 #pragma region delete
 protocol_delete::protocol_delete(){
+    this->is_stand_alone = false;
     this->filter_command = std::regex("^(all|v(?:ar)?|r(?:oll)?) *");
     this->identifier_regex = "d(?:elete)?";
     this->identifier_list ={"d","delete"};

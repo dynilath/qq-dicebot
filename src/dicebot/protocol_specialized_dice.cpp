@@ -8,6 +8,7 @@ using namespace dicebot::protocol;
 
 #pragma region wod
 protocol_wod_dice::protocol_wod_dice(){
+    this->is_stand_alone = false;
     this->full_dice = std::regex("^(\\d+)(?:d(\\d+))?(?:b(\\d+))? *",std::regex_constants::icase);
     this->filter_command = std::regex("^(n|o) *",std::regex_constants::icase);
 
@@ -90,6 +91,7 @@ bool protocol_wod_dice::owod(std::string const & message, std::string const & ni
 
 #pragma region coc
 protocol_coc_dice::protocol_coc_dice(){
+    this->is_stand_alone = false;
     this->full_dice = std::regex("^([pb]\\d+ *)* *", std::regex_constants::icase);
     this->identifier_regex = "c(?:oc)?";
     this->identifier_list ={"coc","c"};
@@ -124,6 +126,7 @@ bool protocol_coc_dice::resolve_request(
 
 #pragma region fate
 protocol_fate_dice::protocol_fate_dice(){
+    this->is_stand_alone = false;
     this->full_dice = "^([\\+|\\-]\\d+)? *";
     this->identifier_regex = "f(?:ate)?";
     this->identifier_list ={"fate","f"};

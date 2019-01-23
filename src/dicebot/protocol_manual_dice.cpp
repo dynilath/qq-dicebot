@@ -11,6 +11,7 @@ using namespace dicebot;
 using namespace dicebot::protocol;
 
 protocol_manual_dice::protocol_manual_dice(){
+    this->is_stand_alone = false;
     this->filter_manual_dice = std::regex("^ *((\\+)?\\d*d\\d+)(\\+\\d*d\\d+)* *",std::regex_constants::icase);
     this->filter_integer = std::regex("^ *(\\d+) *");
     this->filter_command = std::regex("^(ka|a|k|r) *",std::regex_constants::icase);

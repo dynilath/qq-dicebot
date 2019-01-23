@@ -19,29 +19,12 @@
 #include "./manual_dice_control.h"
 #include "./profile_manager.h"
 
-#include "../cqsdk/utils/base64.h"
-
-namespace base64 = cq::utils::base64;
-
 namespace dicebot{
     protocol_manager * dice_protocols;
     nickname::nickname_manager * nick_ctrl;
     database::database_manager * db_ctrl;
     manual::manual_dice_control * md_ctrl;
     profile::profile_manager * pf_ctrl;
-
-    std::string str_help_message(
-        "RGljZUJvdCBieSBkeW5pbGF0aCB2MS42LjAK6K6/6Zeu6aG555"
-        "uu5Li76aG1aHR0cDovL2dpdGh1Yi5jb20vZHluaWxhdGgvY29v"
-        "bHEtZGljZWJvdArojrflvpfkvb/nlKjor7TmmI7ku6Xlj4rkuo"
-        "bop6Pmm7TlpJrlhoXlrrnjgIIK5L2/55So5pa55byP566A5LuL"
-        "77yaCi5yIDFkOCsxZDYrMyDmma7pgJrpqrDlrZAKLmMgY29j6a"
-        "qw5a2QCi53bzQgb3dvZOmqsOWtkAoud240IG53b2TpqrDlrZAK"
-        "LmYgRkFURemqsOWtkAror6bnu4bmjIfku6Tlj4LogIPor7fliY"
-        "3lvoDpobnnm67kuLvpobXjgIIK5aaC5p6c5Zyo5L2/55So5Lit"
-        "6YGH5Yiw5LqGYnVn77yM5oiW6ICF5pyJ5LuA5LmI5Yqf6IO95b"
-        "u66K6u77yM5qyi6L+O5Zyo6aG555uu5Li76aG16YCa6L+HaXNz"
-        "dWXlj43ppojvvIzmhJ/osKLmgqjnmoTluK7liqnjgII=");
     
     void initialize(std::string app_dir){
         is_no_sql_mode = false;
@@ -62,7 +45,7 @@ namespace dicebot{
         dice_protocols->register_dice(std::make_shared<protocol::protocol_set_var>());
         dice_protocols->register_dice(std::make_shared<protocol::protocol_list>());
         dice_protocols->register_dice(std::make_shared<protocol::protocol_delete>());
-        dice_protocols->create_command_regex();
+        dice_protocols->finish_initialization();
     }
 
     void salvage(){
@@ -87,11 +70,6 @@ namespace dicebot{
 
         std::list<std::string> source_splits;
 
-        if(source == ".help") {
-            output.assign(base64::decode(str_help_message));
-            return true;
-        }
-
         utils::split_line(source, source_splits);
 
         std::list<std::string>::iterator iter_source = source_splits.begin();
@@ -109,7 +87,6 @@ namespace dicebot{
 
             std::string content = (*iter_source).substr(pos_of_content);
 
-
             std::smatch match_command;
 
             std::regex_search(
@@ -122,12 +99,19 @@ namespace dicebot{
             std::string command = match_command[1];
             protocol::p_protocol target_protocol = dice_protocols->get_protocol(command);
 
-            std::string response;
-            if(target_protocol->resolve_request(match_command.suffix().str(),event,response)){
-                if(is_output_available) ot << std::endl;
-                ot << response;
-                is_output_available = true;
-                continue;
+            if(target_protocol->is_stand_alone){
+                if(target_protocol->resolve_request(match_command.suffix().str(),event,output)){
+                    return is_output_available = true;
+                }
+            }
+            else{
+                std::string response;
+                if(target_protocol->resolve_request(match_command.suffix().str(),event,response)){
+                    if(is_output_available) ot << std::endl;
+                    ot << response;
+                    is_output_available = true;
+                    continue;
+                }
             }
         }
 

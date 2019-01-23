@@ -6,6 +6,7 @@ using namespace dicebot;
 using namespace dicebot::protocol;
 
 protocol_nickname::protocol_nickname(){
+    this->is_stand_alone = false;
     this->filter_command = std::regex("^(s)(?:ilence)? *",std::regex_constants::icase);
     this->identifier_regex = "n(?:ame)?";
     this->identifier_list = {"name","n"};
