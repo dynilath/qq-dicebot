@@ -25,7 +25,8 @@ QQ：1701687847
 # 目录
 <!-- TOC -->
 
-- [help](#help)
+- [帮助(.help或.h)](#帮助help或h)
+    - [详细帮助](#详细帮助)
 - [基本骰子指令(.roll或.r)](#基本骰子指令roll或r)
     - [骰子基础](#骰子基础)
     - [双/三/四骰取高/低](#双三四骰取高低)
@@ -54,24 +55,39 @@ QQ：1701687847
 <!-- /TOC -->
 
 # 使用示范
-## help
+## 帮助(.help或.h)
 发送```.help```获取没啥用的帮助信息。
 > dynilath：```.help```
 
 > DiceBot：
 > ``` 
-> DiceBot by dynilath v1.6.0
-> 访问项目主页http://github.com/dynilath/coolq-dicebot
-> 获得使用说明以及了解更多内容。
+> DiceBot by dynilath v1.6.2
 > 使用方式简介：
 > .r 1d8+1d6+3 普通骰子
 > .c coc骰子
 > .wo4 owod骰子
 > .wn4 nwod骰子
 > .f FATE骰子
-> 详细指令参考请前往项目主页。
+> 更多指令：set var list delete manual name
+> 使用 .help [指令名称] 来获得对应指令的帮助
+> 
+> 访问项目主页http://github.com/dynilath/coolq-dicebot
+> 获得使用说明以及了解更多内容。
 > 如果在使用中遇到了bug，或者有什么功能建议，欢迎在项目主页通过issue反馈，感谢您的帮助。
 > ```
+
+### 详细帮助
+你可以发送```.help [指令]```来获得具体指令的帮助    
+> dynilath：```.help coc```
+
+> DiceBot：
+> ``` 
+> CoC定制骰子(.coc或.c)
+> 指令.coc：coc定制骰子
+> 指令.c：上述命令的简写形式
+> 指令.coc p1：惩罚骰1（penalty 1）
+> 指令.coc b1：奖励骰1（bonus 1）
+> ``` 
 
 ## 基本骰子指令(.roll或.r)
 ### 骰子基础
@@ -412,9 +428,14 @@ oWoD规则下，默认困难度为6，出1会扣除一个成功。
 骰子机器人提供了fate定制的骰子。使用指令为```.fate```。    
 你也可以使用它较短的形式```.f```。    
 
-它在结果上等效于```.r4d3-8```，但显示```-1```肯定会更为合适。
+它在结果上等效于```.r4d3-8```，但显示```+ - o```肯定会更为合适。
 > dynilath：```.f```  
-> DiceBot：``` * dynilath 掷骰: FATE = [-1 + 1 + 1 + 0] = 1```  
+> DiceBot：``` * dynilath 掷骰: FATE = [o - o -] = -2```  
+
+也可以加上一些修正值    
+> dynilath：```.f+4```  
+> DiceBot：``` * dynilath 掷骰: FATE = [o + o -] + 4 = 4```  
+
 
 ## 手动骰子(.manual或.m)
 手动骰子会产生一些会保存在数据库的骰子数据。  
