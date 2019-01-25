@@ -90,20 +90,17 @@ void utils::quick_sort(int * origin, int * pilot, int first, int last){
 
 bool utils::find_point(std::string const & source, size_t & content_begin){
     size_t point = 0;
-    do{
-        if(point == source.length()) return false;
+    for(;;point ++){
+        if(point == source.size()) return false;
         else if(source[point] == ' ') continue;
         else if(source[point] == '.') break;
         else return false;
     }
-    while(point++);
     content_begin = point + 1;
-    do{
-        if(content_begin == source.length()) return false;
-        else if(source[content_begin] == ' ') continue;
+    for(;content_begin < source.size();content_begin ++){
+        if(source[content_begin] == ' ') continue;
         else return true;
     }
-    while(content_begin++);
     return false;
 }
 

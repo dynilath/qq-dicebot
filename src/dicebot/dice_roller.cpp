@@ -139,10 +139,22 @@ roll_status dice_roll::finish_wod(int const i_d, bool const failing) noexcept{
 std::string dice_roll::detail_fate() noexcept{
     ostrs ost(ostrs::ate);
     ost << "[";
-    for(uint16_t i =1;i < 4;i++){
+    for(uint16_t i = 0;i < 4;i++){
         dice_pair dp = results[i];
-        ost << dp.first ;
-        if(i!=3) ost<<" + ";
+        switch(dp.first){
+            case 1:
+                ost << "+";
+                break;
+            case -1:
+                ost << "-";
+                break;
+            case 0:
+                ost << "o";
+                break;
+            default:
+                break;
+        }
+        if(i!=3) ost<<" ";
     }
     if(this->results.size() > 4){
         int val = this->results[4].first;
@@ -151,6 +163,7 @@ std::string dice_roll::detail_fate() noexcept{
         val = val > 0 ? val : -val;
         ost << val;
     }
+    else ost << "]";
     return ost.str();
 }
 
@@ -484,7 +497,7 @@ roll_status roll::roll_fate(dice_roll & dice, std::string const & str_dice_comma
         std::regex_search(source,smatch_fate,regex_d);
         if(smatch_fate.size() == 0) return dice.general_err();
 
-        uint16_t i_val = std::stoi(smatch_fate[1].str());
+        int16_t i_val = std::stoi(smatch_fate[1].str());
         return roll::roll_fate(dice, i_val);
     }
     catch (const std::invalid_argument& ia){

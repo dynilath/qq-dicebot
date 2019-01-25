@@ -32,13 +32,12 @@ CQ_MAIN {
     };
 
     cqevent::on_private_msg = [](const cq::PrivateMessageEvent &e) {
+        try{
+            dicebot::event_info ei(e.user_id);
+            if(!dicebot::try_fill_nickname(ei)){
+                ei.nickname = get_nickname(e.user_id);
+            }
 
-        dicebot::event_info ei(e.user_id);
-        if(!dicebot::try_fill_nickname(ei)){
-            ei.nickname = get_nickname(e.user_id);
-        }
-
-        try {
             std::string output;
             if(dicebot::message_pipeline(e.raw_message,ei,output)){
                 cq::Message message;
@@ -48,20 +47,26 @@ CQ_MAIN {
             }else{
                 cqlogging::debug(u8"DICE", u8"调用失败，无法产生结果");
             }
-        } catch (const cq::exception::ApiError &err) {
+        }
+        catch (const cq::exception::ApiError &err){
             cqlogging::debug(u8"DICE", u8"调用失败，错误码：" + std::to_string(err.code));
+        }
+        catch(const std::exception &err){
+            cqlogging::warning(u8"DICE", u8"发生std exception：" + std::to_string(err.what()) + u8"\n发送消息为：" + e.raw_message);
+        }
+        catch (...){
+            cqlogging::warning(u8"DICE", u8"发生无法捕捉的异常，发送消息为：" + e.raw_message);
         }
         e.block(); 
     }; 
 
     cqevent::on_group_msg = [](const cq::GroupMessageEvent &e ) { 
-        
-        dicebot::event_info ei(e.user_id,e.group_id,dicebot::event_type::group);
-        if(!dicebot::try_fill_nickname(ei)){
-            ei.nickname = get_group_nickname(e.group_id,e.user_id);
-        }
-
         try {
+            dicebot::event_info ei(e.user_id,e.group_id,dicebot::event_type::group);
+            if(!dicebot::try_fill_nickname(ei)){
+                ei.nickname = get_group_nickname(e.group_id,e.user_id);
+            }
+
             std::string output;
             if(dicebot::message_pipeline(e.raw_message, ei, output)){
                 cq::Message message;
@@ -72,18 +77,23 @@ CQ_MAIN {
             }
         } catch (const cq::exception::ApiError &err) {
             cqlogging::debug(u8"DICE", u8"调用失败，错误码：" + std::to_string(err.code));
+        }
+        catch(const std::exception &err){
+            cqlogging::warning(u8"DICE", u8"发生std exception：" + std::to_string(err.what()) + u8"\n发送消息为：" + e.raw_message);
+        }
+        catch (...){
+            cqlogging::warning(u8"DICE", u8"发生无法捕捉的异常，发送消息为：" + e.raw_message);
         }
         e.block();
     };
 
     cqevent::on_discuss_msg = [](const cq::DiscussMessageEvent &e ) {
-
-        dicebot::event_info ei(e.user_id,e.discuss_id,dicebot::event_type::discuss);
-        if(!dicebot::try_fill_nickname(ei)){
-            ei.nickname = get_nickname(e.user_id);
-        }
-
         try {
+            dicebot::event_info ei(e.user_id,e.discuss_id,dicebot::event_type::discuss);
+            if(!dicebot::try_fill_nickname(ei)){
+                ei.nickname = get_nickname(e.user_id);
+            }
+
             std::string output;
             if(dicebot::message_pipeline(e.raw_message, ei, output)){
                 cq::Message message;
@@ -95,6 +105,12 @@ CQ_MAIN {
             }
         } catch (const cq::exception::ApiError &err) {
             cqlogging::debug(u8"DICE", u8"调用失败，错误码：" + std::to_string(err.code));
+        }
+        catch(const std::exception &err){
+            cqlogging::warning(u8"DICE", u8"发生std exception：" + std::to_string(err.what()) + u8"\n发送消息为：" + e.raw_message);
+        }
+        catch (...){
+            cqlogging::warning(u8"DICE", u8"发生无法捕捉的异常，发送消息为：" + e.raw_message);
         }
         e.block();
     };

@@ -5,8 +5,9 @@
 #include "./dice_spliter.h"
 #include "./nick_manager.h"
 #include "./profile_manager.h"
-//regular dice, with detailed info
+#include "../cqsdk/utils/base64.h"
 
+namespace base64 = cq::utils::base64;
 using namespace dicebot;
 using namespace dicebot::protocol;
 
@@ -16,6 +17,20 @@ protocol_set_roll::protocol_set_roll(){
     this->identifier_regex = "s(?:et)?";
     this->identifier_list = {"set","s"};
     this->filter_name = "^([^\\+\\-\\*/\\(\\)\\s]+)";
+
+    this->help_message = base64::decode(
+        "6K6+572u6aqw5a2QKC5zZXTmiJbogIUucykK5oyH"
+        "5LukLnNldCAxZDEwMO+8muiuvuWumum7mOiupOmq"
+        "sOWtkOS4ujFkMTAwCuaMh+S7pC5y77ya5aaC5p6c"
+        "LnLmsqHmnInmjqXku7vkvZXpqrDlrZDml7bvvIzk"
+        "vJrpqrDpu5jorqTpqrAK5oyH5LukLnNldCA0ZDZr"
+        "MyDlsZ7mgKfvvJrorr7lrprkuIDkuKrlkI3np7Dk"
+        "uLrigJzlsZ7mgKfigJ3nmoTpqrDlrZDkuLo0ZDZr"
+        "MwrmjIfku6QucuWxnuaAp++8muWmguaenC5y5ZCO"
+        "6Z2i5piv6aqw5a2Q5ZCN56ew77yM5YiZ6aqw6K+l"
+        "5ZCN56ew55qE6aqw5a2QCuazqOaEj++8mumqsOWt"
+        "kOWQjeensOS4reS4jeiDveWMheWQqystKi/lkozn"
+        "qbrmoLw=");
 }
 
 bool protocol_set_roll::resolve_request(
@@ -74,6 +89,18 @@ protocol_set_var::protocol_set_var(){
     this->identifier_regex = "v(?:ar)?";
     this->identifier_list ={"var","v"};
     this->filter_name = "^([^\\+\\-\\*/\\(\\)\\s]+)";
+
+    this->help_message = base64::decode(
+        "6K6+572u5Y+Y6YePKC52YXLmiJbogIUudikK5oyH"
+        "5LukLnYgMTIg55Sf5ZG977ya6K6+5a6a5LiA5Liq"
+        "5ZCN56ew5Li64oCc55Sf5ZG94oCd55qE5Y+Y6YeP"
+        "77yM5Yid5aeL5YC85Li6MTIK5oyH5LukLnYgLTQg"
+        "55Sf5ZG977ya5L+u5pS55ZCN56ew5Li64oCc55Sf"
+        "5ZG94oCd55qE5Y+Y6YeP77yM5YW25pWw5YC8LTQK"
+        "5oyH5LukLnYgKzQg55Sf5ZG977ya5L+u5pS55ZCN"
+        "56ew5Li64oCc55Sf5ZG94oCd55qE5Y+Y6YeP77yM"
+        "5YW25pWw5YC8KzQK5oyH5LukLnYgcmVzZXTvvJrp"
+        "h43nva7miYDmnInlj5jph4/kuLrliJ3lp4vlgLw=");
 }
 
 bool protocol_set_var::resolve_request(
@@ -205,6 +232,25 @@ protocol_list::protocol_list(){
     this->identifier_regex = "l(?:ist)?";
     this->identifier_list ={"list","l"};
 
+    this->help_message = base64::decode(
+        "5pi+56S65bey5L+d5a2Y55qE6aqw5a2Q5ZKM5Y+Y"
+        "6YePKC5saXN05oiW6ICFLmwpCuaMh+S7pC5saXN0"
+        "IHJvbGzvvJrmmL7npLrmiYDmnInkv53lrZjnmoTp"
+        "qrDlrZAK5oyH5LukLmxy77ya5LiK6L+w5oyH5Luk"
+        "55qE566A5YaZ5b2i5byPCuaMh+S7pC5saXN0IHZh"
+        "cu+8muaYvuekuuaJgOacieS/neWtmOeahOWPmOmH"
+        "jwrmjIfku6QubHbvvJrkuIrov7DmjIfku6TnmoTn"
+        "roDlhpnlvaLlvI8K5oyH5LukLmxpc3Qgcm9sbCDl"
+        "ipvvvJrmmL7npLrmiYDmnInkv53lrZjnmoTpqrDl"
+        "rZDkuK3vvIzlkI3np7DluKbmnInigJzlipvigJ3n"
+        "moQK5oyH5LukLmxpc3QgdmFyIOazleacr++8muaY"
+        "vuekuuaJgOacieS/neWtmOeahOmqsOWtkOS4re+8"
+        "jOWQjeensOW4puacieKAnOazleacr+KAneeahArm"
+        "jIfku6QubGlzdCBhbGzvvJrmmL7npLrmiYDmnInk"
+        "v53lrZjnmoTpqrDlrZDlkozlj5jph48K5rOo5oSP"
+        "77yaLmxpc3QgYWxs5Lit55qEYWxs5LiN6IO9566A"
+        "5YaZ");
+
     list_call_t list_all = [](
         protocol_list const & self,
         std::string const & message,
@@ -291,6 +337,25 @@ protocol_delete::protocol_delete(){
     this->filter_command = std::regex("^(all|v(?:ar)?|r(?:oll)?) *");
     this->identifier_regex = "d(?:elete)?";
     this->identifier_list ={"d","delete"};
+    
+    this->help_message = base64::decode(
+        "5Yig6Zmk5bey5L+d5a2Y55qE6aqw5a2Q5ZKM5Y+Y"
+        "6YePKC5kZWxldGXmiJbogIUuZCkK5oyH5LukLmRl"
+        "bGV0ZSByb2xs77ya5Yig6Zmk5omA5pyJ5L+d5a2Y"
+        "55qE6aqw5a2QCuaMh+S7pC5kcu+8muS4iui/sOaM"
+        "h+S7pOeahOeugOWGmeW9ouW8jwrmjIfku6QuZGVs"
+        "ZXRlIHZhcu+8muWIoOmZpOaJgOacieS/neWtmOea"
+        "hOWPmOmHjwrmjIfku6QuZHbvvJrkuIrov7DmjIfk"
+        "u6TnmoTnroDlhpnlvaLlvI8K5oyH5LukLmRlbGV0"
+        "ZSByb2xsIOWKm+mHj++8muWIoOmZpOWQjeensOS4"
+        "uuKAnOWKm+mHj+KAneeahOmqsOWtkArmjIfku6Qu"
+        "ZGVsZXRlIHZhciDms5XmnK/vvJrliKDpmaTlkI3n"
+        "p7DkuLrigJzms5XmnK/igJ3nmoTlj5jph48K5oyH"
+        "5LukLmRlbGV0ZSBhbGzvvJrmmL7npLrmiYDmnInk"
+        "v53lrZjnmoTpqrDlrZDlkozlj5jph48K5rOo5oSP"
+        "77yaLmRlbGV0ZSBhbGzkuK3nmoRhbGzkuI3og73n"
+        "roDlhpkK5rOo5oSP77ya6buY6K6k6aqw5a2Q5piv"
+        "5peg5rOV5Yig6Zmk55qE");
 
     delete_call_t delete_all = [](
         protocol_delete const & self,
