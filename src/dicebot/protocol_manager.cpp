@@ -57,23 +57,22 @@ protocol_help::protocol_help(){
     this->identifier_regex = "h(?:elp)?";
     this->identifier_list = {"help","h"};
     this->help_message = base64::decode(
-        "RGljZUJvdCBieSBkeW5pbGF0aCB2MS42LjIgcHJl"
-        "dmlldwrkvb/nlKjmlrnlvI/nroDku4vvvJoKLnIg"
-        "MWQ4KzFkNiszIOaZrumAmumqsOWtkAouYyBjb2Pp"
-        "qrDlrZAKLndvNCBvd29k6aqw5a2QCi53bjQgbndv"
-        "ZOmqsOWtkAouZiBGQVRF6aqw5a2QCuabtOWkmuaM"
-        "h+S7pO+8mnNldCB2YXIgbGlzdCBkZWxldGUgbWFu"
-        "dWFsIG5hbWUK5L2/55SoIC5oZWxwIFvmjIfku6Tl"
-        "kI3np7BdIOadpeiOt+W+l+WvueW6lOaMh+S7pOea"
-        "hOW4ruWKqQoK6K6/6Zeu6aG555uu5Li76aG1aHR0"
-        "cDovL2dpdGh1Yi5jb20vZHluaWxhdGgvY29vbHEt"
-        "ZGljZWJvdArojrflvpfkvb/nlKjor7TmmI7ku6Xl"
-        "j4rkuobop6Pmm7TlpJrlhoXlrrnjgIIK5aaC5p6c"
-        "5Zyo5L2/55So5Lit6YGH5Yiw5LqGYnVn77yM5oiW"
-        "6ICF5pyJ5LuA5LmI5Yqf6IO95bu66K6u77yM5qyi"
-        "6L+O5Zyo6aG555uu5Li76aG16YCa6L+HaXNzdWXl"
-        "j43ppojvvIzmhJ/osKLmgqjnmoTluK7liqnjgII="
-        );
+        "RGljZUJvdCBieSBkeW5pbGF0aCB2MS42LjIK5L2/"
+        "55So5pa55byP566A5LuL77yaCi5yIDFkOCsxZDYr"
+        "MyDmma7pgJrpqrDlrZAKLmMgY29j6aqw5a2QCi53"
+        "bzQgb3dvZOmqsOWtkAoud240IG53b2TpqrDlrZAK"
+        "LmYgRkFURemqsOWtkArmm7TlpJrmjIfku6TvvJpz"
+        "ZXQgdmFyIGxpc3QgZGVsZXRlIG1hbnVhbCBuYW1l"
+        "CuS9v+eUqCAuaGVscCBb5oyH5Luk5ZCN56ewXSDm"
+        "naXojrflvpflr7nlupTmjIfku6TnmoTluK7liqkK"
+        "Cuiuv+mXrumhueebruS4u+mhtWh0dHA6Ly9naXRo"
+        "dWIuY29tL2R5bmlsYXRoL2Nvb2xxLWRpY2Vib3QK"
+        "CuiOt+W+l+S9v+eUqOivtOaYjuS7peWPiuS6huin"
+        "o+abtOWkmuWGheWuueOAggrlpoLmnpzlnKjkvb/n"
+        "lKjkuK3pgYfliLDkuoZidWfvvIzmiJbogIXmnInk"
+        "u4DkuYjlip/og73lu7rorq7vvIzmrKLov47lnKjp"
+        "obnnm67kuLvpobXpgJrov4dpc3N1ZeWPjemmiO+8"
+        "jOaEn+iwouaCqOeahOW4ruWKqeOAgg==");
 }
 
 bool protocol_help::register_help(p_protocol v_protocol){
