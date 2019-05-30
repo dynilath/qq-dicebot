@@ -29,4 +29,3 @@ test_script:
   - '%APPVEYOR_BUILD_FOLDER%/build/%CONFIGURATION%/%CONFIGURATION%/dicebot.entry_test.exe'
   - '%APPVEYOR_BUILD_FOLDER%/build/%CONFIGURATION%/%CONFIGURATION%/dicebot.gtest.interpreter_test.exe'
   - '%APPVEYOR_BUILD_FOLDER%/build/%CONFIGURATION%/%CONFIGURATION%/dicebot.gtest.number_test.exe'
-
