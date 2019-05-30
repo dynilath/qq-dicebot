@@ -1,12 +1,12 @@
 {
-    "ret":1,
-    "apiver":9,
-    "name":"骰子机器人",	
-    "version":"1.6.2",
-    "version_id":6,
-    "author":"dynilath",
-    "description":"一个骰子机器人，访问项目github页面：http://github.com/dynilath/CoolQDicebot",
-    "event":[
+    "ret": 1,
+    "apiver": 9,
+    "name": "骰子机器人",
+    "version": "1.7.0",
+    "version_id": 6,
+    "author": "dynilath",
+    "description": "一个骰子机器人，访问项目github页面：http://github.com/dynilath/CoolQDicebot",
+    "event": [
         {
             "id": 1,
             "type": 21,
@@ -43,15 +43,13 @@
             "priority": 20000
         }
     ],
-    "menu":[
-    ],
-    "status":[
-    ],
-  "auth": [
-    101,
-    103,
-    106,
-    130,
-    131
-  ]
+    "menu": [],
+    "status": [],
+    "auth": [
+        101,
+        103,
+        106,
+        130,
+        131
+    ]
 }

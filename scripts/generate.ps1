@@ -2,7 +2,12 @@ $config_type = $args[0]
 $ci_config = $args[1]
 
 Set-Location $PSScriptRoot\..\  # enter the parent folder
-mkdir build\$config_type -ErrorAction SilentlyContinue  # create build folder if not exists
+if(-not (Test-Path -Path "build\$config_type")){
+    New-Item -Path "build\$config_type" -ItemType "directory"
+}
+if(-not (Test-Path -Path "build\test_db")){
+    New-Item -Path "build\test_db" -ItemType "directory"
+}
 Set-Location .\build\$config_type  # enter the build folder
 
 $vcpkg_root = $env:VCPKG_ROOT

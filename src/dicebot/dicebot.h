@@ -1,113 +1,97 @@
 #pragma once
 
-#include "./common.h"
-#include "./dice_utils.h"
-#include "./number.h"
+#include "./utils/number.h"
+#include "./utils/utils.h"
 
 #include <memory>
+#include <regex>
+#include <sstream>
 
+#include "./data/database_manager.h"
+#include "./data/manual_dice_control.h"
+#include "./data/nick_manager.h"
+#include "./data/poker_manager.h"
+#include "./data/profile_manager.h"
 #include "./dice_roller.h"
-#include "./protocol_manager.h"
-#include "./protocol_base.h"
-#include "./protocol_nickname.h"
-#include "./protocol_roll_dice.h"
-#include "./protocol_profile.h"
-#include "./protocol_manual_dice.h"
-#include "./protocol_specialized_dice.h"
-#include "./nick_manager.h"
-#include "./database_manager.h"
-#include "./manual_dice_control.h"
-#include "./profile_manager.h"
+#include "./entry/entry_base.h"
+#include "./entry/entry_manager.h"
+#include "./entry/entry_manual_dice.h"
+#include "./entry/entry_nickname.h"
+#include "./entry/entry_poker.h"
+#include "./entry/entry_profile.h"
+#include "./entry/entry_roll_dice.h"
+#include "./entry/entry_specialized_dice.h"
+#include "./random/random_provider.h"
+#include "./utils/logger.h"
+#include "./utils/string_part.h"
 
-namespace dicebot{
-    protocol_manager * dice_protocols;
-    nickname::nickname_manager * nick_ctrl;
-    database::database_manager * db_ctrl;
-    manual::manual_dice_control * md_ctrl;
-    profile::profile_manager * pf_ctrl;
-    
-    void initialize(std::string app_dir){
-        is_no_sql_mode = false;
-        db_ctrl = new database::database_manager(app_dir);
-        nick_ctrl = new nickname::nickname_manager();
-        md_ctrl = new manual::manual_dice_control();
-        pf_ctrl = new profile::profile_manager();
+namespace dicebot {
+    std::unique_ptr<entry_manager> dice_ptcs;
+    profile::profile_manager* pf_ctrl;
 
-        roll::random_initialize();
-        dice_protocols = new protocol_manager();
-        dice_protocols->register_dice(std::make_shared<protocol::protocol_roll_dice>());
-        dice_protocols->register_dice(std::make_shared<protocol::protocol_coc_dice>());
-        dice_protocols->register_dice(std::make_shared<protocol::protocol_manual_dice>());
-        dice_protocols->register_dice(std::make_shared<protocol::protocol_nickname>());
-        dice_protocols->register_dice(std::make_shared<protocol::protocol_wod_dice>());
-        dice_protocols->register_dice(std::make_shared<protocol::protocol_fate_dice>());
-        dice_protocols->register_dice(std::make_shared<protocol::protocol_set_roll>());
-        dice_protocols->register_dice(std::make_shared<protocol::protocol_set_var>());
-        dice_protocols->register_dice(std::make_shared<protocol::protocol_list>());
-        dice_protocols->register_dice(std::make_shared<protocol::protocol_delete>());
-        dice_protocols->finish_initialization();
+    void initialize(const char* app_dir) {
+        database::database_manager::create_instance(app_dir);
+        nickname::nickname_manager::create_instance();
+        manual::manual_dice_control::create_instance();
+        profile::profile_manager::create_instance();
+        poker::poker_manager::create_instance();
+
+        random::initialize();
+        dice_ptcs = std::make_unique<entry_manager>();
+        dice_ptcs->register_dice(std::make_shared<entry::entry_roll_dice>());
+        dice_ptcs->register_dice(std::make_shared<entry::entry_coc_dice>());
+        dice_ptcs->register_dice(std::make_shared<entry::entry_manual_dice>());
+        dice_ptcs->register_dice(std::make_shared<entry::entry_nickname>());
+        dice_ptcs->register_dice(std::make_shared<entry::entry_wod_dice>());
+        dice_ptcs->register_dice(std::make_shared<entry::entry_fate_dice>());
+        dice_ptcs->register_dice(std::make_shared<entry::entry_set_roll>());
+        dice_ptcs->register_dice(std::make_shared<entry::entry_list>());
+        dice_ptcs->register_dice(std::make_shared<entry::entry_delete>());
+        dice_ptcs->register_dice(std::make_shared<entry::entry_poker>());
+        dice_ptcs->finish_initialization();
     }
 
-    void salvage(){
-        if(dice_protocols) delete dice_protocols;
-        if(nick_ctrl) delete nick_ctrl;
-        if(db_ctrl) delete db_ctrl;
-        if(md_ctrl) delete md_ctrl;
+    void salvage() {
+        if (dice_ptcs) dice_ptcs = nullptr;
+        profile::profile_manager::destroy_instance();
+        nickname::nickname_manager::destroy_instance();
+        manual::manual_dice_control::destroy_instance();
+        database::database_manager::destroy_instance();
+        poker::poker_manager::destroy_instance();
     }
 
-    void set_logger(std::function<void(std::string,std::string)> varlog){
-        logger::_log = varlog;
+    void set_logger(std::function<void(std::string, std::string)> varlog) { logger::_log = varlog; }
+
+    bool try_fill_nickname(event_info& event) {
+        return nickname::nickname_manager::instance->get_nickname(event, event.nickname);
     }
 
-    bool try_fill_nickname(event_info & event){
-        return nickname::nickname_manager::instance->get_nickname(event);
-    }
+    bool message_pipeline(std::string const& source, event_info& event, std::string& output) {
+        std::list<utils::string_part> source_parts;
+        utils::split_line_part(source, source_parts);
 
-    bool message_pipeline(
-        std::string const & source,
-        event_info & event,
-        std::string & output){
-
-        std::list<std::string> source_splits;
-
-        utils::split_line(source, source_splits);
-
-        std::list<std::string>::iterator iter_source = source_splits.begin();
-
-        ostrs ot(ostrs::ate);
+        std::ostringstream ot;
 
         bool is_output_available = false;
-        bool does_last_line_have_output = false;
 
-        for (; iter_source != source_splits.end(); iter_source++) {
-            
-            size_t pos_of_content;
+        for (auto& item : source_parts) {
+            if (!utils::jump_to_point_part(source, item)) continue;
+            if (!utils::trim_part(source, item)) continue;
 
-            if(!utils::find_point(*iter_source,pos_of_content)) continue;
+            std::smatch match_cmd;
+            std::regex_search(item.first, item.second, match_cmd, *(dice_ptcs->get_regex_command()));
+            if (!match_cmd[1].matched) continue;
 
-            std::string content = (*iter_source).substr(pos_of_content);
+            auto target_entry = dice_ptcs->get_entry(match_cmd[1]);
 
-            std::smatch match_command;
-
-            std::regex_search(
-                content,
-                match_command, 
-                *(dice_protocols->get_regex_command()));
-
-            if(match_command.begin() == match_command.end()) continue;
-
-            std::string command = match_command[1];
-            protocol::p_protocol target_protocol = dice_protocols->get_protocol(command);
-
-            if(target_protocol->is_stand_alone){
-                if(target_protocol->resolve_request(match_command.suffix().str(),event,output)){
+            if (target_entry->is_stand_alone) {
+                if (target_entry->resolve_request(match_cmd.suffix(), event, output)) {
                     return is_output_available = true;
                 }
-            }
-            else{
+            } else {
                 std::string response;
-                if(target_protocol->resolve_request(match_command.suffix().str(),event,response)){
-                    if(is_output_available) ot << std::endl;
+                if (target_entry->resolve_request(match_cmd.suffix(), event, response)) {
+                    if (is_output_available) ot << std::endl;
                     ot << response;
                     is_output_available = true;
                     continue;
@@ -115,9 +99,9 @@ namespace dicebot{
             }
         }
 
-        if(is_output_available) {
+        if (is_output_available) {
             output.assign(ot.str());
         }
         return is_output_available;
     }
-}
+} // namespace dicebot

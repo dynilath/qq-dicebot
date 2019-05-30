@@ -84,7 +84,10 @@
         "*.tcc": "cpp",
         "clocale": "cpp",
         "numeric": "cpp",
-        "xthread": "cpp"
+        "xthread": "cpp",
+        "cinttypes": "cpp",
+        "hash_map": "cpp",
+        "hash_set": "cpp"
     },
     "editor.tokenColorCustomizations": {
         "textMateRules": [
@@ -108,8 +111,12 @@
             }
         ]
     },
-    "gtest-adapter.debugConfig": "Debug",
+    "gtest-adapter.debugConfig": [
+        "roll_test linux64",
+        "entry_test linux64",
+        "number_test linux64",
+        "data_test linux64"
+    ],
     "gtest-adapter.supportLocation": true,
-    "files.eol": "\n",
-    "markdown-toc.depthFrom": 2
+    "files.eol": "\n"
 }

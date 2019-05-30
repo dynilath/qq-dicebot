@@ -49,10 +49,7 @@
                 "Debug"
             ],
             "problemMatcher": "$msCompile",
-            "group": {
-                "kind": "build",
-                "isDefault": true
-            },
+            "group": "build",
             "dependsOn": [
                 "generate debug"
             ]
@@ -71,6 +68,43 @@
             "group": "build",
             "dependsOn": [
                 "generate release"
+            ]
+        },
+        {
+            "label": "generate linux test",
+            "type": "shell",
+            "command": "powershell",
+            "args": [
+                "-NoProfile",
+                "-File",
+                "'${workspaceFolder}/scripts/generate_linux_test.ps1'"
+            ],
+            "options": {
+                "env": {
+                    "VCPKG_ROOT": "~/git/vcpkg"
+                }
+            },
+            "group": "build",
+            "problemMatcher": [
+                "$gcc"
+            ]
+        },
+        {
+            "label": "build linux test",
+            "type": "shell",
+            "command": "powershell",
+            "args": [
+                "-NoProfile",
+                "-File",
+                "'${workspaceFolder}/scripts/build_linux_test.ps1'",
+            ],
+            "problemMatcher": "$gcc",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "dependsOn": [
+                "generate linux test"
             ]
         }
     ]

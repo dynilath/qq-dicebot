@@ -1,0 +1,67 @@
+S               ->  acc
+
+acc             ->  const_expr
+acc             ->  rand_expr
+acc             ->  dicelet_expr
+
+const_unit      ->  "NUM"
+const_unit      ->  "(" const_expr ")"
+
+const_mul       ->  const_unit
+const_mul       ->  const_mul "*"/"/" const_unit
+
+const_expr      ->  const_mul
+const_expr      ->  "-" const_mul
+const_expr      ->  const_expr "+" const_mul
+const_expr      ->  const_expr "-" const_mul
+
+rand_unit       ->  "d" const_unit
+rand_unit       ->  const_unit "d" const_unit
+rand_unit       ->  const_unit "d" const_unit "k" const_unit
+rand_unit       ->  const_unit "d" const_unit "kl" const_unit
+rand_unit       ->  "(" rand_expr ")"
+
+rand_mul        ->  rand_unit
+rand_mul        ->  const_mul "*"/"/" rand_unit
+rand_mul        ->  rand_mul "*"/"/" const_unit
+rand_mul        ->  rand_mul "*"/"/" rand_unit
+
+rand_expr       ->  rand_mul
+rand_expr       ->  "-" rand_mul
+rand_expr       ->  const_expr "+" rand_mul
+rand_expr       ->  const_expr "-" rand_mul
+rand_expr       ->  rand_expr "+" const_mul
+rand_expr       ->  rand_expr "-" const_mul
+rand_expr       ->  rand_expr "+" rand_mul
+rand_expr       ->  rand_expr "-" rand_mul
+
+dicelet_u       ->  const_unit "#" const_unit
+dicelet_u       ->  const_unit "#" rand_unit
+dicelet_u       ->  "{" dicelet_ct "}"
+dicelet_u       ->  "(" dicelet_expr ")"
+
+dicelet_ct      ->  const_expr
+dicelet_ct      ->  rand_expr
+dicelet_ct      ->  dicelet_ct "," const_expr
+dicelet_ct      ->  dicelet_ct "," rand_expr
+
+dicelet_mul     ->  dicelet_u
+dicelet_mul     ->  const_mul "*"/"/" dicelet_u
+dicelet_mul     ->  rand_mul "*"/"/" dicelet_u
+dicelet_mul     ->  dicelet_mul "*"/"/" const_unit
+dicelet_mul     ->  dicelet_mul "*"/"/" rand_unit
+dicelet_mul     ->  dicelet_mul "*"/"/" dicelet_u
+
+dicelet_expr    ->  dicelet_mul
+dicelet_expr    ->  "-" dicelet_mul
+dicelet_expr    ->  const_expr "+" dicelet_mul
+dicelet_expr    ->  const_expr "-" dicelet_mul
+dicelet_expr    ->  rand_expr "+" dicelet_mul
+dicelet_expr    ->  rand_expr "-" dicelet_mul
+dicelet_expr    ->  dicelet_expr "+" const_mul
+dicelet_expr    ->  dicelet_expr "-" const_mul
+dicelet_expr    ->  dicelet_expr "+" rand_mul
+dicelet_expr    ->  dicelet_expr "-" rand_mul
+dicelet_expr    ->  dicelet_expr "+" dicelet_mul
+dicelet_expr    ->  dicelet_expr "-" dicelet_mul
+

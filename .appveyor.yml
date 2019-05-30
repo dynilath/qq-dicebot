@@ -24,6 +24,3 @@ install:
 build_script:
   - powershell scripts\generate.ps1 %CONFIGURATION% Appveyor
   - powershell scripts\build.ps1 %CONFIGURATION%
-
-test_script:
-  - '%APPVEYOR_BUILD_FOLDER%/build/%CONFIGURATION%/%CONFIGURATION%/dicebot.gtest.exe'
