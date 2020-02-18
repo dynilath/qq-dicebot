@@ -14,6 +14,6 @@ if (!(Test-Path $VCPKG_EXE)) {
 
 Write-Host "Building denpendecies..."
 Set-Location -Path $VCPKG_RT
-.\vcpkg install sqlite3 gtest boost-serialization  --triplet "x86-windows-static"
+.\vcpkg install sqlite3 gtest --triplet "x86-windows-static"
 Set-Location -Path $startloc
 Write-Host "Building of dependencies completed." -ForegroundColor Green
