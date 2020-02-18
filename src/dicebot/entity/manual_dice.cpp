@@ -1,12 +1,10 @@
 #include "./manual_dice.h"
 
-#include <boost/archive/binary_iarchive.hpp>
-#include <boost/archive/binary_oarchive.hpp>
 #include <iostream>
 #include <regex>
 #include <sstream>
 
-#include "../../cqsdk/utils/vendor/cpp-base64/base64.h"
+#include "../../cqcppsdk/src/utils/base64.h"
 #include "../dice_excepts.h"
 #include "../dice_roller.h"
 #include "../random/random_provider.h"
@@ -66,19 +64,17 @@ void manual_dice::killall() {
 
 std::string manual_dice::encode() const {
     std::ostringstream strs;
-    boost::archive::binary_oarchive oa(strs);
     strs << this->mdice.size() << " ";
     for (auto& item : this->mdice) {
         strs << item.first << " " << item.second << " ";
     }
-    return base64_encode((const unsigned char*)(strs.str().c_str()), strs.str().size());
+    return cq::utils::base64_encode((const unsigned char*)(strs.str().c_str()), strs.str().size());
 }
 
 void manual_dice::decode(const std::string& source) {
     this->mdice.clear();
-    std::string source_copy = base64_decode(source);
+    std::string source_copy = cq::utils::base64_decode(source);
     std::istringstream iss(source_copy);
-    boost::archive::binary_iarchive ia(iss);
 
     this->i_sum_result = 0;
     int len = 0;

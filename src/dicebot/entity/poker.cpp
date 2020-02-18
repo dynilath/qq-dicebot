@@ -28,10 +28,20 @@ constexpr poker::poker_type standard_deck[] = {
 constexpr char poker_name_ascii[][14] = {
     "heart 2",   "Heart 3",   "Heart 4",   "Heart 5",   "Heart 6",   "Heart 7",   "Heart 8",   "Heart 9",    "Heart 10",
     "Heart J",   "Heart Q",   "Heart K",   "Heart A",   "Spade 2",   "Spade 3",   "Spade 4",   "Spade 5",    "Spade 6",
-    "Spade 7",   "Spade 8",   "Spade 9",   "Spade 10",  "  Spade J", "Spade Q",   "Spade K",   "Spade A",    "Diamond 2",
+    "Spade 7",   "Spade 8",   "Spade 9",   "Spade 10",  "Spade J",   "Spade Q",   "Spade K",   "Spade A",    "Diamond 2",
     "Diamond 3", "Diamond 4", "Diamond 5", "Diamond 6", "Diamond 7", "Diamond 8", "Diamond 9", "Diamond 10", "Diamond J",
     "Diamond Q", "Diamond K", "Diamond A", "Club 2",    "Club 3",    "Club 4",    "Club 5",    "Club 6",     "Club 7",
     "Club 8",    "Club 9",    "Club 10",   "Club J",    "Club Q",    "Club K",    "Club A",    "Joker",      "Joker(bw)"};
+
+constexpr char poker_name_unicode_lite[][14] = {
+    "♡2", "♡3", "♡4", "♡5",  "♡6", "♡7", "♡8", "♡9", "♡10", "♡J", "♡Q", "♡K",  "♡A", "♠2", "♠3", "♠4", "♠5",    "♠6",
+    "♠7", "♠8", "♠9", "♠10", "♠J", "♠Q", "♠K", "♠A", "♢2",  "♢3", "♢4", "♢5",  "♢6", "♢7", "♢8", "♢9", "♢10",   "♢J",
+    "♢Q", "♢K", "♢A", "♣2",  "♣3", "♣4", "♣5", "♣6", "♣7",  "♣8", "♣9", "♣10", "♣J", "♣Q", "♣K", "♣A", "Joker", "Joker(bw)"};
+
+constexpr char poker_name_unicode_pretty[][14] = {"🂲", "🂳", "🂴", "🂵", "🂶", "🂷", "🂸", "🂹", "🂺", "🂻", "🂽", "🂾",   "🂱", "🂢",
+                                                  "🂣", "🂤", "🂥", "🂦", "🂧", "🂨", "🂩", "🂪", "🂫", "🂭", "🂮", "🂡",   "🃂", "🃃",
+                                                  "🃄", "🃅", "🃆", "🃇", "🃈", "🃉", "🃊", "🃋", "🃍", "🃎", "🃁", "🃒",   "🃓", "🃔",
+                                                  "🃕", "🃖", "🃗", "🃘", "🃙", "🃚", "🃛", "🃝", "🃞", "🃑", "🃏", "🂿"};
 
 const std::unordered_map<std::string, poker::poker_type> card_names = {{"h2", heart_2},
                                                                        {"h3", heart_3},
@@ -203,23 +213,26 @@ void poker_deck::init(const std::string& params) noexcept {
             continue;
         }
 
-        auto count_and_name = split_into_number_and_name(params, item);
+        auto [count, name] = split_into_number_and_name(params, item);
 
-        if (count_and_name.first > 0) {
-            std::string lc_content = utils::lower_case_copy(count_and_name.second);
+        if (count > 0) {
+            std::string lc_content = utils::lower_case_copy(name);
             auto iter = card_names.find(lc_content);
+
+            if (count + this->deck.size() > MAX_DECK_SIZE) {
+                count = MAX_DECK_SIZE - this->deck.size();
+            }
+
             if (iter != card_names.end()) {
-                utils::repeat(count_and_name.first, [this, iter](size_t) { this->deck.push_back({iter->second, 0}); });
+                utils::repeat(count, [this, iter](size_t) { this->deck.push_back({iter->second, 0}); });
             } else {
                 size_t source_idx = this->card_sources.size();
-                utils::repeat(count_and_name.first, [this, iter, source_idx](size_t) {
-                    this->deck.push_back({custom, source_idx});
-                });
-                this->card_sources.push_back(count_and_name.second);
+                utils::repeat(count, [this, iter, source_idx](size_t) { this->deck.push_back({custom, source_idx}); });
+                this->card_sources.push_back(name);
             }
         }
 
-        if (this->deck.size() > MAX_DECK_SIZE) break;
+        if (this->deck.size() >= MAX_DECK_SIZE) break;
     }
     this->card_sources.shrink_to_fit();
     this->shuffle();
@@ -239,12 +252,19 @@ void poker_deck::shuffle() noexcept {
     this->deck = std::move(sequencer);
 }
 
-bool poker_deck::draw(card_item& out) noexcept {
+bool poker_deck::draw(unsigned draw_count) noexcept {
     if (this->deck.empty()) return false;
-    if (this->drawer.size() >= MAX_DECK_SIZE) return false;
-    out = this->deck.front();
-    this->drawer.push_back(out);
-    this->deck.pop_front();
+    utils::repeat(draw_count, [this](size_t) {
+        this->drawer.push_back(this->deck.front());
+        this->deck.pop_front();
+    });
+    return true;
+}
+
+bool poker_deck::peek(unsigned peek_count, std::deque<card_item>& container) const noexcept {
+    if (this->deck.empty()) return false;
+    if (this->deck.size() < peek_count) peek_count = this->deck.size();
+    utils::repeat(peek_count, [&container, this](size_t a) { container.push_back(this->deck.at(a)); });
     return true;
 }
 
@@ -260,6 +280,6 @@ std::string poker_deck::render_name(const card_item& item) const noexcept {
     if (item.first == custom) {
         return this->card_sources.at(item.second);
     } else {
-        return poker_name_ascii[item.first];
+        return poker_name_unicode_lite[item.first];
     }
 }

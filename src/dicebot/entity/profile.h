@@ -1,12 +1,11 @@
 #pragma once
 
-#include <boost/archive/binary_iarchive.hpp>
-#include <boost/archive/binary_oarchive.hpp>
 #include <initializer_list>
 #include <sstream>
 
-#include "../../cqsdk/utils/vendor/cpp-base64/base64.h"
+#include "../../cqcppsdk/src/utils/base64.h"
 #include "../constants.h"
+#include "../utils/archive.h"
 #ifdef _DEBUG
 #include "../utils/logger.h"
 #endif
@@ -15,14 +14,14 @@ namespace dicebot::profile {
 
     class var_pair : public std::pair<int, int> {
     public:
-        friend class boost::serialization::access;
-
-        template <class Archive>
-        void serialize(Archive &ar, const unsigned int version) {
-            ar & this->first;
-            ar & this->second;
+        friend oarchive &operator<<(oarchive &oa, const var_pair &val) {
+            oa << val.first << val.second;
+            return oa;
         }
-
+        friend iarchive &operator>>(iarchive &ia, var_pair &val) {
+            ia >> val.first >> val.second;
+            return ia;
+        }
         var_pair(int first, int second) : std::pair<int, int>(first, second) {}
         var_pair(){};
     };
@@ -72,23 +71,23 @@ namespace dicebot::profile {
 
         std::string encode() const noexcept {
             std::ostringstream strs;
-            boost::archive::binary_oarchive oa(strs);
+            dicebot::oarchive oa(strs);
             oa << this->size();
             auto iter_list = this->cbegin();
             for (; iter_list != this->cend(); iter_list++) {
                 oa << ((*iter_list).first);
                 oa << ((*iter_list).second);
             }
-            return base64_encode((const unsigned char *)(strs.str().c_str()), strs.str().size());
+            return cq::utils::base64_encode((const unsigned char *)(strs.str().c_str()), strs.str().size());
         }
 
         bool decode(std::string const &source) noexcept {
             this->clear();
             // this->swap(std::map<_profile_Key,_profile_Val>());
             std::string source_copy(source);
-            source_copy = base64_decode(source_copy);
+            source_copy = cq::utils::base64_decode(source_copy);
             std::istringstream iss(source_copy);
-            boost::archive::binary_iarchive ia(iss);
+            dicebot::iarchive ia(iss);
             size_t len = 0;
             ia >> len;
             try {

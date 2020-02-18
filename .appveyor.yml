@@ -14,7 +14,6 @@ configuration:
 
 environment:
   VCPKG_ROOT: C:\tools\vcpkg
-  VCPKG_TRIPLET: cqdicebot-x86-windows-static
 
 cache: c:\tools\vcpkg\installed\ -> scripts\deps.ps1  # cache the installed vcpkg packages
 
@@ -22,10 +21,11 @@ install:
   - powershell scripts\deps.ps1
 
 build_script:
-  - powershell scripts\generate.ps1 %CONFIGURATION% Appveyor
+  - powershell scripts\generate.ps1 %CONFIGURATION%
   - powershell scripts\build.ps1 %CONFIGURATION%
 
 test_script:
-  - '%APPVEYOR_BUILD_FOLDER%/build/%CONFIGURATION%/%CONFIGURATION%/dicebot.entry_test.exe'
-  - '%APPVEYOR_BUILD_FOLDER%/build/%CONFIGURATION%/%CONFIGURATION%/dicebot.gtest.interpreter_test.exe'
-  - '%APPVEYOR_BUILD_FOLDER%/build/%CONFIGURATION%/%CONFIGURATION%/dicebot.gtest.number_test.exe'
+  - '%APPVEYOR_BUILD_FOLDER%/build/%CONFIGURATION%/dicebot.gtest.data_test.exe'
+  - '%APPVEYOR_BUILD_FOLDER%/build/%CONFIGURATION%/dicebot.gtest.entry_test.exe'
+  - '%APPVEYOR_BUILD_FOLDER%/build/%CONFIGURATION%/dicebot.gtest.number_test.exe'
+  - '%APPVEYOR_BUILD_FOLDER%/build/%CONFIGURATION%/dicebot.gtest.roll_test.exe'

@@ -37,6 +37,18 @@ void dice_roll::finish_roll() noexcept {
     }
 }
 
+constexpr char discard_dice_indicator[] = u8"̶";
+inline void put_result(std::ostream& stream, int value, bool is_kept) {
+    if (is_kept) {
+        stream << value;
+    } else {
+        std::string temp = std::to_string(value);
+        for (char c : temp) {
+            stream << c << discard_dice_indicator;
+        }
+    }
+}
+
 std::string dice_roll::detail() {
     std::ostringstream ost;
     ost << "[";
@@ -45,12 +57,10 @@ std::string dice_roll::detail() {
         ost << this->results.back();
     } else {
         utils::repeat(this->results.size() - 1, [&ost, this](size_t pos) {
-            ost << this->results[pos];
-            if (!this->flags[pos]) ost << "*";
+            put_result(ost, this->results[pos], this->flags[pos]);
             ost << " + ";
         });
-        ost << this->results.back();
-        if (!this->flags.back()) ost << "*";
+        put_result(ost, this->results.back(), this->flags.back());
     }
     ost << "]";
     return ost.str();
@@ -77,10 +87,7 @@ std::string dice_roll::detail_coc() noexcept {
     if (this->results.size() > 1) {
         ost << "[";
         for (uint16_t i = 1; i < this->results.size(); i++) {
-            if (this->flags[i])
-                ost << this->results[i];
-            else
-                ost << this->results[i] << "*";
+            put_result(ost, this->results[i], this->flags[i]);
             if (i != results.size() - 1) ost << " + ";
         }
         ost << "] [";

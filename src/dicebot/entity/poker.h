@@ -86,8 +86,8 @@ namespace dicebot::poker {
         void init(const std::string &) noexcept;
         void add(const std::string &) noexcept;
         void shuffle() noexcept;
-        bool peek(card_item &) const noexcept;
-        bool draw(card_item &) noexcept;
+        bool peek(unsigned, std::deque<card_item> &) const noexcept;
+        bool draw(unsigned) noexcept;
         void clear() noexcept;
         size_t size() const noexcept;
         std::string render_name(const card_item &) const noexcept;

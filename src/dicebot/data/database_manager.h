@@ -34,4 +34,93 @@ namespace dicebot::database {
         bool exec(const char *sql, void *data, int (*callback)(void *, int, char **, char **)) const noexcept;
     };
 
+    class sqlstmt_binder {
+        sqlite3_stmt *stmt;
+
+        template <class... Args>
+        void column_recur(int which, int64_t &val, Args &... args) {
+            val = sqlite3_column_int64(stmt, which);
+            this->column_recur(which + 1, std::forward<decltype(args)>(args)...);
+        }
+
+        template <class... Args>
+        void column_recur(int which, std::string &val, Args &... args) {
+            val = reinterpret_cast<const char *>(sqlite3_column_text(stmt, which));
+            this->column_recur(which + 1, std::forward<decltype(args)>(args)...);
+        }
+
+        template <class... Args>
+        void column_recur(int which, int &val, Args &... args) {
+            val = sqlite3_column_int(stmt, which);
+            this->column_recur(which + 1, std::forward<decltype(args)>(args)...);
+        }
+
+        template <class... Args>
+        void column_recur(int which, bool &val, Args &... args) {
+            val = sqlite3_column_int(stmt, which) > 0;
+            this->column_recur(which + 1, std::forward<decltype(args)>(args)...);
+        }
+
+        void column_recur(int which) {}
+
+    public:
+        template <class... Args>
+        void column(Args &... args) {
+            this->column_recur(0, std::forward<decltype(args)>(args)...);
+        }
+        int step() { return sqlite3_step(stmt); }
+
+        sqlstmt_binder(sqlite3_stmt *para) { stmt = para; };
+        sqlstmt_binder(const sqlstmt_binder &) = delete;
+        sqlstmt_binder &operator=(const sqlstmt_binder &) = delete;
+
+        sqlstmt_binder(sqlstmt_binder &&) = default;
+        sqlstmt_binder &operator=(sqlstmt_binder &&) = default;
+        ~sqlstmt_binder() { sqlite3_reset(stmt); }
+    };
+
+    class sqlstmt_wrapper {
+        sqlite3_stmt *stmt;
+
+        template <class... Args>
+        void bind_recur(int which, const int64_t &val, const Args &... args) {
+            sqlite3_bind_int64(stmt, which, val);
+            this->bind_recur(which + 1, std::forward<decltype(args)>(args)...);
+        }
+        template <class... Args>
+        void bind_recur(int which, const int &val, const Args &... args) {
+            sqlite3_bind_int(stmt, which, val);
+            this->bind_recur(which + 1, std::forward<decltype(args)>(args)...);
+        }
+        template <class... Args>
+        void bind_recur(int which, const char *&val, const Args &... args) {
+            sqlite3_bind_text(stmt, which, val, -1, SQLITE_STATIC);
+            this->bind_recur(which + 1, std::forward<decltype(args)>(args)...);
+        }
+        template <class... Args>
+        void bind_recur(int which, const std::string &val, const Args &... args) {
+            sqlite3_bind_text(stmt, which, val.data(), -1, SQLITE_STATIC);
+            this->bind_recur(which + 1, std::forward<decltype(args)>(args)...);
+        }
+        template <class... Args>
+        void bind_recur(int which, const bool &val, const Args &... args) {
+            sqlite3_bind_int(stmt, which, val ? 1 : 0);
+            this->bind_recur(which + 1, std::forward<decltype(args)>(args)...);
+        }
+        void bind_recur(int which) {}
+
+    public:
+        sqlstmt_wrapper() { this->stmt = nullptr; }
+        sqlstmt_wrapper(sqlite3 *db, const char *sql) {
+            const char *tail;
+            sqlite3_prepare_v2(db, sql, -1, &this->stmt, &tail);
+        }
+
+        template <class... Args>
+        sqlstmt_binder bind(const Args &... args) {
+            this->bind_recur(1, std::forward<decltype(args)>(args)...);
+            return sqlstmt_binder(stmt);
+        }
+    };
+
 } // namespace dicebot::database

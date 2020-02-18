@@ -21,58 +21,55 @@ using db_manager = dicebot::database::database_manager;
     "macro_roll        text,"             \
     "primary    key    (qqid));"
 
-static bool read_database(user_profile &profile, int64_t const user_id) {
-    std::ostringstream ostrs_sql_command;
-    ostrs_sql_command << "SELECT system_variables, default_roll, macro_roll "
-                         "FROM " PROFILE_TABLE_NAME " where qqid="
-                      << user_id;
+#define PROFILE_READ "SELECT system_variables, default_roll, macro_roll FROM " PROFILE_TABLE_NAME " where qqid = ?1"
 
-    return db_manager::get_instance()->exec(
-        ostrs_sql_command.str().c_str(), &profile, [](void *data, int argc, char **argv, char **azColName) -> int {
-            user_profile *profile = (user_profile *)data;
-            bool good_query =
-                profile->sys_vars.decode(argv[0]) && profile->def_roll.decode(argv[1]) && profile->mac_rolls.decode(argv[2]);
-            if (good_query)
-                return SQLITE_OK;
-            else
-                return SQLITE_ABORT;
-        });
+#define PROFILE_EXIST "SELECT count(*) FROM " PROFILE_TABLE_NAME " where qqid = ?1"
+
+#define PROFILE_INSERT "insert into " PROFILE_TABLE_NAME "(qqid,system_variables,default_roll,macro_roll) values (?1, ?2, ?3, ?4)"
+
+#define PROFILE_UPDATE "update " PROFILE_TABLE_NAME " set system_variables=?2, default_roll=?3, macro_roll=?4 where qqid =?1"
+
+sqlstmt_wrapper sqlstmt_profile_read;
+sqlstmt_wrapper sqlstmt_profile_exist;
+sqlstmt_wrapper sqlstmt_profile_insert;
+sqlstmt_wrapper sqlstmt_profile_update;
+
+static bool read_database(user_profile &profile, int64_t const user_id) {
+    auto binded = sqlstmt_profile_read.bind(user_id);
+    if (binded.step() != SQLITE_ROW) return false;
+    std::string sys_var, def_roll, mac_roll;
+    binded.column(sys_var, def_roll, mac_roll);
+
+    profile.sys_vars.decode(sys_var);
+    profile.def_roll.decode(def_roll);
+    profile.mac_rolls.decode(mac_roll);
+    return true;
 }
 
 static bool exist_database(int64_t const user_id) {
-    std::ostringstream ostrs_sql_command;
-    ostrs_sql_command << "SELECT count(*) FROM " PROFILE_TABLE_NAME " where qqid=" << user_id;
-    bool ret = false;
-    db_manager::get_instance()->exec(
-        ostrs_sql_command.str().c_str(), &ret, [](void *data, int argc, char **argv, char **azColName) -> int {
-            *reinterpret_cast<bool *>(data) = std::stoi(argv[0]) > 0;
-            return SQLITE_OK;
-        });
-    return ret;
+    auto binded = sqlstmt_profile_exist.bind(user_id);
+    if (binded.step() != SQLITE_ROW) return false;
+    int result;
+    binded.column(result);
+    return result > 0;
 }
 
 static bool insert_database(user_profile const &profile, int64_t const user_id) {
-    std::ostringstream ostrs_sql_command;
-    ostrs_sql_command << "insert into " PROFILE_TABLE_NAME " (qqid,system_variables,default_roll,macro_roll) "
-                      << "values ( " << user_id << " ,'" << profile.sys_vars.encode() << "'"
-                      << ", '" << profile.def_roll.encode() << "'"
-                      << ", '" << profile.mac_rolls.encode() << "'"
-                      << ");";
+    std::string sys_var = profile.sys_vars.encode();
+    std::string def_roll = profile.def_roll.encode();
+    std::string mac_roll = profile.mac_rolls.encode();
 
-    return db_manager::get_instance()->exec_noquery(ostrs_sql_command.str().c_str());
+    auto binded = sqlstmt_profile_insert.bind(user_id, sys_var, def_roll, mac_roll);
+    return binded.step() == SQLITE_DONE;
 }
 
 static bool update_database(user_profile const &profile, int64_t const user_id) {
-    char *pchar_err_message = nullptr;
+    std::string sys_var = profile.sys_vars.encode();
+    std::string def_roll = profile.def_roll.encode();
+    std::string mac_roll = profile.mac_rolls.encode();
 
-    std::ostringstream ostrs_sql_command;
-    ostrs_sql_command << "update " PROFILE_TABLE_NAME " set "
-                      << " system_variables ='" << profile.sys_vars.encode() << "'"
-                      << ", default_roll='" << profile.def_roll.encode() << "'"
-                      << ", macro_roll='" << profile.mac_rolls.encode() << "'"
-                      << " where qqid= " << user_id;
-
-    return db_manager::get_instance()->exec_noquery(ostrs_sql_command.str().c_str());
+    auto binded = sqlstmt_profile_update.bind(user_id, sys_var, def_roll, mac_roll);
+    return binded.step() == SQLITE_DONE;
 }
 
 static bool write_database(user_profile const &profile, int64_t const user_id) {
@@ -92,6 +89,13 @@ std::unique_ptr<profile_manager> profile_manager::instance = nullptr;
 profile_manager *profile_manager::create_instance() noexcept {
     db_manager::get_instance()->register_table(PROFILE_TABLE_NAME, PROFILE_TABLE_DEFINE);
     profile_manager::instance = std::make_unique<profile_manager>();
+
+    auto db = db_manager::get_instance()->get_database();
+    sqlstmt_profile_exist = {db, PROFILE_EXIST};
+    sqlstmt_profile_read = {db, PROFILE_READ};
+    sqlstmt_profile_insert = {db, PROFILE_INSERT};
+    sqlstmt_profile_update = {db, PROFILE_UPDATE};
+
     return profile_manager::instance.get();
 }
 

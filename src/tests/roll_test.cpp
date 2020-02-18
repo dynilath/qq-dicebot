@@ -1,11 +1,3 @@
-#ifdef _WIN32
-#ifdef _DEBUG
-#pragma comment(lib, "gtestd.lib")
-#else
-#pragma comment(lib, "gtest.lib")
-#endif
-#endif
-
 #include <climits>
 #include <cmath>
 #include <functional>

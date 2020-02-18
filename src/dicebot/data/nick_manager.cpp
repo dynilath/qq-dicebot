@@ -2,7 +2,7 @@
 
 #include <sstream>
 
-#include "../../cqsdk/utils/vendor/cpp-base64/base64.h"
+#include "../../cqcppsdk/src/utils/base64.h"
 #include "./nick_manager.h"
 
 using namespace dicebot;
@@ -18,66 +18,69 @@ using db_manager = dicebot::database::database_manager;
     "name       text    NOT NULL,"  \
     "primary    key    (QQID,GROUPID));"
 
+#define NICK_READ "SELECT name FROM " NICK_TABLE_NAME " where qqid = ?1 and groupid = ?2"
+
+#define NICK_EXIST "SELECT count(*) FROM " NICK_TABLE_NAME " where qqid = ?1 and groupid = ?2"
+
+#define NICK_INSERT "insert into " NICK_TABLE_NAME " values (?1, ?2, ?3)"
+
+#define NICK_UPDATE "update " NICK_TABLE_NAME " set name =?3 where qqid =?1 and groupid =?2"
+
+sqlstmt_wrapper sqlstmt_nickname_read;
+sqlstmt_wrapper sqlstmt_nickname_exist;
+sqlstmt_wrapper sqlstmt_nickname_insert;
+sqlstmt_wrapper sqlstmt_nickname_update;
+
 static std::string nickname_encode(const std::string &nick) {
-    return base64_encode(reinterpret_cast<const unsigned char *>(nick.c_str()), nick.size());
+    return cq::utils::base64_encode(reinterpret_cast<const unsigned char *>(nick.c_str()), nick.size());
 }
 
-static std::string nickname_decode(const std::string &source) { return base64_decode(source); }
+static std::string nickname_decode(const std::string &source) { return cq::utils::base64_decode(source); }
 
 std::unique_ptr<nickname_manager> nickname_manager::instance = nullptr;
 
 nickname_manager *nickname_manager::create_instance() {
     db_manager::get_instance()->register_table(NICK_TABLE_NAME, NICK_TABLE_DEFINE);
     nickname_manager::instance = std::make_unique<nickname_manager>();
+
+    auto db = db_manager::get_instance()->get_database();
+    sqlstmt_nickname_exist = {db, NICK_EXIST};
+    sqlstmt_nickname_read = {db, NICK_READ};
+    sqlstmt_nickname_insert = {db, NICK_INSERT};
+    sqlstmt_nickname_update = {db, NICK_UPDATE};
+
     return nickname_manager::instance.get();
 }
 
 void nickname_manager::destroy_instance() { nickname_manager::instance = nullptr; }
 
 static bool read_database(event_info const &event, std::string &nickname) {
-    std::ostringstream ostrs_sql_command;
-    ostrs_sql_command << "SELECT name FROM " NICK_TABLE_NAME << " where qqid =" << event.user_id
-                      << " and groupid =" << event.group_id;
-
-    return db_manager::get_instance()->exec(
-        ostrs_sql_command.str().c_str(), &nickname, [](void *data, int argc, char **argv, char **azColName) -> int {
-            if (argc == 1) {
-                std::string *nick = reinterpret_cast<std::string *>(data);
-                *nick = nickname_decode(argv[0]);
-                return SQLITE_OK;
-            } else
-                return SQLITE_ABORT;
-        });
+    auto binded = sqlstmt_nickname_read.bind(event.user_id, event.group_id);
+    if (binded.step() != SQLITE_ROW) return false;
+    std::string out;
+    binded.column(out);
+    nickname = nickname_decode(out);
+    return true;
 }
 
 static bool exist_database(event_info const &event) {
-    std::ostringstream ostrs_sql_command;
-    ostrs_sql_command << "SELECT count(*) FROM " NICK_TABLE_NAME << " where qqid =" << event.user_id
-                      << " and groupid =" << event.group_id;
-    bool ret = false;
-    db_manager::get_instance()->exec(
-        ostrs_sql_command.str().c_str(), &ret, [](void *data, int argc, char **argv, char **azColName) -> int {
-            *(reinterpret_cast<bool *>(data)) = std::stoi(argv[0]) > 0;
-            return SQLITE_OK;
-        });
-    return ret;
+    auto binded = sqlstmt_nickname_exist.bind(event.user_id, event.group_id);
+    if (binded.step() != SQLITE_ROW) return false;
+    int result;
+    binded.column(result);
+    return result > 0;
 }
 
 static bool insert_database(event_info const &event) {
-    std::ostringstream ostrs_sql_command;
-    ostrs_sql_command << "insert into " NICK_TABLE_NAME " values ( " << event.user_id << ", " << event.group_id << ", "
-                      << "'" << nickname_encode(event.nickname) << "'"
-                      << ");";
-    return db_manager::get_instance()->exec_noquery(ostrs_sql_command.str().c_str());
+    std::string nick = nickname_encode(event.nickname);
+    auto binded = sqlstmt_nickname_insert.bind(event.user_id, event.group_id, nick);
+    return binded.step() == SQLITE_DONE;
 }
 
 static bool update_database(event_info const &event) {
-    std::ostringstream ostrs_sql_command;
-    ostrs_sql_command << "update " NICK_TABLE_NAME " set "
-                      << " name ='" << nickname_encode(event.nickname) << "'"
-                      << " where qqid =" << event.user_id << " and groupid =" << event.group_id;
-
-    return db_manager::get_instance()->exec_noquery(ostrs_sql_command.str().c_str());
+    std::string nick = nickname_encode(event.nickname);
+    auto binded = sqlstmt_nickname_update.bind(event.user_id, event.group_id, nick);
+    return binded.step() == SQLITE_DONE;
 }
 
 static bool write_database(event_info const &event) {

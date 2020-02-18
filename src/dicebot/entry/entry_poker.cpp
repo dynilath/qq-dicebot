@@ -41,10 +41,28 @@ static auto draw_poker = [](const std::string &suffix, const event_info &event, 
             }
         }
     };
+    unsigned long draw_count = 1;
+    size_t tail_start;
+    try {
+        draw_count = std::stoul(suffix, &tail_start);
+        if (draw_count == 0) return false;
+        if (draw_count > p_deck->size()) draw_count = p_deck->size();
+    } catch (std::invalid_argument &) {
+    } catch (std::out_of_range &) {
+        draw_count = p_deck->size();
+    }
 
-    if (p_deck->draw(card)) {
+    if (p_deck->draw(draw_count)) {
         output_constructor oc(event.nickname);
-        oc << u8"抽出了" << p_deck->render_name(card);
+        oc << u8"抽出了 ";
+        bool is_first = true;
+        for (size_t i = p_deck->drawer.size() - draw_count; i < p_deck->drawer.size(); i++) {
+            if (is_first)
+                is_first = false;
+            else
+                oc << ", ";
+            oc << p_deck->render_name(p_deck->drawer.at(i));
+        }
         show_drawer(oc);
         response = oc;
         return true;
@@ -85,7 +103,8 @@ entry_poker::entry_poker() noexcept {
         u8"指令.poker init 8j,8diamonda "
         u8"初始化一副由8张joker和8张方片A组成的牌堆，并洗牌\n"
         u8"指令.poker init 战,法,牧 "
-        u8"初始化一副由战,法,牧3张牌组成的牌堆，并洗牌";
+        u8"初始化一副由战,法,牧3张牌组成的牌堆，并洗牌\n"
+        u8"牌组最大数量为200";
 }
 
 bool entry_poker::resolve_request(std::string const &message, event_info &event, std::string &response) noexcept {

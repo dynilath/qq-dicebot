@@ -1,11 +1,3 @@
-#ifdef _WIN32
-#ifdef _DEBUG
-#pragma comment(lib, "gtestd.lib")
-#else
-#pragma comment(lib, "gtest.lib")
-#endif
-#endif
-
 #include <experimental/filesystem>
 
 #include "../dicebot/dicebot.h"
@@ -61,7 +53,7 @@ namespace dicebot::test {
         std::string test_roll = "(4d6k3)";
         std::string test_roll_name = "strength";
         pf->mac_rolls[test_roll_name] = test_roll;
-        profile::profile_manager::get_instance()->force_update(ei.user_id);
+        ASSERT_TRUE(profile::profile_manager::get_instance()->force_update(ei.user_id));
         dicebot::salvage();
 
         dicebot::initialize(test_db.c_str());

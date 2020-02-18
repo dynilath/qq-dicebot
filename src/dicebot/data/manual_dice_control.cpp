@@ -1,6 +1,5 @@
 #include "./manual_dice_control.h"
 
-#include <iostream>
 #include <sstream>
 
 #include "../entity/manual_dice.h"
@@ -19,53 +18,46 @@ using db_manager = dicebot::database::database_manager;
     "source     text    NOT NULL,"        \
     "primary    key    (QQID,GROUPID));"
 
-static bool insert_database(const utils::pair_t &manual_dice_key, const manual_dice &manual_dice_target) {
-    std::ostringstream ostrs_sql_command;
-    ostrs_sql_command << "insert into " MANUALDICE_TABLE_NAME " (qqid, groupid, source) "
-                      << "values ( " << manual_dice_key.first << ", " << manual_dice_key.second << ", '"
-                      << manual_dice_target.encode() << "'"
-                      << ");";
+#define MANUALDICE_INSERT "insert into " MANUALDICE_TABLE_NAME "(qqid, groupid, source) values (?1,?2,?3)"
 
-    return db_manager::get_instance()->exec_noquery(ostrs_sql_command.str().c_str());
+#define MANUALDICE_UPDATE "update " MANUALDICE_TABLE_NAME " set source=?3 where qqid=?1 and groupid=?2"
+
+#define MANUALDICE_READ "SELECT source FROM " MANUALDICE_TABLE_NAME " where qqid=?1 and groupid=?2"
+
+#define MANUALDICE_EXIST "SELECT count(*) FROM " MANUALDICE_TABLE_NAME " where qqid=?1 and groupid=?2"
+
+sqlstmt_wrapper sqlstmt_manual_dice_insert;
+sqlstmt_wrapper sqlstmt_manual_dice_update;
+sqlstmt_wrapper sqlstmt_manual_dice_read;
+sqlstmt_wrapper sqlstmt_manual_dice_exist;
+
+static bool insert_database(const int64_t &qqid, const int64_t &groupid, const manual_dice &manual_dice_target) {
+    std::string encoded_str = manual_dice_target.encode();
+    auto binded = sqlstmt_manual_dice_insert.bind(qqid, groupid, encoded_str);
+    return binded.step() == SQLITE_DONE;
 }
 
-static bool update_database(const utils::pair_t &manual_dice_key, const manual_dice &manual_dice_target) {
-    std::ostringstream ostrs_sql_command;
-    ostrs_sql_command << "update " MANUALDICE_TABLE_NAME " set "
-                      << " source='" << manual_dice_target.encode() << "'"
-                      << " where qqid=" << manual_dice_key.first << " and groupid=" << manual_dice_key.second;
-    return db_manager::get_instance()->exec_noquery(ostrs_sql_command.str().c_str());
+static bool update_database(const int64_t &qqid, const int64_t &groupid, const manual_dice &manual_dice_target) {
+    std::string encoded_str = manual_dice_target.encode();
+    auto binded = sqlstmt_manual_dice_update.bind(qqid, groupid, encoded_str);
+    return binded.step() == SQLITE_DONE;
 }
 
-static bool read_database(const utils::pair_t &manual_dice_key, manual_dice &manual_dice_target) {
-    std::ostringstream ostrs_sql_command;
-    ostrs_sql_command << "SELECT source FROM " MANUALDICE_TABLE_NAME " where qqid=" << manual_dice_key.first
-                      << " and groupid=" << manual_dice_key.second;
-    std::string str_manualdice_read;
-
-    return db_manager::get_instance()->exec(
-        ostrs_sql_command.str().c_str(), &manual_dice_target, [](void *data, int argc, char **argv, char **azColName) -> int {
-            if (argc == 1) {
-                manual_dice *pstr_ret = reinterpret_cast<manual_dice *>(data);
-                pstr_ret->decode(argv[0]);
-                return SQLITE_OK;
-            }
-            return SQLITE_ABORT;
-        });
+static bool read_database(const int64_t &qqid, const int64_t &groupid, manual_dice &manual_dice_target) {
+    auto binded = sqlstmt_manual_dice_read.bind(qqid, groupid);
+    if (binded.step() != SQLITE_ROW) return false;
+    std::string out;
+    binded.column(out);
+    manual_dice_target.decode(out);
+    return true;
 }
 
-static bool exist_database(const utils::pair_t &manual_dice_key) {
-    bool ret = false;
-    std::ostringstream ostrs_sql_command;
-    ostrs_sql_command << "SELECT count(*) FROM " MANUALDICE_TABLE_NAME " where qqid=" << manual_dice_key.first
-                      << " and groupid=" << manual_dice_key.second;
-
-    database::database_manager::get_instance()->exec(
-        ostrs_sql_command.str().c_str(), &ret, [](void *data, int argc, char **argv, char **azColName) -> int {
-            *(reinterpret_cast<bool *>(data)) = std::stoi(argv[0]) > 0;
-            return SQLITE_OK;
-        });
-    return ret;
+static bool exist_database(const int64_t &qqid, const int64_t &groupid) {
+    auto binded = sqlstmt_manual_dice_exist.bind(qqid, groupid);
+    if (binded.step() != SQLITE_ROW) return false;
+    int out;
+    binded.column(out);
+    return out > 0;
 }
 
 std::unique_ptr<manual_dice_control> manual_dice_control::instance = nullptr;
@@ -73,6 +65,12 @@ std::unique_ptr<manual_dice_control> manual_dice_control::instance = nullptr;
 manual_dice_control *manual_dice_control::create_instance() {
     db_manager::get_instance()->register_table(MANUALDICE_TABLE_NAME, MANUALDICE_TABLE_DEFINE);
     manual_dice_control::instance = std::make_unique<manual_dice_control>();
+
+    sqlstmt_manual_dice_insert = {db_manager::get_instance()->get_database(), MANUALDICE_INSERT};
+    sqlstmt_manual_dice_update = {db_manager::get_instance()->get_database(), MANUALDICE_UPDATE};
+    sqlstmt_manual_dice_read = {db_manager::get_instance()->get_database(), MANUALDICE_READ};
+    sqlstmt_manual_dice_exist = {db_manager::get_instance()->get_database(), MANUALDICE_EXIST};
+
     return manual_dice_control::instance.get();
 }
 
@@ -81,22 +79,27 @@ manual_dice_control *manual_dice_control::get_instance() { return instance.get()
 void manual_dice_control::destroy_instance() { instance = nullptr; }
 
 manual_dice_control::md_map_t::iterator manual_dice_control::find_manual_dice(const event_info &event) {
-    auto iter = this->manual_dice_map.find(event.pair());
+    auto iter = this->manual_dice_map.find({event.user_id, event.group_id});
     if (iter != this->manual_dice_map.end()) return iter;
 
-    auto insert_result = this->manual_dice_map.insert({event.pair(), manual_dice()});
-    if (!insert_result.second) return this->manual_dice_map.end();
-    if (exist_database(insert_result.first->first)) {
-        read_database(insert_result.first->first, insert_result.first->second);
-        return insert_result.first;
+    auto [target, is_inserted] = this->manual_dice_map.insert({{event.user_id, event.group_id}, manual_dice()});
+    auto &[key_pair, manual_dice_target] = *target;
+    auto &[user_id, group_id] = key_pair;
+
+    if (!is_inserted) return this->manual_dice_map.end();
+    if (exist_database(user_id, group_id)) {
+        read_database(user_id, group_id, manual_dice_target);
+        return target;
     } else {
-        insert_database(insert_result.first->first, insert_result.first->second);
-        return insert_result.first;
+        insert_database(user_id, group_id, manual_dice_target);
+        return target;
     }
 }
 
 void manual_dice_control::sync_database(const md_map_t::iterator iter) const {
     if (iter != this->manual_dice_map.end()) {
-        update_database(iter->first, iter->second);
+        auto &[key_pair, manual_dice_target] = *iter;
+        auto &[user_id, group_id] = key_pair;
+        update_database(user_id, group_id, manual_dice_target);
     }
 }
