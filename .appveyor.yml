@@ -19,6 +19,7 @@ environment:
 cache: c:\tools\vcpkg\installed\ -> scripts\deps.ps1  # cache the installed vcpkg packages
 
 install:
+  - git submodule update
   - powershell scripts\deps.ps1
 
 build_script:
