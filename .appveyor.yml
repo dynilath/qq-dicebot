@@ -14,6 +14,7 @@ configuration:
 
 environment:
   VCPKG_ROOT: C:\tools\vcpkg
+  VCPKG_TRIPLET: x86-windows-static
 
 cache: c:\tools\vcpkg\installed\ -> scripts\deps.ps1  # cache the installed vcpkg packages
 
