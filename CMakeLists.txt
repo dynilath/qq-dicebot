@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.9)
+cmake_minimum_required(VERSION 3.11)
 project(dicebot)
 
 set(CMAKE_CXX_STANDARD 17)
@@ -8,15 +8,23 @@ set(VCPKG_LIBRARY_LINKAGE static)
 
 include_directories(src)
 include_directories(extern/cqcppsdk/include)
-include_directories(${VCPKG_INCLUDE_DIR})
+
+# fix include for appveyor
+find_path(SQLITE_INCLUDE sqlite3.h)
+include_directories(${SQLITE_INCLUDE})
 
 include(extern/cqcppsdk/cqcppsdk.cmake)
 
-find_package(SQlite3 REQUIRED)
+find_package(sqlite3 REQUIRED)
 
 file(GLOB_RECURSE DICEBOT_SOURCE src/dicebot/**.cpp)
 
 file(GLOB_RECURSE SOURCE_FILES src/main.cpp)
+
+get_property(dirs DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY INCLUDE_DIRECTORIES)
+foreach(dir ${dirs})
+  message(STATUS "dir='${dir}'")
+endforeach()
 
 file(READ "app_id.txt" APP_ID)
 string(STRIP "${APP_ID}" APP_ID)
