@@ -1,7 +1,3 @@
-branches:
-  except:
-    - /dev.*/  # do not build dev branch
-
 image:
   - Visual Studio 2017
 
