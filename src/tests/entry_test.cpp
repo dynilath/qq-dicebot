@@ -87,10 +87,7 @@ TEST_F(entry_test, roll_sharp) {
     this->base_call(ei, ".rson");
 
     std::regex result_reg(
-        u8"^ \\* dice 掷骰: 6\\#4d6kl3 = \\{(\\[\\d(?:̶)? \\+ "
-        u8"\\d(?:̶)? \\+ \\d(?:̶)? \\+ \\d(?:̶)?\\], ){5}(\\[\\d(?:̶)? \\+ "
-        u8"\\d(?:̶)? \\+ \\d(?:̶)? \\+ \\d(?:̶)?\\])\\} = \\{(\\d{1,2}, "
-        u8"){5}\\d{1,2}\\}$");
+        u8"^ \\* dice 掷骰: 6\\#4d6kl3 = \\{(\\[(\\d\\*? \\+ ){3}\\d\\*?\\], ){5}(\\[(\\d\\*? \\+ ){3}\\d\\*?\\])\\} = \\{(\\d{1,2}, ){5}\\d{1,2}\\}$");
     ASSERT_TRUE(this->test_call(ei, source, result_reg));
 
     ASSERT_TRUE(this->test_call(ei, ".rsoff", std::regex(u8"^ \\* dice 关闭骰子详细输出$")));
@@ -221,7 +218,7 @@ TEST_F(entry_test, roll_coc) {
     ASSERT_TRUE(this->test_call(ei, ".coc test", std::regex(u8"^ \\* dice test 掷骰: CoC = \\d{1,3}")));
 
     std::string regex_prefix = u8" \\* dice 掷骰: CoC";
-    std::string regex_suffix = u8" = \\[(\\d{1,2}|(\\d(?:̶)){1,2}) \\+ (\\d{1,2}|(\\d(?:̶)){1,2})\\] \\[\\d\\] = \\d{1,3}";
+    std::string regex_suffix = u8" = \\[\\d{1,2}\\*? \\+ \\d{1,2}\\*?\\] \\[\\d\\] = \\d{1,3}";
 
     ASSERT_TRUE(this->test_call(ei, ".cb1", std::regex(regex_prefix + " b1" + regex_suffix)));
     ASSERT_TRUE(this->test_call(ei, ".cp1", std::regex(regex_prefix + " p1" + regex_suffix)));
@@ -235,18 +232,18 @@ TEST_F(entry_test, roll_wod) {
     ei.nickname = "dynilath";
 
     std::regex reg_wodo6(
-        u8"^ \\* dice 掷骰: oWoD = \\[((?:\\d{1,2}|(?:\\d(?:̶)){1,2}) \\+ ){5}(?:\\d{1,2}|(?:\\d(?:̶)){1,2})\\] = "
+        u8"^ \\* dice 掷骰: oWoD = \\[((?:\\d{1,2}|(?:\\d\\*){1,2}) \\+ ){5}(?:\\d{1,2}|(?:\\d\\*){1,2})\\] = "
         u8"\\d");
     std::regex reg_wodn6(
-        u8"^ \\* dice 掷骰: nWoD = \\[((?:\\d{1,2}|(?:\\d(?:̶)){1,2}) \\+ ){5,}(?:\\d{1,2}|(?:\\d(?:̶)){1,2})\\] = "
+        u8"^ \\* dice 掷骰: nWoD = \\[((?:\\d{1,2}|(?:\\d\\*){1,2}) \\+ ){5,}(?:\\d{1,2}|(?:\\d\\*){1,2})\\] = "
         u8"\\d");
 
     std::regex reg_wodo6_msg(
-        u8"^ \\* dice test 掷骰: oWoD = \\[((?:\\d{1,2}|(?:\\d(?:̶)){1,2}) \\+ "
-        u8"){5}(?:\\d{1,2}|(?:\\d(?:̶)){1,2})\\] = \\d");
+        u8"^ \\* dice test 掷骰: oWoD = \\[((?:\\d{1,2}|(?:\\d\\*){1,2}) \\+ "
+        u8"){5}(?:\\d{1,2}|(?:\\d\\*){1,2})\\] = \\d");
     std::regex reg_wodn6_msg(
-        u8"^ \\* dice test 掷骰: nWoD = \\[((?:\\d{1,2}|(?:\\d(?:̶)){1,2}) \\+ "
-        u8"){5,}(?:\\d{1,2}|(?:\\d(?:̶)){1,2})\\] = \\d");
+        u8"^ \\* dice test 掷骰: nWoD = \\[((?:\\d{1,2}|(?:\\d\\*){1,2}) \\+ "
+        u8"){5,}(?:\\d{1,2}|(?:\\d\\*){1,2})\\] = \\d");
     this->base_call(ei, ".ndice");
     ASSERT_TRUE(this->test_call(ei, ".wodo6", reg_wodo6));
     ASSERT_TRUE(this->test_call(ei, ".wodn6", reg_wodn6));
@@ -309,11 +306,16 @@ TEST_F(entry_test, poker) {
     ASSERT_TRUE(this->test_call(ei, ".p init a,b,c,d", re_start));
 
     std::string prefix = "^ \\* dice 抽出了 ([abcd])";
+    std::regex re_draw_off(prefix + " \\| 牌堆剩余\\d张");
+    std::regex re_draw_two("^ \\* dice 抽出了 ([abcd], [abcd]) \\| 牌堆剩余\\d张");
+    std::regex re_draw_three("^ \\* dice 抽出了 ([abcd], [abcd], [abcd]) \\| 牌堆剩余\\d张");
     std::regex re_draw1(prefix + " \\| 牌堆剩余3张，已经抽出了: \\1");
     std::regex re_draw2(prefix + " \\| 牌堆剩余2张，已经抽出了: [abcd], \\1");
     std::regex re_draw3(prefix + " \\| 牌堆剩余1张，已经抽出了: ([abcd], ){2}\\1");
     std::regex re_draw4(prefix + " \\| 牌堆剩余0张，已经抽出了: ([abcd], ){3}\\1");
     std::regex re_draw_out(" \\* dice 无牌可抽 \\| 牌堆剩余0张，已经抽出了: ([abcd], ){3}[abcd]");
+
+    this->base_call(ei, ".rson");
 
     ASSERT_TRUE(this->test_call(ei, ".pd", re_draw1));
     ASSERT_TRUE(this->test_call(ei, ".poker draw", re_draw2));
@@ -326,7 +328,21 @@ TEST_F(entry_test, poker) {
     ASSERT_TRUE(this->test_call(ei, ".poker draw", re_draw2));
     ASSERT_TRUE(this->test_call(ei, ".p draw", re_draw3));
     ASSERT_TRUE(this->test_call(ei, ".pdraw", re_draw4));
-    ASSERT_TRUE(this->test_call(ei, ".p d", re_draw_out));
+
+    this->base_call(ei, ".rsoff");
+    ASSERT_TRUE(this->test_call(ei, ".pshuffle", std::regex(" \\* dice 已将牌堆重新切洗")));
+    ASSERT_TRUE(this->test_call(ei, ".pd", re_draw_off));
+    ASSERT_TRUE(this->test_call(ei, ".p d", re_draw_off));
+    ASSERT_TRUE(this->test_call(ei, ".pdraw", re_draw_off));
+    ASSERT_TRUE(this->test_call(ei, ".p draw", re_draw_off));
+
+
+    ASSERT_TRUE(this->test_call(ei, ".pshuffle", std::regex(" \\* dice 已将牌堆重新切洗")));
+    ASSERT_TRUE(this->test_call(ei, ".pd2", re_draw_two));
+
+    ASSERT_TRUE(this->test_call(ei, ".pshuffle", std::regex(" \\* dice 已将牌堆重新切洗")));
+    ASSERT_TRUE(this->test_call(ei, ".pd3", re_draw_three));
+    ASSERT_TRUE(this->test_call(ei, ".pd3", re_draw_off));
 }
 
 TEST_F(entry_test, multiline_case_fullcmd) {

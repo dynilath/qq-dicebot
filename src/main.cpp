@@ -21,6 +21,7 @@ CQ_INIT {
     cq::on_disable([] { dicebot::salvage(); });
 
     cq::on_private_message([](const cq::MessageEvent &e) {
+        if(!dicebot::utils::basic_event_filter(e.message)) return;
         dicebot::event_info ei(e.user_id);
         if (!dicebot::try_fill_nickname(ei)) {
             if (!get_nickname(ei, e.user_id)) return;
@@ -29,9 +30,19 @@ CQ_INIT {
     });
 
     cq::on_group_message([](const cq::GroupMessageEvent &e) {
+        if(!dicebot::utils::basic_event_filter(e.message)) return;
         dicebot::event_info ei(e.user_id, e.group_id, dicebot::event_type::group);
         if (!dicebot::try_fill_nickname(ei)) {
             if (!get_group_nickname(ei, e.group_id, e.user_id)) return;
+        }
+        resolve_cap(ei, e.message, e.target);
+    });
+
+    cq::on_discuss_message([](const cq::DiscussMessageEvent &e) {
+        if(!dicebot::utils::basic_event_filter(e.message)) return;
+        dicebot::event_info ei(e.user_id, e.discuss_id, dicebot::event_type::group);
+        if (!dicebot::try_fill_nickname(ei)) {
+            if (!get_group_nickname(ei, e.discuss_id, e.user_id)) return;
         }
         resolve_cap(ei, e.message, e.target);
     });

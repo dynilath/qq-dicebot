@@ -56,7 +56,7 @@ entry_help::entry_help() noexcept {
     this->identifier_regex = "h(?:elp)?";
     this->identifier_list = {"help", "h"};
     this->help_message =
-        u8"DiceBot by dynilath v1.7.0 preview\n"
+        u8"DiceBot by dynilath v1.7.1\n"
         u8"使用方式简介：\n"
         u8".r 1d8+1d6+3 普通骰子\n"
         u8".c coc骰子\n"

@@ -37,15 +37,12 @@ void dice_roll::finish_roll() noexcept {
     }
 }
 
-constexpr char discard_dice_indicator[] = u8"̶";
+constexpr char discard_dice_indicator[] = u8"*";
 inline void put_result(std::ostream& stream, int value, bool is_kept) {
     if (is_kept) {
         stream << value;
     } else {
-        std::string temp = std::to_string(value);
-        for (char c : temp) {
-            stream << c << discard_dice_indicator;
-        }
+        stream << value << discard_dice_indicator;
     }
 }
 

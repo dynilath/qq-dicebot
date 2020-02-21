@@ -2,8 +2,8 @@
     "ret": 1,
     "apiver": 9,
     "name": "骰子机器人",
-    "version": "1.7.0",
-    "version_id": 6,
+    "version": "1.7.1",
+    "version_id": 7,
     "author": "dynilath",
     "description": "一个骰子机器人，访问项目github页面：http://github.com/dynilath/CoolQDicebot",
     "event": [
@@ -11,36 +11,36 @@
             "id": 1,
             "type": 21,
             "name": "私聊消息",
-            "function": "cq_event_private_msg",
-            "priority": 20000
+            "function": "cq_event_private_message",
+            "priority": 30000
         },
         {
             "id": 1003,
             "type": 1003,
             "name": "插件启用",
-            "priority": 20000,
-            "function": "cq_app_enable"
+            "priority": 30000,
+            "function": "cq_event_enable"
         },
         {
             "id": 1004,
             "type": 1004,
             "name": "插件停用",
-            "priority": 20000,
-            "function": "cq_app_disable"
+            "priority": 30000,
+            "function": "cq_event_disable"
         },
         {
             "id": 2,
             "type": 2,
             "name": "群消息",
-            "function": "cq_event_group_msg",
-            "priority": 20000
+            "function": "cq_event_group_message",
+            "priority": 30000
         },
         {
             "id": 3,
             "type": 4,
             "name": "讨论组消息",
-            "function": "cq_event_discuss_msg",
-            "priority": 20000
+            "function": "cq_event_discuss_message",
+            "priority": 30000
         }
     ],
     "menu": [],

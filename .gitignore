@@ -5,4 +5,4 @@ build
 scripts/install.ps1
 .vscode/settings.json
 test
-.vscode/*.json
+tmp

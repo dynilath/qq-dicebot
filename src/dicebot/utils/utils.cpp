@@ -16,6 +16,21 @@ void utils::remove_blank(std::string& source) {
     source.assign(container.data());
 }
 
+bool utils::basic_event_filter(const std::string& message) noexcept{
+    for(char a:message){
+        switch (a)
+        {
+        case ' ':
+            continue;
+        case '.':
+            return true;
+        default:
+            return false;
+        }
+    }
+    return false;
+}
+
 void utils::lower_case(std::string& target) { std::transform(target.cbegin(), target.cend(), target.begin(), tolower); }
 
 std::string utils::lower_case_copy(const std::string& target) {

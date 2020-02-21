@@ -1,6 +1,8 @@
 #pragma once
 
 #include <initializer_list>
+#include <unordered_map>
+#include <vector>
 #include <sstream>
 
 #include "../../cqcppsdk/src/utils/base64.h"

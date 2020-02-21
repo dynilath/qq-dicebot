@@ -17,6 +17,8 @@ namespace dicebot::utils {
         return pilot;
     }
 
+    bool basic_event_filter(const std::string& message) noexcept;
+
     void lower_case(std::string& target);
     std::string lower_case_copy(const std::string& target);
 

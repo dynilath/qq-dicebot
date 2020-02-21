@@ -1,0 +1,23 @@
+language: cpp
+dist: bionic
+compiler:
+  - gcc
+install:
+  - sudo apt-get -y install gcc-8
+  - DEPS_DIR="${TRAVIS_BUILD_DIR}/deps"
+  - mkdir ${DEPS_DIR} && cd ${DEPS_DIR}
+  - git clone https://github.com/microsoft/vcpkg.git
+  - cd ./vcpkg
+  - ./bootstrap-vcpkg.sh
+  - VCPKG_ROOT="${TRAVIS_BUILD_DIR}/deps/vcpkg"
+  - cd ${VCPKG_ROOT}
+  - ./vcpkg install sqlite3 gtest
+  - cd ${TRAVIS_BUILD_DIR}
+before_script:
+  - mkdir build
+  - cd build
+  - cmake -DCMAKE_TOOLCHAIN_FILE="${VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake" ..
+  - cd ${TRAVIS_BUILD_DIR}
+script:
+  - cd build
+  - cmake --build . 

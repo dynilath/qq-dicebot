@@ -1,6 +1,7 @@
 #pragma once
 
 #include <unordered_map>
+#include <memory>
 #include "../entity/profile.h"
 
 namespace dicebot::profile {

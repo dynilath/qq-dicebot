@@ -1,6 +1,7 @@
 #include "./profile_manager.h"
 
 #include <sstream>
+#include <memory>
 
 #include "../entity/profile.h"
 #include "./database_manager.h"

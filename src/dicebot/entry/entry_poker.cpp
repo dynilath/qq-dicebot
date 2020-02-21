@@ -3,8 +3,10 @@
 #include <functional>
 #include <regex>
 
+#include "../data/profile_manager.h"
 #include "../data/poker_manager.h"
 #include "./output_constructor.h"
+
 using namespace dicebot;
 using namespace entry;
 
@@ -29,18 +31,24 @@ static auto draw_poker = [](const std::string &suffix, const event_info &event, 
     poker::card_item card;
     auto p_deck = poker::poker_manager::get_instance()->get_deck(event.group_id);
 
-    auto show_drawer = [p_deck](output_constructor &oc) {
-        oc << u8" | 牌堆剩余" << p_deck->size() << "张，已经抽出了: ";
-        bool is_first = true;
-        for (const auto &item : p_deck->drawer) {
-            if (is_first) {
-                is_first = false;
-                oc << p_deck->render_name(item);
-            } else {
-                oc << std::string(", ") + p_deck->render_name(item);
+    auto show_drawer = [p_deck](output_constructor &oc, bool detailed) {
+        if(detailed){
+            oc << u8" | 牌堆剩余" << p_deck->size() << u8"张，已经抽出了: ";
+            bool is_first = true;
+            for (const auto &item : p_deck->drawer) {
+                if (is_first) {
+                    is_first = false;
+                    oc << p_deck->render_name(item);
+                } else {
+                    oc << std::string(", ") + p_deck->render_name(item);
+                }
             }
         }
+        else{
+            oc << u8" | 牌堆剩余" << p_deck->size() << u8"张";
+        }
     };
+
     unsigned long draw_count = 1;
     size_t tail_start;
     try {
@@ -51,6 +59,10 @@ static auto draw_poker = [](const std::string &suffix, const event_info &event, 
     } catch (std::out_of_range &) {
         draw_count = p_deck->size();
     }
+
+    auto pfm = profile::profile_manager::get_instance();
+    profile::var_pair var = pfm->get_profile(event.user_id)->sys_vars[profile::sys_var_type::rs_on];
+    bool detailed_roll = static_cast<bool>(var.second);
 
     if (p_deck->draw(draw_count)) {
         output_constructor oc(event.nickname);
@@ -63,13 +75,13 @@ static auto draw_poker = [](const std::string &suffix, const event_info &event, 
                 oc << ", ";
             oc << p_deck->render_name(p_deck->drawer.at(i));
         }
-        show_drawer(oc);
+        show_drawer(oc, detailed_roll);
         response = oc;
         return true;
     } else {
         output_constructor oc(event.nickname);
         oc << u8"无牌可抽";
-        show_drawer(oc);
+        show_drawer(oc, detailed_roll);
         response = oc;
         return true;
     }
@@ -99,12 +111,13 @@ entry_poker::entry_poker() noexcept {
         u8"扑克牌指令（.poker或者.p）\n"
         u8"指令.poker init standard 初始化一副共54张的扑克牌，并洗牌\n"
         u8"指令.poker draw 抽一张牌\n"
+        u8"指令.poker draw 4 抽四张牌\n"
         u8"指令.poker shuffle 重新洗牌\n"
         u8"指令.poker init 8j,8diamonda "
         u8"初始化一副由8张joker和8张方片A组成的牌堆，并洗牌\n"
         u8"指令.poker init 战,法,牧 "
         u8"初始化一副由战,法,牧3张牌组成的牌堆，并洗牌\n"
-        u8"牌组最大数量为200";
+        u8"牌组最大数量为200，使用rson/rsoff来开关抽牌记录显示";
 }
 
 bool entry_poker::resolve_request(std::string const &message, event_info &event, std::string &response) noexcept {
