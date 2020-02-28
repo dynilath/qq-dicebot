@@ -3,7 +3,6 @@
 #include <sstream>
 
 namespace dicebot {
-
     class output_constructor {
     private:
         std::ostringstream _ot;
@@ -21,8 +20,12 @@ namespace dicebot {
         }
 
         template <class any_t>
-        void append_message(any_t &&message) {
-            if (message.length() > 0) _ot << std::forward<decltype(message)>(message) << " ";
+        void append_message(any_t &&message, bool pre_space = false, bool suf_space = true) {
+            if (message.length() > 0) {
+                if(pre_space) _ot << " ";
+                _ot << std::forward<decltype(message)>(message);
+                if(suf_space) _ot << " ";
+            }
         }
 
         template <class any_t>

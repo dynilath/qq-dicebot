@@ -145,7 +145,49 @@ entry_coc_dice::entry_coc_dice() noexcept {
 }
 
 static const std::regex coc_full_dice("^([pb]\\d+ *)* *", std::regex_constants::icase);
-static const std::regex coc_single_dice("^([pb])(\\d+) *", std::regex_constants::icase);
+static const std::regex coc_single_dice("^([pb]?)(\\d+) *", std::regex_constants::icase);
+
+auto resolve_coc = [](const std::string& message, int & i_pb,int & i_skill) -> std::pair<bool,bool>{
+    std::smatch roll_match;
+    auto work_point = message.cbegin();
+    auto end_point = message.cend();
+    i_pb = 0;
+    i_skill = -1;
+    bool matched = false;
+    try {
+        std::regex_search(work_point, end_point, roll_match, coc_single_dice);
+        while (!roll_match.empty()) {
+            if(!matched) matched = true;
+            if(roll_match[1].length() == 0 && i_skill < 0){
+                i_skill = stoi(roll_match[2]);
+            }
+            else if (*(roll_match[1].first) == 'p') {
+                i_pb -= stoi(roll_match[2]);
+            } 
+            else if (*(roll_match[1].first) == 'b') {
+                i_pb += stoi(roll_match[2]);
+            }
+            work_point += roll_match[0].length();
+            std::regex_search(work_point, end_point, roll_match, coc_single_dice);
+        }
+    } catch (const std::invalid_argument&) {
+        return {false,matched};
+    } catch (const std::out_of_range&) {
+        return {false,matched};
+    }
+    return {true,matched};
+};
+
+auto get_fail_status = [](const int& skill,const int& result)->std::string{
+    if(result == 100) return "crit fail";
+    if(skill < 50 && result >=96) return "crit fail";
+    if(skill < result) return "fail";
+    if(result == 1) return "crit success";
+    if(skill/5 >= result) return "extreme success";
+    if(skill/2 >= result) return "hard success";
+    if(skill >= result) return "success";
+    return "";
+};
 
 static bool coc_request_with_except(std::string const& message, event_info& event, std::string& response) {
     std::string::const_iterator work_point = message.begin();
@@ -155,40 +197,33 @@ static bool coc_request_with_except(std::string const& message, event_info& even
     std::ostringstream roll_source;
     roll_source << "CoC";
     int i_pb = 0;
-    bool is_pb_exist = false;
-    try {
-        std::regex_search(work_point, end_point, roll_match, coc_single_dice);
-        while (!roll_match.empty()) {
-            if (!is_pb_exist) {
-                roll_source << " ";
-                is_pb_exist = true;
-            }
-            if (*(roll_match[1].first) == 'p') {
-                roll_source << 'p' << roll_match[2];
-                i_pb -= stoi(roll_match[2]);
-            } else {
-                roll_source << 'b' << roll_match[2];
-                i_pb += stoi(roll_match[2]);
-            }
-            work_point += roll_match[0].length();
-            std::regex_search(work_point, end_point, roll_match, coc_single_dice);
-        }
-    } catch (const std::invalid_argument&) {
-        return false;
-    } catch (const std::out_of_range&) {
-        return false;
-    }
+    int i_skill_val = -1;
+
+    auto [err, matched] = resolve_coc(message,i_pb,i_skill_val);
+    if(!err) return false;
+
+    if(i_skill_val >= 0)
+        roll_source << "(" << i_skill_val << ")";
+
+    if(i_pb> 0)
+        roll_source << 'b' << i_pb;
+    
+    else if(i_pb< 0)
+        roll_source << 'p' << -i_pb;
+    
 
     roll::dice_roll dr;
     roll::roll_coc(dr, i_pb);
     output_constructor oc(event.nickname);
-    if (is_pb_exist)
+    if (matched)
         oc.append_message(roll_match.suffix().str());
     else
         oc.append_message(message);
     oc.append_roll(roll_source.str(), dr.detail_coc(), dr.summary);
-    response = oc;
 
+    if(i_skill_val >= 0)
+        oc.append_message(get_fail_status(i_skill_val,dr.summary),true,false);
+    response = oc;
     return true;
 }
 
