@@ -1,5 +1,6 @@
 #include "./poker.h"
 #include <unordered_map>
+#include <regex>
 #include <vector>
 #include "../random/random_provider.h"
 #include "../utils/utils.h"
@@ -191,11 +192,42 @@ static std::pair<uint32_t, std::string> split_into_number_and_name(const std::st
     return {counts_of_item, source.substr(name_start, item.second + 1 - name_start)};
 };
 
+auto split_with_first_separator(const std::string& source) -> std::deque<std::pair<size_t, size_t>>{
+    std::deque<std::pair<size_t, size_t>> ret_val;
+    std::smatch match_separator;
+    std::regex reg_separator(u8"[,\\/&;，。、；]");
+    constexpr char ignores[] = " \t";
+    std::regex_search(source,match_separator,reg_separator);
+    if(match_separator.empty()){
+        auto start_point = source.find_first_not_of(ignores);
+        if(start_point!=std::string::npos){
+            auto end_point = source.find_last_not_of(ignores);
+            ret_val.push_back({start_point,end_point});
+            return ret_val;
+        }
+        else return ret_val;
+    }else{
+        std::string separator = match_separator[0];
+        size_t start_point = 0;
+        size_t end_point = std::string::npos;
+        while(true){
+            auto sep_point = source.find(separator,start_point);
+            start_point = source.find_first_not_of(ignores,start_point);
+            end_point = source.find_last_not_of(ignores,sep_point-1);
+            if (end_point != std::string::npos && end_point >= start_point) 
+                ret_val.push_back({start_point, end_point});
+            if(sep_point == std::string::npos) break;
+            start_point = sep_point+separator.size();
+            if(start_point >= source.size()) break;
+        }
+        return ret_val;
+    }
+}
+
 void poker_deck::init(const std::string& params) noexcept {
-    std::deque<std::pair<size_t, size_t>> split_container;
     this->clear();
     this->card_sources.reserve(MAX_DECK_SIZE);
-    split_string_ignore_spaces(params, ',', split_container);
+    auto split_container = split_with_first_separator(params);
     for (auto& item : split_container) {
         size_t item_len = item.second + 1 - item.first;
 
