@@ -223,8 +223,18 @@ TEST_F(entry_test, roll_coc) {
     ASSERT_TRUE(this->test_call(ei, ".cb1", std::regex(regex_prefix + " b1" + regex_suffix)));
     ASSERT_TRUE(this->test_call(ei, ".cp1", std::regex(regex_prefix + " p1" + regex_suffix)));
 
-    ASSERT_TRUE(this->test_call(ei, ".cb2p1", std::regex(regex_prefix + " b2p1" + regex_suffix)));
-    ASSERT_TRUE(this->test_call(ei, ".cp2b1", std::regex(regex_prefix + " p2b1" + regex_suffix)));
+    ASSERT_TRUE(this->test_call(ei, ".cb2p1", std::regex(regex_prefix + " b1" + regex_suffix)));
+    ASSERT_TRUE(this->test_call(ei, ".cp2b1", std::regex(regex_prefix + " p1" + regex_suffix)));
+
+    std::string regex_prefix_2 = u8" \\* dice test 掷骰: CoC";
+    std::regex reg_coc_full_test(regex_prefix_2 + " \\(55\\) b1" + regex_suffix + " (crit success|extreme success|hard success|success|fail|crit fail)");
+    ASSERT_TRUE(this->test_call(ei, ".c55b2p1test", reg_coc_full_test));
+    ASSERT_TRUE(this->test_call(ei, ".c55b2p1 test", reg_coc_full_test));
+    ASSERT_TRUE(this->test_call(ei, ".cb2 55p1test", reg_coc_full_test));
+    ASSERT_TRUE(this->test_call(ei, ".cb2 55p1 test", reg_coc_full_test));
+    ASSERT_TRUE(this->test_call(ei, ".cb2 55p1 test", reg_coc_full_test));
+    ASSERT_TRUE(this->test_call(ei, ".cb2p1 55test", reg_coc_full_test));
+    ASSERT_TRUE(this->test_call(ei, ".cb2p1 55 test", reg_coc_full_test));
 }
 
 TEST_F(entry_test, roll_wod) {
