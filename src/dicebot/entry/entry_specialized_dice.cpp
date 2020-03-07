@@ -140,6 +140,7 @@ entry_coc_dice::entry_coc_dice() noexcept {
         u8"CoC定制骰子(.coc或.c)\n"
         u8"指令.coc：coc定制骰子\n"
         u8"指令.c：上述命令的简写形式\n"
+        u8"指令.coc 55：技能值55，以coc7规则表示结果程度\n"
         u8"指令.coc p1：惩罚骰1（penalty 1）\n"
         u8"指令.coc b1：奖励骰1（bonus 1）";
 }
