@@ -195,7 +195,7 @@ static std::pair<uint32_t, std::string> split_into_number_and_name(const std::st
 auto split_with_first_separator(const std::string& source) -> std::deque<std::pair<size_t, size_t>>{
     std::deque<std::pair<size_t, size_t>> ret_val;
     std::smatch match_separator;
-    std::regex reg_separator(u8"[,\\/&;，。、；]");
+    std::regex reg_separator(u8"(,|\\/|&|;|，|。|、|；)");
     constexpr char ignores[] = " \t";
     std::regex_search(source,match_separator,reg_separator);
     if(match_separator.empty()){
