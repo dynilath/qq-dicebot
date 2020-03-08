@@ -67,30 +67,32 @@ namespace dicebot {
     }
 
     bool message_pipeline(std::string const& source, event_info& event, std::string& output) {
-        std::list<utils::string_part> source_parts;
-        utils::split_line_part(source, source_parts);
+        //std::list<utils::string_part> source_parts;
+        //utils::split_line_part(source, source_parts);
+        auto lines = utils::split_line(source);
 
         std::ostringstream ot;
 
         bool is_output_available = false;
 
-        for (auto& item : source_parts) {
-            if (!utils::jump_to_point_part(source, item)) continue;
-            if (!utils::trim_part(source, item)) continue;
+        for (auto& item : lines) {
+            if (!utils::jump_to_front_of_point(item)) continue;
+            if (!utils::trim(item)) continue;
 
             std::smatch match_cmd;
-            std::regex_search(item.first, item.second, match_cmd, *(dice_ptcs->get_regex_command()));
+            std::regex_search(item.begin(), item.end(), match_cmd, *(dice_ptcs->get_regex_command()));
             if (!match_cmd[1].matched) continue;
 
             auto target_entry = dice_ptcs->get_entry(match_cmd[1]);
 
+            utils::string_view suffix = match_cmd.suffix();
             if (target_entry->is_stand_alone) {
-                if (target_entry->resolve_request(match_cmd.suffix(), event, output)) {
+                if (target_entry->resolve_request(suffix, event, output)) {
                     return is_output_available = true;
                 }
             } else {
                 std::string response;
-                if (target_entry->resolve_request(match_cmd.suffix(), event, response)) {
+                if (target_entry->resolve_request(suffix, event, response)) {
                     if (is_output_available) ot << std::endl;
                     ot << response;
                     is_output_available = true;
