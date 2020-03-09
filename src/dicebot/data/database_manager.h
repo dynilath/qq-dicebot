@@ -1,3 +1,4 @@
+#pragma once
 #include <sqlite3.h>
 #include <memory>
 #include <string>

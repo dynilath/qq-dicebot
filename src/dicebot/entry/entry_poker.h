@@ -1,3 +1,4 @@
+#pragma once
 #include "./entry_base.h"
 namespace dicebot::entry {
     class entry_poker : public entry_base {
