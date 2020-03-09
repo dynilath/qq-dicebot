@@ -23,87 +23,12 @@
 #include "./entry/entry_specialized_dice.h"
 #include "./random/random_provider.h"
 #include "./utils/logger.h"
-#include "./utils/string_part.h"
+#include "./utils/string_utils.h"
 
 namespace dicebot {
-    std::unique_ptr<entry_manager> dice_ptcs;
-    profile::profile_manager* pf_ctrl;
-
-    void initialize(const char* app_dir) {
-        database::database_manager::create_instance(app_dir);
-        nickname::nickname_manager::create_instance();
-        manual::manual_dice_control::create_instance();
-        profile::profile_manager::create_instance();
-        poker::poker_manager::create_instance();
-
-        random::initialize();
-        dice_ptcs = std::make_unique<entry_manager>();
-        dice_ptcs->register_dice(std::make_shared<entry::entry_roll_dice>());
-        dice_ptcs->register_dice(std::make_shared<entry::entry_coc_dice>());
-        dice_ptcs->register_dice(std::make_shared<entry::entry_manual_dice>());
-        dice_ptcs->register_dice(std::make_shared<entry::entry_nickname>());
-        dice_ptcs->register_dice(std::make_shared<entry::entry_wod_dice>());
-        dice_ptcs->register_dice(std::make_shared<entry::entry_fate_dice>());
-        dice_ptcs->register_dice(std::make_shared<entry::entry_set_roll>());
-        dice_ptcs->register_dice(std::make_shared<entry::entry_list>());
-        dice_ptcs->register_dice(std::make_shared<entry::entry_delete>());
-        dice_ptcs->register_dice(std::make_shared<entry::entry_poker>());
-        dice_ptcs->finish_initialization();
-    }
-
-    void salvage() {
-        if (dice_ptcs) dice_ptcs = nullptr;
-        profile::profile_manager::destroy_instance();
-        nickname::nickname_manager::destroy_instance();
-        manual::manual_dice_control::destroy_instance();
-        database::database_manager::destroy_instance();
-        poker::poker_manager::destroy_instance();
-    }
-
-    void set_logger(std::function<void(std::string, std::string)> varlog) { logger::_log = varlog; }
-
-    bool try_fill_nickname(event_info& event) {
-        return nickname::nickname_manager::instance->get_nickname(event, event.nickname);
-    }
-
-    bool message_pipeline(std::string const& source, event_info& event, std::string& output) {
-        //std::list<utils::string_part> source_parts;
-        //utils::split_line_part(source, source_parts);
-        auto lines = utils::split_line(source);
-
-        std::ostringstream ot;
-
-        bool is_output_available = false;
-
-        for (auto& item : lines) {
-            if (!utils::jump_to_front_of_point(item)) continue;
-            if (!utils::trim(item)) continue;
-
-            std::smatch match_cmd;
-            std::regex_search(item.begin(), item.end(), match_cmd, *(dice_ptcs->get_regex_command()));
-            if (!match_cmd[1].matched) continue;
-
-            auto target_entry = dice_ptcs->get_entry(match_cmd[1]);
-
-            utils::string_view suffix = match_cmd.suffix();
-            if (target_entry->is_stand_alone) {
-                if (target_entry->resolve_request(suffix, event, output)) {
-                    return is_output_available = true;
-                }
-            } else {
-                std::string response;
-                if (target_entry->resolve_request(suffix, event, response)) {
-                    if (is_output_available) ot << std::endl;
-                    ot << response;
-                    is_output_available = true;
-                    continue;
-                }
-            }
-        }
-
-        if (is_output_available) {
-            output.assign(ot.str());
-        }
-        return is_output_available;
-    }
+    void initialize(const char*);
+    void salvage();
+    void set_logger(std::function<void(std::string, std::string)>);
+    bool try_fill_nickname(event_info&);
+    bool message_pipeline(std::string const&, event_info&, std::string&);
 } // namespace dicebot

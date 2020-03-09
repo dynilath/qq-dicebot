@@ -5,24 +5,28 @@
 #include <type_traits>
 #include <regex>
 
-namespace dicebot::utils {
+#ifdef _DEBUG
+#include <cassert>
+#endif
 
+namespace dicebot::utils {
+    
     // std::string_view is working awfully with std::regex.
     // this is a replacement that support conversion from 
     // sub_match and can convert to std::string
-    template<typename _string_iter_type, 
+    template<typename _str_iter, 
         typename std::enable_if_t<
-            std::is_base_of_v<typename std::bidirectional_iterator_tag, typename _string_iter_type::iterator_category>,
+            std::is_base_of_v<typename std::bidirectional_iterator_tag, typename _str_iter::iterator_category>,
             int> = 0>
-    class basic_string_view : std::pair<_string_iter_type, _string_iter_type> {
-        using iter_t = typename _string_iter_type;
+    class basic_string_view : std::pair<_str_iter, _str_iter> {
+        using iter_t = typename _str_iter;
         using c_t = typename iter_t::value_type;
         using trait_t = typename std::char_traits<c_t>::char_type;
         using riter_t = typename std::reverse_iterator<iter_t>;
         using sub_match_t = typename std::match_results<iter_t>::value_type;
     public:
-
-        static_assert(std::is_same_v<typename c_t, typename trait_t>,"");
+        static_assert(std::is_same_v<typename c_t, typename trait_t>,
+        "value_type and trait_type require to be same.");
 
         using traits_type = typename iter_t::value_type;
         using value_type = typename traits_type;
@@ -37,6 +41,15 @@ namespace dicebot::utils {
         using size_type = typename std::size_t;
         using difference_type = typename std::ptrdiff_t;
 
+    private:
+
+        inline size_type _size(){
+            auto diff = this->second - this->first;
+            if(diff < 0) return 0;
+            else return diff;
+        }  
+
+    public:
         basic_string_view() noexcept
         : std::pair<iter_t, iter_t>()
         {}
@@ -45,12 +58,12 @@ namespace dicebot::utils {
         : std::pair<iter_t, iter_t>(first, second)
         {}
 
-        basic_string_view(const basic_string_view& other) noexcept 
-        : std::pair<iter_t, iter_t>(other.first, other.second)
+        basic_string_view(const sub_match_t& sub_match) noexcept
+        : std::pair<iter_t, iter_t>(sub_match.first, sub_match.second)
         {}
 
-        basic_string_view(const sub_match_t& sub_match) 
-        : std::pair<iter_t, iter_t>(sub_match.first, sub_match.second)
+        basic_string_view(sub_match_t&& sub_match) noexcept
+        : std::pair<iter_t, iter_t>(std::move(sub_match))
         {}
         
         iter_t begin() const{
@@ -89,13 +102,29 @@ namespace dicebot::utils {
             return std::distance(this->first,this->second);
         }
 
-        operator std::string() const{ return std::string(this->first, this->second); }
+        template<
+            std::enable_if_t<
+                std::is_same_v<typename std::random_access_iterator_tag, typename _str_iter::iterator_category>,
+                int> = 0>
+        value_type operator[](size_type _Off){
+        #ifdef _DEBUG
+            std::assert(_Off < this->size());
+        #endif
+            return this->first[_Off]
+        }
+        
+        value_type operator[](size_type _Off){
+        #ifdef _DEBUG
+            std::assert(_Off < this->size());
+        #endif
+            return *(this->first + _Off)
+        }
+
+        template<typename string_t = std::basic_string<value_type>>
+        operator string_t() const{ 
+            return string_t(this->first, this->second); 
+        }
     };
-
+    
     using string_view = basic_string_view<std::string::const_iterator>;
-
-    std::list<utils::string_view> split_line(std::string const&);
-    bool trim(utils::string_view &);
-    bool jump_to_front_of_point(utils::string_view &);
-
-} // namespace dicebot::utils
+}
