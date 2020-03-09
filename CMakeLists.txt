@@ -45,5 +45,8 @@ endif()
 set(CQCPPSDK_DEV_MODE ON)
 cq_add_app(${LIB_NAME}_dev ${SOURCE_FILES} ${DICEBOT_SOURCE})
 target_link_libraries(${LIB_NAME}_dev sqlite3)
+if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+  target_link_libraries(${LIB_NAME}_dev stdc++fs)
+endif()
 
 include(src/tests/test.cmake)

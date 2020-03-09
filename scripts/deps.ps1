@@ -1,4 +1,4 @@
-﻿$startloc = $PSScriptRoot
+﻿$startloc = Resolve-Path .
 
 $VCPKG_RT = ${env:VCPKG_ROOT}
 if ($null -eq $VCPKG_RT) {
@@ -6,8 +6,10 @@ if ($null -eq $VCPKG_RT) {
 	exit
 }
 
-$VCPKG_EXE = "$VCPKG_RT\vcpkg.exe"
-if (!(Test-Path $VCPKG_EXE)) {
+try {
+	"$VCPKG_RT\vcpkg" | Out-Null
+}
+catch {
 	Write-Warning "Invalid VCPKG_ROOT. Please check vcpkg environment."
 	exit
 }
