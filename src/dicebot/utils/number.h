@@ -3,11 +3,6 @@
 #include <cstdint>
 #include <exception>
 #include <string>
-/*
-** 2018-12
-** by dynilath
-** an number class that auto-adjust between float_type and integer
-*/
 namespace dicebot {
 
     using integer_type = int32_t;
@@ -18,6 +13,11 @@ namespace dicebot {
         float_type f_value;
     };
 
+    /*
+    ** 2018-12
+    ** by dynilath
+    ** an number class that auto-adjust between float_type and integer
+    */
     class number {
         void initialize(const std::string &source);
 
