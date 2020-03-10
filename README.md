@@ -402,7 +402,11 @@ QQ：1701687847
 
 可以自动计算奖惩相抵。  
 > dynilath：`.cp5b5p2b3奖罚抵消`    
-> DiceBot：` * dynilath 奖罚抵消 掷骰: CoC p5b5p2b3 = [0 + 7*] [7] = 7`  
+> DiceBot：` * dynilath 奖罚抵消 掷骰: CoC b1 = [4 + 9*] [0] = 40`  
+
+如果提供一个技能数值，会根据coc7规则计算成功等级。  
+> dynilath：`.c55p1闪避`    
+> DiceBot：` * dynilath 闪避 掷骰: CoC (55) p1 = [2* + 5] [1] = 51 success`  
 
 ### wod定制骰子(`.wod`或者`.w`)
 骰子机器人提供了wod定制的骰子。使用指令为`.wodn[骰子数量]`和`.wodo[骰子数量]`。  
@@ -468,10 +472,10 @@ oWoD规则下，默认困难度为6，出1会扣除一个成功。
 > DiceBot：` * dynilath 已初始化牌库，总计60张牌`  
 
 > dynilath：`.poker draw`  
-> DiceBot：` * dynilath 抽出了Spade 8 | 牌堆剩余59张，已经抽出了: Spade 8`  
+> DiceBot：` * dynilath 抽出了 Joker | 牌堆剩余59张，已经抽出了: Joker`  
 
 > dynilath：`.pd`  
-> DiceBot：` * dynilath 抽出了Club J | 牌堆剩余58张，已经抽出了: Spade 8, Club J`
+> DiceBot：` * dynilath 抽出了 ♣2 | 牌堆剩余58张，已经抽出了: Joker, ♣2`
 
 如果牌库抽光了，会给出提示。  
 
@@ -483,6 +487,21 @@ oWoD规则下，默认困难度为6，出1会扣除一个成功。
 
 > dynilath：`.pd`  
 > DiceBot：` * dynilath 无牌可抽 | 牌堆剩余0张，已经抽出了: Joker`
+
+在`.pd`后增加数字，来指定一次抽牌的数量。
+
+> dynilath：`.p init core`  
+> DiceBot：` * dynilath 已初始化牌库，总计52张牌`  
+> dynilath：`.pd2`  
+> DiceBot：` * dynilath 抽出了 ♡7, ♢5 | 牌堆剩余50张，已经抽出了: ♡7, ♢5`  
+
+此处，`.rsoff`也能用来关闭已抽出记录的输出。  
+
+> dynilath：`.rsoff`  
+> DiceBot：` * dynilath 关闭骰子详细输出` 
+> dynilath：`.pd2`  
+> DiceBot：` * dynilath 抽出了 ♢8, ♣4 | 牌堆剩余48张` 
+
 
 ### 洗牌(`.poker shuffle`)
 
@@ -513,6 +532,8 @@ oWoD规则下，默认困难度为6，出1会扣除一个成功。
 
 > dynilath：`.pd`  
 > DiceBot：` * dynilath 抽出了武僧 | 牌堆剩余6张，已经抽出了: 圣爹, 武僧`
+
+这里支持使用各种各样的分隔符号，包括`,\/&;，。、；`。但请注意，只有第一个遇到的上述符号会作为分隔符，其他分隔符会被忽略。
 
 ## 手动骰子(`.manual`或`.m`)
 
