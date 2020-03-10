@@ -11,15 +11,13 @@ configuration:
 environment:
   VCPKG_ROOT: C:\tools\vcpkg
 
-cache: c:\tools\vcpkg\installed\ -> scripts\deps.ps1  # cache the installed vcpkg packages
+cache: c:\tools\vcpkg\installed\ -> bootstrap.ps1  # cache the installed vcpkg packages
 
 install:
   - git submodule update --init --recursive
-  - powershell scripts\deps.ps1
 
 build_script:
-  - powershell scripts\generate.ps1 %CONFIGURATION%
-  - powershell scripts\build.ps1 %CONFIGURATION%
+  - powershell .\bootstrap.ps1 %CONFIGURATION%
 
 test_script:
   - '%APPVEYOR_BUILD_FOLDER%/build/%CONFIGURATION%/dicebot.gtest.data_test.exe'
