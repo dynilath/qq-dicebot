@@ -7,9 +7,13 @@
 
 #include "dicebot/dicebot.h"
 
+#ifndef DB_FOLDER
+#define DB_FOLDER ""
+#endif
+
 class entry_test : public ::testing::Test {
 protected:
-    entry_test() { dicebot::initialize("./build/test_db/"); }
+    entry_test() { dicebot::initialize(DB_FOLDER); }
     ~entry_test() { dicebot::salvage(); }
 
 public:
@@ -87,7 +91,8 @@ TEST_F(entry_test, roll_sharp) {
     this->base_call(ei, ".rson");
 
     std::regex result_reg(
-        u8"^ \\* dice 掷骰: 6\\#4d6kl3 = \\{(\\[(\\d\\*? \\+ ){3}\\d\\*?\\], ){5}(\\[(\\d\\*? \\+ ){3}\\d\\*?\\])\\} = \\{(\\d{1,2}, ){5}\\d{1,2}\\}$");
+        u8"^ \\* dice 掷骰: 6\\#4d6kl3 = \\{(\\[(\\d\\*? \\+ ){3}\\d\\*?\\], ){5}(\\[(\\d\\*? \\+ ){3}\\d\\*?\\])\\} = "
+        u8"\\{(\\d{1,2}, ){5}\\d{1,2}\\}$");
     ASSERT_TRUE(this->test_call(ei, source, result_reg));
 
     ASSERT_TRUE(this->test_call(ei, ".rsoff", std::regex(u8"^ \\* dice 关闭骰子详细输出$")));
@@ -227,7 +232,8 @@ TEST_F(entry_test, roll_coc) {
     ASSERT_TRUE(this->test_call(ei, ".cp2b1", std::regex(regex_prefix + " p1" + regex_suffix)));
 
     std::string regex_prefix_2 = u8" \\* dice test 掷骰: CoC";
-    std::regex reg_coc_full_test(regex_prefix_2 + " \\(55\\) b1" + regex_suffix + " (crit success|extreme success|hard success|success|fail|crit fail)");
+    std::regex reg_coc_full_test(regex_prefix_2 + " \\(55\\) b1" + regex_suffix
+                                 + " (crit success|extreme success|hard success|success|fail|crit fail)");
     ASSERT_TRUE(this->test_call(ei, ".c55b2p1test", reg_coc_full_test));
     ASSERT_TRUE(this->test_call(ei, ".c55b2p1 test", reg_coc_full_test));
     ASSERT_TRUE(this->test_call(ei, ".cb2 55p1test", reg_coc_full_test));
@@ -345,7 +351,6 @@ TEST_F(entry_test, poker) {
     ASSERT_TRUE(this->test_call(ei, ".p d", re_draw_off));
     ASSERT_TRUE(this->test_call(ei, ".pdraw", re_draw_off));
     ASSERT_TRUE(this->test_call(ei, ".p draw", re_draw_off));
-
 
     ASSERT_TRUE(this->test_call(ei, ".pshuffle", std::regex(" \\* dice 已将牌堆重新切洗")));
     ASSERT_TRUE(this->test_call(ei, ".pd2", re_draw_two));

@@ -3,6 +3,14 @@
 #include "../dicebot/dicebot.h"
 #include "gtest/gtest.h"
 
+#ifndef DB_FOLDER_1
+#define DB_FOLDER_1 ""
+#endif
+
+#ifndef DB_FOLDER_2
+#define DB_FOLDER_2 ""
+#endif
+
 namespace dicebot::test {
 #pragma region tokenizer test
     TEST(database, manual_dice) {
@@ -11,7 +19,7 @@ namespace dicebot::test {
 
         std::deque<int> result;
 
-        std::string test_db = "./build/test_db_1/";
+        std::string test_db = DB_FOLDER_1;
 
         dicebot::initialize(test_db.c_str());
         auto md = manual::manual_dice_control::get_instance()->find_manual_dice(ei);
@@ -40,7 +48,7 @@ namespace dicebot::test {
 
         std::deque<int> result;
 
-        std::string test_db = "./build/test_db_2/";
+        std::string test_db = DB_FOLDER_2;
 
         dicebot::initialize(test_db.c_str());
         auto pf = profile::profile_manager::get_instance()->get_profile(ei.user_id);
