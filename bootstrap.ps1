@@ -46,7 +46,7 @@ function Test-And-Install-Packages {
     $_start_loc = Resolve-Path .
     Set-Location $VCPKG_RT
     $_val = (& .\vcpkg list $_module_name)
-    if ($null -eq $_val) {
+    if ($null -eq $_val -or $_val -match '^No packages are installed') {
         Write-Host "Installing $_module_name ..."
         .\vcpkg install $_module_name
     }
