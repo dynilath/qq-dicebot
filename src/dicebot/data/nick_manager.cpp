@@ -2,7 +2,7 @@
 
 #include <sstream>
 
-#include "../../cqcppsdk/src/utils/base64.h"
+#include "../../cqcppsdk/src/utils/base64.hpp"
 #include "./nick_manager.h"
 
 using namespace dicebot;

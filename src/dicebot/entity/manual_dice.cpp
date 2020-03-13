@@ -4,7 +4,7 @@
 #include <regex>
 #include <sstream>
 
-#include "../../cqcppsdk/src/utils/base64.h"
+#include "../../cqcppsdk/src/utils/base64.hpp"
 #include "../dice_excepts.h"
 #include "../dice_roller.h"
 #include "../random/random_provider.h"

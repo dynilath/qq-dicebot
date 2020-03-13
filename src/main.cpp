@@ -72,32 +72,35 @@ bool get_nickname(dicebot::event_info &ei, uint64_t const user_id) {
     }
 }
 
+cq::message::Message seg_cq_code(std::string str){
+    cq::message::Message msg;
+    std::regex const reg_cq_code("\\[CQ:image,file=([A-Z,0-9]{32}\\.(?:jpg|png|gif))\\]|\\[CQ:face,id=([0-9]+)\\]");
+    std::smatch m;
+    std::regex_search(str, m, reg_cq_code);
+    while (!m.empty()) {
+        msg.push_back(cqmessage::MessageSegment::text(m.prefix()));
+        if (m[1].matched)
+            msg.push_back(cqmessage::MessageSegment::image(m[1]));
+        else if (m[2].matched)
+            msg.push_back(cqmessage::MessageSegment::face(std::stoi(m[2])));
+        str = m.suffix();
+        std::regex_search(str, m, reg_cq_code);
+    }
+    msg.push_back(cqmessage::MessageSegment::text(str));
+    return msg;
+}
+
 void resolve_cap(dicebot::event_info &ei, std::string const &raw_source, cq::Target target) noexcept {
     try {
-        cq::message::Message msg;
-
         std::string temp;
         if (!dicebot::message_pipeline(raw_source, ei, temp)) return;
-
-        std::regex const reg_cq_code("\\[CQ:image,file=([A-Z,0-9]{32}\\.(?:jpg|png|gif))\\]|\\[CQ:face,id=([0-9]+)\\]");
-        std::smatch m;
-        std::regex_search(temp, m, reg_cq_code);
-        while (!m.empty()) {
-            msg.push_back(cqmessage::MessageSegment::text(m.prefix()));
-            if (m[1].matched)
-                msg.push_back(cqmessage::MessageSegment::image(m[1]));
-            else if (m[2].matched)
-                msg.push_back(cqmessage::MessageSegment::face(std::stoi(m[2])));
-            temp = m.suffix();
-            std::regex_search(temp, m, reg_cq_code);
-        }
-        msg.push_back(cqmessage::MessageSegment::text(temp));
+        auto msg = seg_cq_code(std::move(temp));
         msg.send(target);
     } catch (const cq::ApiError &err) {
 #ifdef _DEBUG
         cqlogging::debug(u8"DICE", u8"调用失败，错误码：" + std::to_string(err.code));
 #endif
     } catch (const std::exception &err) {
-        cqlogging::warning(u8"DICE", u8"发生std exception：" + std::to_string(err.what()) + u8"\n发送消息为：" + raw_source);
+        cqlogging::warning(u8"DICE", u8"发生std exception：" + std::string(err.what()) + u8"\n发送消息为：" + raw_source);
     }
 }

@@ -28,6 +28,7 @@ file(GLOB_RECURSE TEST_SOURCE_ROLL_TEST
     ${BASE64SRC})
 add_executable(${TEST_BUILD_NAME} ${TEST_SOURCE_ROLL_TEST})
 gtest_discover_tests(${TEST_BUILD_NAME})
+target_compile_options(${TEST_BUILD_NAME} PRIVATE $<$<CXX_COMPILER_ID:MSVC>:/utf-8>)
 
 # entry test
 set(X entry_test)
@@ -39,6 +40,7 @@ add_executable(${TEST_BUILD_NAME}
 gtest_discover_tests(${TEST_BUILD_NAME})
 file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/entry_test_db)
 target_compile_definitions(${TEST_BUILD_NAME} PRIVATE DB_FOLDER="${CMAKE_BINARY_DIR}/entry_test_db")
+target_compile_options(${TEST_BUILD_NAME} PRIVATE $<$<CXX_COMPILER_ID:MSVC>:/utf-8>)
 
 # number test
 set(X number_test)
@@ -47,6 +49,7 @@ add_executable(${TEST_BUILD_NAME}
     src/tests/${X}.cpp
     src/dicebot/utils/number.cpp)
 gtest_discover_tests(${TEST_BUILD_NAME})
+target_compile_options(${TEST_BUILD_NAME} PRIVATE $<$<CXX_COMPILER_ID:MSVC>:/utf-8>)
 
 # data test
 set(X data_test)
@@ -60,6 +63,7 @@ file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/data_test_db_1)
 file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/data_test_db_2)
 target_compile_definitions(${TEST_BUILD_NAME} PRIVATE DB_FOLDER_1="${CMAKE_BINARY_DIR}/data_test_db_1")
 target_compile_definitions(${TEST_BUILD_NAME} PRIVATE DB_FOLDER_2="${CMAKE_BINARY_DIR}/data_test_db_2")
+target_compile_options(${TEST_BUILD_NAME} PRIVATE $<$<CXX_COMPILER_ID:MSVC>:/utf-8>)
     
 foreach(X IN LISTS TEST_NAME_GROUP)
     set(TEST_BUILD_NAME dicebot.gtest.${X})
