@@ -14,7 +14,7 @@
 namespace dicebot::test {
 #pragma region tokenizer test
     TEST(database, manual_dice) {
-        dicebot::event_info ei(123456);
+        ::event_info ei(123456);
         ei.nickname = "dynilath";
 
         std::deque<int> result;
@@ -43,7 +43,7 @@ namespace dicebot::test {
     }
 
     TEST(database, profile) {
-        dicebot::event_info ei(123456);
+        ::event_info ei(123456);
         ei.nickname = "dynilath";
 
         std::deque<int> result;

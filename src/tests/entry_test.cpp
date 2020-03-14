@@ -17,14 +17,14 @@ protected:
     ~entry_test() { dicebot::salvage(); }
 
 public:
-    bool test_call(dicebot::event_info &ei, const std::string &source, const std::regex &reg_test) {
+    bool test_call(::event_info &ei, const std::string &source, const std::regex &reg_test) {
         std::string output;
         dicebot::try_fill_nickname(ei);
         dicebot::message_pipeline(source, ei, output);
         return std::regex_search(output, reg_test);
     }
 
-    void base_call(dicebot::event_info &ei, const std::string &source) {
+    void base_call(::event_info &ei, const std::string &source) {
         std::string output;
         dicebot::try_fill_nickname(ei);
         dicebot::message_pipeline(source, ei, output);
@@ -32,7 +32,7 @@ public:
 };
 
 TEST_F(entry_test, roll_2d20plus4) {
-    dicebot::event_info ei(123456, 10000, dicebot::event_type::group);
+    ::event_info ei(123456, 10000, ::event_type::group);
     ei.nickname = "dynilath";
 
     std::string source_1 = ".r2d20+4";
@@ -82,7 +82,7 @@ TEST_F(entry_test, roll_2d20plus4) {
 }
 
 TEST_F(entry_test, roll_sharp) {
-    dicebot::event_info ei(123456, 10000, dicebot::event_type::group);
+    ::event_info ei(123456, 10000, ::event_type::group);
     ei.nickname = "dynilath";
 
     std::string source = ".r6#4d6kl3";
@@ -104,7 +104,7 @@ TEST_F(entry_test, roll_sharp) {
 }
 
 TEST_F(entry_test, roll_brace_calculus) {
-    dicebot::event_info ei(123456, 10000, dicebot::event_type::group);
+    ::event_info ei(123456, 10000, ::event_type::group);
     ei.nickname = "dynilath";
 
     std::string source = ".r2#d20-{1,10}";
@@ -121,7 +121,7 @@ TEST_F(entry_test, roll_brace_calculus) {
 }
 
 TEST_F(entry_test, name) {
-    dicebot::event_info ei(123456, 10000, dicebot::event_type::group);
+    ::event_info ei(123456, 10000, ::event_type::group);
     ei.nickname = "dynilath";
 
     ei.group_id = 10001;
@@ -157,7 +157,7 @@ TEST_F(entry_test, name) {
 }
 
 TEST_F(entry_test, macro_recall) {
-    dicebot::event_info ei(123456, 10000, dicebot::event_type::group);
+    ::event_info ei(123456, 10000, ::event_type::group);
     ei.nickname = "dynilath";
 
     this->base_call(ei, ".ndice");
@@ -213,7 +213,7 @@ TEST_F(entry_test, macro_recall) {
 }
 
 TEST_F(entry_test, roll_coc) {
-    dicebot::event_info ei(123456, 10000, dicebot::event_type::group);
+    ::event_info ei(123456, 10000, ::event_type::group);
     ei.nickname = "dynilath";
 
     this->base_call(ei, ".ndice");
@@ -244,7 +244,7 @@ TEST_F(entry_test, roll_coc) {
 }
 
 TEST_F(entry_test, roll_wod) {
-    dicebot::event_info ei(123456, 10000, dicebot::event_type::group);
+    ::event_info ei(123456, 10000, ::event_type::group);
     ei.nickname = "dynilath";
 
     std::regex reg_wodo6(
@@ -272,7 +272,7 @@ TEST_F(entry_test, roll_wod) {
 }
 
 TEST_F(entry_test, roll_fate) {
-    dicebot::event_info ei(123456, 10000, dicebot::event_type::group);
+    ::event_info ei(123456, 10000, ::event_type::group);
     ei.nickname = "dynilath";
 
     std::regex reg_fate(u8"^ \\* dice 掷骰: FATE = \\[([o+\\-] ){3}[o+\\-]\\] = -?\\d");
@@ -294,7 +294,7 @@ TEST_F(entry_test, roll_fate) {
 }
 
 TEST_F(entry_test, manual_dice) {
-    dicebot::event_info ei(123456, 10000, dicebot::event_type::group);
+    ::event_info ei(123456, 10000, ::event_type::group);
     ei.nickname = "dynilath";
 
     std::string cur_state_4 = "\\| 当前状态: (\\d\\(6\\) \\+ ){3}\\d\\(6\\) = \\d{1,2}";
@@ -314,7 +314,7 @@ TEST_F(entry_test, manual_dice) {
 }
 
 TEST_F(entry_test, poker) {
-    dicebot::event_info ei(123456, 10000, dicebot::event_type::group);
+    ::event_info ei(123456, 10000, ::event_type::group);
     ei.nickname = "dynilath";
 
     this->base_call(ei, ".ndice");
@@ -361,7 +361,7 @@ TEST_F(entry_test, poker) {
 }
 
 TEST_F(entry_test, multiline_case_fullcmd) {
-    dicebot::event_info ei(123456, 10000, dicebot::event_type::group);
+    ::event_info ei(123456, 10000, ::event_type::group);
     ei.nickname = "dynilath";
 
     this->base_call(ei, ".ndice");
@@ -384,7 +384,7 @@ TEST_F(entry_test, multiline_case_fullcmd) {
 }
 
 TEST_F(entry_test, range_exceed) {
-    dicebot::event_info ei(123456, 10000, dicebot::event_type::group);
+    ::event_info ei(123456, 10000, ::event_type::group);
     ei.nickname = "dynilath";
 
     this->base_call(ei, ".ndice");

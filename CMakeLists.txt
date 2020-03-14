@@ -27,7 +27,7 @@ find_package(sqlite3 REQUIRED)
 
 file(GLOB_RECURSE DICEBOT_SOURCE src/dicebot/**.cpp)
 
-file(GLOB_RECURSE SOURCE_FILES src/main.cpp)
+file(GLOB_RECURSE SOURCE_FILES src/main.cpp src/cqtool.cpp)
 
 file(READ "app_id.txt" APP_ID)
 string(STRIP "${APP_ID}" APP_ID)
