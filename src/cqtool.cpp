@@ -7,7 +7,7 @@
 namespace cqlog = cq::logging;
 namespace cqmsg = cq::message;
 
-std::unordered_map<std::string, std::function<void(std::string,cqmsg::Message&)>>
+static std::unordered_map<std::string, std::function<void(std::string,cqmsg::Message&)>>
     seg_map = {
         {
             "image", 
