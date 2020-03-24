@@ -118,6 +118,9 @@ TEST_F(entry_test, roll_brace_calculus) {
         u8"\\{\\d{1,2}, -?\\d{1,2}\\}");
 
     ASSERT_TRUE(this->test_call(ei, source, result));
+
+    ASSERT_NO_THROW(this->base_call(ei,".r6#4d6k3"));
+    ASSERT_NO_THROW(this->base_call(ei,".r6#2d20k1+{10,10,8,6,5,0}"));
 }
 
 TEST_F(entry_test, name) {
@@ -358,6 +361,9 @@ TEST_F(entry_test, poker) {
     ASSERT_TRUE(this->test_call(ei, ".pshuffle", std::regex(" \\* dice 已将牌堆重新切洗")));
     ASSERT_TRUE(this->test_call(ei, ".pd3", re_draw_three));
     ASSERT_TRUE(this->test_call(ei, ".pd3", re_draw_off));
+
+    ASSERT_NO_THROW(this->base_call(ei,".pinit j,jc,standard,core"));
+    ASSERT_NO_THROW(this->base_call(ei,".pd 100"));
 }
 
 TEST_F(entry_test, multiline_case_fullcmd) {
