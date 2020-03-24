@@ -49,6 +49,8 @@ void dicebot::initialize(const char* app_dir) {
     dice_ptcs->register_dice(std::make_shared<entry::entry_delete>());
     dice_ptcs->register_dice(std::make_shared<entry::entry_poker>());
     dice_ptcs->finish_initialization();
+
+    poker::initialize_basic_cards();    
 }
 
 void dicebot::salvage() {
