@@ -183,7 +183,6 @@ namespace {
         for (size_t i = 0; i < arr_len * 4; i++) {
             auto& p_poker = *(poker_standard[i / arr_len]);
             p_poker[i % arr_len] = poker_name[i];
-            poker_core_vec.push_back(&p_poker[i % arr_len]);
             poker_core_vec[i] = poker_standard_vec[i] = &p_poker[i % arr_len];
         }
 
@@ -212,8 +211,8 @@ namespace {
         }
         for (size_t i = 0; i < minor_len; i++) {
             minor_arcana[i] = minor_arcana_card_names[i];
-            tarot_vec.push_back(&major_arcana[i]);
-            minor_arcana_vec.push_back(&major_arcana[i]);
+            tarot_vec.push_back(&minor_arcana[i]);
+            minor_arcana_vec.push_back(&minor_arcana[i]);
         }
 
         // init poker nicks
