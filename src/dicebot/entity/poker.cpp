@@ -289,52 +289,79 @@ static std::pair<uint32_t, std::string> split_into_number_and_name(
 auto split_with_first_separator(const std::string& source)
     -> std::deque<::utils::string_view> {
     std::deque<::utils::string_view> ret_val;
-    std::smatch match_separator;
+
+    ::std::deque<::utils::string_view> unbracketed;
     auto start_point = source.begin();
-    while (true) {
-        std::regex reg_separator(u8"(,|\\/|&|;|，|。|、|；|\\[)");
-        constexpr char ignores[] = " \t";
-        std::regex_search(
-            start_point, source.end(), match_separator, reg_separator);
-
-        if (match_separator.empty()) {
-            ::utils::string_view sv = {source.begin(), source.end()};
-            if (::utils::trim(sv)) {
-                ret_val.push_back(std::move(sv));
-            }
-            return ret_val;
+    while(start_point != source.end()){
+        auto lbracket = ::std::find(start_point,source.end(),'[');
+        if(lbracket == source.end()){
+            unbracketed.push_back({start_point,source.end()});
+            break;
         }
-
-        ::utils::string_view sv_sep = match_separator[0];
-        if (sv_sep[0] == '[') {
-            start_point = ::std::find(start_point, source.end(), ']');
-            continue;
-        } else {
-            ::utils::string_view sv_preff = {source.begin(), sv_sep.begin()};
-            if (::utils::trim(sv_preff)) {
-                ret_val.push_back(std::move(sv_preff));
-            }
-
-            start_point = sv_sep.end();
-
-            while (true) {
-                auto found = ::std::search(
-                    start_point, source.end(), sv_sep.begin(), sv_sep.end());
-
-                ::utils::string_view sv_part = {start_point, found};
-                if (::utils::trim(sv_part)) {
-                    ret_val.push_back(::std::move(sv_part));
-                }
-
-                if (found == source.end()) {
-                    break;
-                }
-
-                start_point = found + sv_sep.size();
-            }
-            return ret_val;
+        auto rbracket = ::std::find(lbracket,source.end(),']');
+        if(rbracket == source.end()){
+            unbracketed.push_back({start_point,source.end()});
+            break;
+        }
+        if(lbracket != start_point)
+            unbracketed.push_back({start_point,lbracket});
+        start_point = rbracket + 1;
+    }
+    
+    std::regex reg_separator(u8"(,|\\/|&|;|，|。|、|；)");
+    ::utils::string_view sv_sep;
+    auto where = unbracketed.begin();
+    for (; where != unbracketed.end(); where++)
+    {
+        std::smatch match_separator;
+        std::regex_search(
+            where->begin(), where->end(), match_separator, reg_separator);
+        if (match_separator.empty()) continue;
+        else
+        {
+            sv_sep = match_separator[0];
+            break;
         }
     }
+
+    if(where == unbracketed.end()){
+        ::utils::string_view sv_full = {source.begin(), source.end()};
+        if (::utils::trim(sv_full)) {
+            ret_val.push_back(std::move(sv_full));
+        }
+    }
+    else{
+        auto source_begin_point = source.begin();
+        ::utils::string_view sv_first = {source_begin_point, sv_sep.begin()};
+        if (::utils::trim(sv_first)) {
+            ret_val.push_back(std::move(sv_first));
+        }
+        source_begin_point = sv_sep.end();
+
+        auto start_point = sv_sep.end();
+        auto end_point = where->end();
+        while (true)
+        {
+            auto found = ::std::search(
+                start_point, end_point, sv_sep.begin(), sv_sep.end());
+            if(found == end_point){
+                where ++;
+                if(where == unbracketed.end()) break;
+                start_point = where->begin();
+                end_point = where->end();
+                continue;
+            }
+            else{
+                ::utils::string_view sv_part = {source_begin_point, found};
+                if (::utils::trim(sv_part)) {
+                    ret_val.push_back(std::move(sv_part));
+                }
+                start_point = source_begin_point = found + sv_sep.size();
+            }
+        }
+    }
+
+    return ret_val;
 }
 
 void poker_deck::init(const std::string& params) noexcept {
