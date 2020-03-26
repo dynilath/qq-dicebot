@@ -56,10 +56,12 @@ void resolve_cap(event_info &ei, std::string const &raw_source,
         if (!dicebot::message_pipeline(raw_source, ei, temp)) return;
         auto msg = seg_cq_code(std::move(temp));
         msg.send(target);
-    } catch (const cq::ApiError &err) {
 #ifdef _DEBUG
+    } catch (const cq::ApiError &err) {
         cqlogging::debug(u8"DICE",
                          u8"调用失败，错误码：" + std::to_string(err.code));
+#else
+    } catch (const cq::ApiError &) {
 #endif
     } catch (const std::exception &err) {
         cqlogging::warning(u8"DICE",
