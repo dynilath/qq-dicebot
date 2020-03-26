@@ -87,7 +87,13 @@ namespace dicebot::utils {
         }
 
         size_type size() const {
-            return std::distance(this->first, this->second);
+            auto diff = ::std::distance(this->first, this->second);
+            if (diff > 0) return diff;
+            else return 0;
+        }
+
+        bool empty() const {
+            return this->first == this->second || ::std::distance(this->first, this->second) <= 0;
         }
 
         template <std::enable_if_t<
