@@ -434,6 +434,15 @@ TEST_F(entry_test, poker) {
     ASSERT_NO_THROW(this->base_call(ei, ".pd 10"));
     ASSERT_NO_THROW(this->base_call(ei, ".pinit minor arcana"));
     ASSERT_NO_THROW(this->base_call(ei, ".pd 10"));
+
+    ::std::string cqcode_test = 
+        ".pinit [CQ:emoji,id=127838],[CQ:face,id=113],"
+        "[CQ:emoji,id=127828],[CQ:emoji,id=127839],"
+        "[CQ:emoji,id=127867],[CQ:emoji,id=127866]";
+    ASSERT_TRUE(this->test_call(
+        ei, cqcode_test, std::regex(" \\* dice 已初始化牌库，总计5张牌")));
+    ASSERT_NO_THROW(this->base_call(ei, ".pd 10"));
+
 }
 
 TEST_F(entry_test, multiline_case_fullcmd) {
