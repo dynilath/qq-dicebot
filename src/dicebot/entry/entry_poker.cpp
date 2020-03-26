@@ -56,11 +56,13 @@ static bool draw_poker(const std::string &suffix, const event_info &event,
     unsigned long draw_count = 1;
     size_t tail_start;
     try {
-        draw_count = std::stoul(suffix, &tail_start);
-        if (draw_count == 0)
-            return false;
-        if (draw_count > p_deck->size())
-            draw_count = p_deck->size();
+        if(suffix.size() > 0){
+            draw_count = std::stoul(suffix, &tail_start);
+            if (draw_count == 0)
+                return false;
+            if (draw_count > p_deck->size())
+                draw_count = p_deck->size();
+        }
     } catch (std::invalid_argument &) {
     } catch (std::out_of_range &) {
         draw_count = p_deck->size();
