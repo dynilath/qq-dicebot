@@ -440,8 +440,40 @@ TEST_F(entry_test, poker) {
         "[CQ:emoji,id=127828],[CQ:emoji,id=127839],"
         "[CQ:emoji,id=127867],[CQ:emoji,id=127866]";
     ASSERT_TRUE(this->test_call(
-        ei, cqcode_test, std::regex(" \\* dice 已初始化牌库，总计5张牌")));
+        ei, cqcode_test, std::regex(" \\* dice 已初始化牌库，总计6张牌")));
     ASSERT_NO_THROW(this->base_call(ei, ".pd 10"));
+
+    std::regex one_card(" \\* dice 已初始化牌库，总计1张牌");
+    ASSERT_TRUE(this->test_call(
+        ei, ".pinit test", one_card));
+    ASSERT_TRUE(this->test_call(
+        ei, ".pinit test,", one_card));
+    ASSERT_TRUE(this->test_call(
+        ei, ".pinit ,test", one_card));
+    ASSERT_TRUE(this->test_call(
+        ei, ".pinit 0,", one_card));
+    ASSERT_TRUE(this->test_call(
+        ei, ".pinit ,0", one_card));
+
+    std::regex two_card(" \\* dice 已初始化牌库，总计2张牌");
+    ASSERT_TRUE(this->test_call(
+        ei, ".pinit 1,2", two_card));
+    ASSERT_TRUE(this->test_call(
+        ei, ".pinit 1,2,", two_card));
+    ASSERT_TRUE(this->test_call(
+        ei, ".pinit ,1,2", two_card));
+    ASSERT_TRUE(this->test_call(
+        ei, ".pinit 1/2", two_card));
+    ASSERT_TRUE(this->test_call(
+        ei, ".pinit /1/2", two_card));
+    ASSERT_TRUE(this->test_call(
+        ei, ".pinit 1/2/", two_card));
+    ASSERT_TRUE(this->test_call(
+        ei, ".pinit 1;2", two_card));
+    ASSERT_TRUE(this->test_call(
+        ei, ".pinit ;1;2", two_card));
+    ASSERT_TRUE(this->test_call(
+        ei, ".pinit 1;2;", two_card));
 
 }
 
