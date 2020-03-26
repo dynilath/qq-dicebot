@@ -26,6 +26,7 @@ std::list<utils::string_view> utils::split_line(std::string const& source) {
 }
 
 bool utils::trim(utils::string_view& part) {
+    if (part.empty()) return false;
     auto left = part.begin();
     while (std::isblank(*left, std::locale("")) && left != part.end()) left++;
     if (left == part.end()) return false;
