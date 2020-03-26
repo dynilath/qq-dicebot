@@ -324,18 +324,21 @@ auto split_with_first_separator(const std::string& source)
         }
     }
 
-    if(where == unbracketed.end()){
-        ::utils::string_view sv_full = {source.begin(), source.end()};
-        if (::utils::trim(sv_full)) {
-            ret_val.push_back(std::move(sv_full));
+    auto trim_push = [&ret_val](
+            ::utils::string_view::iterator left, 
+            ::utils::string_view::iterator right){
+        ::utils::string_view sv = {left, right};
+        if (::utils::trim(sv)) {
+            ret_val.push_back(std::move(sv));
         }
+    };
+
+    if(where == unbracketed.end()){
+        trim_push(source.begin(), source.end());
     }
     else{
         auto source_begin_point = source.begin();
-        ::utils::string_view sv_first = {source_begin_point, sv_sep.begin()};
-        if (::utils::trim(sv_first)) {
-            ret_val.push_back(std::move(sv_first));
-        }
+        trim_push(source_begin_point, sv_sep.begin());
         source_begin_point = sv_sep.end();
 
         auto start_point = sv_sep.end();
@@ -352,13 +355,11 @@ auto split_with_first_separator(const std::string& source)
                 continue;
             }
             else{
-                ::utils::string_view sv_part = {source_begin_point, found};
-                if (::utils::trim(sv_part)) {
-                    ret_val.push_back(std::move(sv_part));
-                }
+                trim_push(source_begin_point, found);
                 start_point = source_begin_point = found + sv_sep.size();
             }
         }
+        trim_push(source_begin_point, source.end());
     }
 
     return ret_val;
