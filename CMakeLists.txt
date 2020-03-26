@@ -39,7 +39,7 @@ set(LIB_NAME "app")
 if(MSVC AND (CMAKE_SIZEOF_VOID_P EQUAL 4))
     cq_add_app(${LIB_NAME} ${SOURCE_FILES} ${DICEBOT_SOURCE})
     target_link_libraries(${LIB_NAME} sqlite3)
-    cq_install_std_app(${LIB_NAME} "${PROJECT_SOURCE_DIR}/scripts/install.ps1")
+    cq_add_install_script(${LIB_NAME} "${PROJECT_SOURCE_DIR}/scripts/install.ps1")
 endif()
 
 set(CQCPPSDK_DEV_MODE ON)
