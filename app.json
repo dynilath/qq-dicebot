@@ -2,7 +2,7 @@
     "ret": 1,
     "apiver": 9,
     "name": "骰子机器人",
-    "version": "1.7.2",
+    "version": "1.7.3",
     "version_id": 7,
     "author": "dynilath",
     "description": "一个骰子机器人，访问项目github页面：http://github.com/dynilath/CoolQDicebot",

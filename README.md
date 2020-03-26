@@ -21,7 +21,7 @@ Just a simple dicebot for coolq in development.
 点击[下载cpk](https://github.com/dynilath/coolq-dicebot/releases/latest)前往下载本骰子机器人最新cpk。  
 点击[获取酷Q](https://cqp.cc/)前往酷Q官网下载酷Q。    
 点击[酷Q wiki](https://d.cqp.me/Pro/%E6%96%B0%E6%89%8B%E4%B8%8A%E8%B7%AF)前往酷Qwiki了解如何使用酷Q以及插件如何安装。  
-部署时你可能会遇到酷Q提示126(-103)错误，这很可能是因为运行环境没有Visual C++ Redistributable，你可以前往[这里](https://www.microsoft.com/zh-CN/download/details.aspx?id=48145)下载。
+部署时你可能会遇到酷Q提示126(-103)错误，这很可能是因为运行环境没有`Visual C++ Redistributable`，你可以前往[这里](https://www.microsoft.com/zh-CN/download/details.aspx?id=48145)下载。
   
 # 实例  
 
@@ -37,17 +37,22 @@ QQ：1701687847
 - [安装](#安装)
 - [实例](#实例)
 - [目录](#目录)
+- [构建项目](#构建项目)
+    - [依赖概述](#依赖概述)
+    - [构建](#构建)
+    - [使用bootstrap.ps1](#使用bootstrapps1)
+    - [运行测试](#运行测试)
 - [使用示范](#使用示范)
     - [help](#help)
-    - [基本骰子指令(.roll或.r)](#基本骰子指令roll或r)
+    - [基本骰子指令(`.roll`或`.r`)](#基本骰子指令roll或r)
         - [骰子基础](#骰子基础)
         - [骰子机器人回复格式](#骰子机器人回复格式)
         - [双/三/四骰取高/低](#双三四骰取高低)
         - [多行输入](#多行输入)
         - [`#`标记和多次骰](#标记和多次骰)
         - [骰子与算式](#骰子与算式)
-        - [开启/关闭详细结果(.roll source on/off)](#开启关闭详细结果roll-source-onoff)
-    - [骰子专用的昵称(.name或.n)](#骰子专用的昵称name或n)
+        - [开启/关闭详细结果(`.roll source on/off`)](#开启关闭详细结果roll-source-onoff)
+    - [骰子专用的昵称(`.name`或`.n`)](#骰子专用的昵称name或n)
         - [不回复地更改昵称(.name silence或.ns)](#不回复地更改昵称name-silence或ns)
     - [定义骰子(.set或.s)](#定义骰子set或s)
         - [默认骰子](#默认骰子)
@@ -73,6 +78,35 @@ QQ：1701687847
         - [清空手动骰子(`.mka`)](#清空手动骰子mka)
 
 <!-- /TOC -->
+
+# 构建项目
+
+## 依赖概述
+本项目使用`sqlite3`作为数据库，使用`Google Test`框架构建测试。使用到的`cqcppsdk`需要windows sdk作为依赖条件，如前文所述，这也使得该插件需要`Visual C++ Redistributable`来运行。在非`win`的环境下仍然可以编译得到测试文件和`app_dev`，但无法得到插件部署所需的`dll`。
+
+## 构建
+了解`cmake`的开发者可以看看[CMakeLists.txt](/CMakeLists.txt)，准备好依赖后直接通过`cmake`构建。这里就不多做赘述了。
+
+## 使用bootstrap.ps1
+不太明白的开发者可以通过运行`bootstrap.ps1`来快捷构建。这是一个`powershell`脚本，如果你的电脑没有`powershell`请去安装一个，这里不做赘述。  
+该脚本只是把准备依赖和操作`cmake`的过程都写进了脚本里，所以这仍然需要你先去安装一个[CMake](https://cmake.org/)。除此之外，你需要先去折腾一个[VCPKG](https://github.com/Microsoft/vcpkg/)，并将`vcpkg`的根目录路径设置到系统变量`VCPKG_ROOT`中。然后你运行该脚本，看依赖装完，看编译走完，完毕。  
+除此之外，`bootstrap.ps1`可以接受编译配置作为参数，例如
+
+> .\bootstrap.ps1 Debug
+
+以此来编译`Debug`配置的本项目。
+
+## 运行测试
+
+本项目的单元测试项目包括
+
+* dicebot.gtest.roll_test
+* dicebot.gtest.entry_test
+* dicebot.gtest.number_test
+* dicebot.gtest.data_test
+
+你可以直接运行对应的可执行文件来测试，如果使用的是`GNU`工具组也可以直接`make test`来测试（当然那个时候无法产生插件所需的`dll`文件）。  
+*注：这里的`roll_test`使用到卡方检验，虽然通过概率非常非常大但仍然有1‰概率无法通过。*
 
 # 使用示范
 
@@ -120,7 +154,7 @@ QQ：1701687847
 > 指令.rs 3d6：骰3d6，无视rs off状态，仍然显示详细结果
 > ```
 
-## 基本骰子指令(.roll或.r)
+## 基本骰子指令(`.roll`或`.r`)
 
 ### 骰子基础
 
@@ -236,7 +270,7 @@ QQ：1701687847
 > dynilath：`.r d20-{1,2,3,4}`  
 > DiceBot：` * dynilath 掷骰: {d20} - {1, 2, 3, 4} = {[19]} - {1, 2, 3, 4} = {18, 17, 16, 15}`
 
-### 开启/关闭详细结果(.roll source on/off)
+### 开启/关闭详细结果(`.roll source on/off`)
 
 你可以使用`.roll source off`来关闭具体每个骰子结果为多少的输出。    
 你也可以使用它较短的形式`.rs off`。   
@@ -260,7 +294,7 @@ QQ：1701687847
 > dynilath：`.rs4d6`   
 > DiceBot：` * dynilath 掷骰: 4d6 = [3 + 1 + 6 + 5] = 15`
  
-## 骰子专用的昵称(.name或.n)
+## 骰子专用的昵称(`.name`或`.n`)
 
 使用`.name`指令来指定一个仅在骰子机器人的回复文本中使用的名字。  
 你也可以使用它较短的形式`.n`。    

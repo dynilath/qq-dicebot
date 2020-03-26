@@ -1,7 +1,6 @@
 BasedOnStyle: Google
 Standard: Cpp11
 IndentWidth: 4
-ColumnLimit: 130
 AccessModifierOffset: -4
 NamespaceIndentation: All
 IndentCaseLabels: false

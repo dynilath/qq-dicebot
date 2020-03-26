@@ -6,7 +6,7 @@
 int main(int argc, char const *argv[]) {
     std::string in;
 
-    dicebot::event_info ei(123456);
+    ::event_info ei(123456);
     ei.nickname = "dynilath";
     dicebot::initialize("./build/test_db/");
 

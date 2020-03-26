@@ -5,7 +5,7 @@
 #include <vector>
 #include <sstream>
 
-#include "../../cqcppsdk/src/utils/base64.h"
+#include "../../cqcppsdk/src/utils/base64.hpp"
 #include "../constants.h"
 #include "../utils/archive.h"
 #ifdef _DEBUG

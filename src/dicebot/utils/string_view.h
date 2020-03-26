@@ -16,7 +16,9 @@ namespace dicebot::utils {
     // sub_match and can convert to std::string
     template <typename _str_iter,
               typename std::enable_if_t<
-                  std::is_base_of_v<typename std::bidirectional_iterator_tag, typename _str_iter::iterator_category>, int> = 0>
+                  std::is_base_of_v<typename std::bidirectional_iterator_tag,
+                                    typename _str_iter::iterator_category>,
+                  int> = 0>
     class basic_string_view : std::pair<_str_iter, _str_iter> {
         using iter_t = _str_iter;
         using c_t = typename iter_t::value_type;
@@ -25,7 +27,8 @@ namespace dicebot::utils {
         using sub_match_t = typename std::match_results<iter_t>::value_type;
 
     public:
-        static_assert(std::is_same_v<c_t, trait_t>, "value_type and trait_type require to be same.");
+        static_assert(std::is_same_v<c_t, trait_t>,
+                      "value_type and trait_type require to be same.");
 
         using traits_type = typename iter_t::value_type;
         using value_type = traits_type;
@@ -52,11 +55,14 @@ namespace dicebot::utils {
     public:
         basic_string_view() noexcept : std::pair<iter_t, iter_t>() {}
 
-        basic_string_view(iter_t first, iter_t second) noexcept : std::pair<iter_t, iter_t>(first, second) {}
+        basic_string_view(iter_t first, iter_t second) noexcept
+            : std::pair<iter_t, iter_t>(first, second) {}
 
-        basic_string_view(const sub_match_t& sub_match) noexcept : std::pair<iter_t, iter_t>(sub_match.first, sub_match.second) {}
+        basic_string_view(const sub_match_t& sub_match) noexcept
+            : std::pair<iter_t, iter_t>(sub_match.first, sub_match.second) {}
 
-        basic_string_view(sub_match_t&& sub_match) noexcept : std::pair<iter_t, iter_t>(std::move(sub_match)) {}
+        basic_string_view(sub_match_t&& sub_match) noexcept
+            : std::pair<iter_t, iter_t>(std::move(sub_match)) {}
 
         iter_t begin() const { return this->first; }
 
@@ -66,33 +72,49 @@ namespace dicebot::utils {
 
         iter_t cend() const { return this->second; }
 
-        riter_t rbegin() const { return std::make_reverse_iterator(this->second); }
+        riter_t rbegin() const {
+            return std::make_reverse_iterator(this->second);
+        }
 
         riter_t rend() const { return std::make_reverse_iterator(this->first); }
 
-        riter_t crbegin() const { return std::make_reverse_iterator(this->second); }
+        riter_t crbegin() const {
+            return std::make_reverse_iterator(this->second);
+        }
 
-        riter_t crend() const { return std::make_reverse_iterator(this->first); }
+        riter_t crend() const {
+            return std::make_reverse_iterator(this->first);
+        }
 
-        size_type size() const { return std::distance(this->first, this->second); }
+        size_type size() const {
+            auto diff = ::std::distance(this->first, this->second);
+            if (diff > 0) return diff;
+            else return 0;
+        }
+
+        bool empty() const {
+            return this->first == this->second || ::std::distance(this->first, this->second) <= 0;
+        }
 
         template <std::enable_if_t<
-                      std::is_same_v<typename std::random_access_iterator_tag, typename _str_iter::iterator_category>, int> = 0>
+                      std::is_same_v<typename std::random_access_iterator_tag,
+                                     typename _str_iter::iterator_category>,
+                      int> = 0>
         value_type operator[](size_type _Off) {
 #ifdef _DEBUG
-            std::assert(_Off < this->size());
+            assert(_Off < this->size());
 #endif
             return this->first[_Off];
         }
 
         value_type operator[](size_type _Off) {
 #ifdef _DEBUG
-            std::assert(_Off < this->size());
+            assert(_Off < this->size());
 #endif
             return *(this->first + _Off);
         }
 
-        template <typename string_t = std::basic_string<value_type>>
+        using string_t = ::std::basic_string<value_type>;
         operator string_t() const {
             return string_t(this->first, this->second);
         }
