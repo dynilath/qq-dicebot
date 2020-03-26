@@ -96,14 +96,14 @@ namespace dicebot::utils {
                       int> = 0>
         value_type operator[](size_type _Off) {
 #ifdef _DEBUG
-            std::assert(_Off < this->size());
+            assert(_Off < this->size());
 #endif
             return this->first[_Off];
         }
 
         value_type operator[](size_type _Off) {
 #ifdef _DEBUG
-            std::assert(_Off < this->size());
+            assert(_Off < this->size());
 #endif
             return *(this->first + _Off);
         }
