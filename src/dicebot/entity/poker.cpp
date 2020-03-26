@@ -1,10 +1,13 @@
 #include "./poker.h"
 #include <array>
+#include <deque>
 #include <regex>
 #include <unordered_map>
 #include <vector>
 #include "../random/random_provider.h"
+#include "../utils/string_utils.h"
 #include "../utils/utils.h"
+
 using namespace dicebot;
 using namespace poker;
 
@@ -259,54 +262,78 @@ static size_t split_string_ignore_spaces(
 };
 
 static std::pair<uint32_t, std::string> split_into_number_and_name(
-    const std::string& source, const std::pair<size_t, size_t>& item) {
-    constexpr char numbers[] = "0123456789";
-    int counts_of_item = 1;
-    size_t item_number_part = source.find_first_not_of(numbers, item.first);
+    ::utils::string_view source) {
+    auto number_end =
+        ::std::find_if_not(source.begin(), source.end(), [](auto c) {
+            return '0' <= c && c <= '9';
+        });
 
-    size_t name_start = item.first;
-
-    if (item_number_part > item.second)
-        return {0, ""};
-    else if (item_number_part > item.first) {
-        counts_of_item =
-            std::stoi(source.substr(item.first, item_number_part - item.first));
-        name_start = source.find_first_not_of(numbers, item_number_part);
+    if (number_end == source.begin()) {
+        if (::utils::trim(source))
+            return {1, source};
+        else
+            return {0, ""};
     }
-    return {counts_of_item,
-            source.substr(name_start, item.second + 1 - name_start)};
+
+    ::utils::string_view sv_num = {source.begin(), number_end};
+    ::utils::string_view sv_name = {number_end, source.end()};
+    if (::utils::trim(sv_name)) {
+        size_t counts_of_item = std::stoi(sv_num);
+        return {counts_of_item, sv_name};
+    } else {
+        ::utils::trim(sv_num);
+        return {1, sv_num};
+    }
 };
 
 auto split_with_first_separator(const std::string& source)
-    -> std::deque<std::pair<size_t, size_t>> {
-    std::deque<std::pair<size_t, size_t>> ret_val;
+    -> std::deque<::utils::string_view> {
+    std::deque<::utils::string_view> ret_val;
     std::smatch match_separator;
-    std::regex reg_separator(u8"(,|\\/|&|;|，|。|、|；)");
-    constexpr char ignores[] = " \t";
-    std::regex_search(source, match_separator, reg_separator);
-    if (match_separator.empty()) {
-        auto start_point = source.find_first_not_of(ignores);
-        if (start_point != std::string::npos) {
-            auto end_point = source.find_last_not_of(ignores);
-            ret_val.push_back({start_point, end_point});
+    auto start_point = source.begin();
+    while (true) {
+        std::regex reg_separator(u8"(,|\\/|&|;|，|。|、|；|\\[)");
+        constexpr char ignores[] = " \t";
+        std::regex_search(
+            start_point, source.end(), match_separator, reg_separator);
+
+        if (match_separator.empty()) {
+            ::utils::string_view sv = {source.begin(), source.end()};
+            if (::utils::trim(sv)) {
+                ret_val.push_back(std::move(sv));
+            }
             return ret_val;
-        } else
-            return ret_val;
-    } else {
-        std::string separator = match_separator[0];
-        size_t start_point = 0;
-        size_t end_point = std::string::npos;
-        while (true) {
-            auto sep_point = source.find(separator, start_point);
-            start_point = source.find_first_not_of(ignores, start_point);
-            end_point = source.find_last_not_of(ignores, sep_point - 1);
-            if (end_point != std::string::npos && end_point >= start_point)
-                ret_val.push_back({start_point, end_point});
-            if (sep_point == std::string::npos) break;
-            start_point = sep_point + separator.size();
-            if (start_point >= source.size()) break;
         }
-        return ret_val;
+
+        ::utils::string_view sv_sep = match_separator[0];
+        if (sv_sep[0] == '[') {
+            start_point = ::std::find(start_point, source.end(), ']');
+            continue;
+        } else {
+            ::utils::string_view sv_preff = {source.begin(), sv_sep.begin()};
+            if (::utils::trim(sv_preff)) {
+                ret_val.push_back(std::move(sv_preff));
+            }
+
+            start_point = sv_sep.end();
+
+            while (true) {
+                auto found = ::std::search(
+                    start_point, source.end(), sv_sep.begin(), sv_sep.end());
+
+                ::utils::string_view sv_part = {start_point, found};
+                if (::utils::trim(sv_part)) {
+                    ret_val.push_back(::std::move(sv_part));
+                }
+
+                if (found == source.end()) {
+                    break;
+                }
+
+                start_point = found + sv_sep.size();
+            }
+            return ret_val;
+        }
     }
 }
 
@@ -320,9 +347,7 @@ void poker_deck::init(const std::string& params) noexcept {
         this->card_sources.reserve(split_container.size());
 
     for (auto& item : split_container) {
-        size_t item_len = item.second + 1 - item.first;
-
-        std::string item_string = params.substr(item.first, item_len);
+        std::string item_string = item;
 
         auto preset_d = preset_deck_map.find(item_string);
         if (preset_d != preset_deck_map.end()) {
@@ -332,7 +357,7 @@ void poker_deck::init(const std::string& params) noexcept {
             continue;
         }
 
-        auto [count, name] = split_into_number_and_name(params, item);
+        auto [count, name] = split_into_number_and_name(item);
 
         if (count > MAX_DECK_SIZE) count = MAX_DECK_SIZE;
         if (count + this->deck.size() > MAX_DECK_SIZE) {
