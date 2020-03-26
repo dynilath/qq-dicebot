@@ -32,6 +32,7 @@ bool utils::trim(utils::string_view& part) {
     auto right = part.rbegin();
     while (std::isblank(*right, std::locale("")) && right != part.rend())
         right++;
+    if (right == part.rend()) return false;
     part = {left, right.base()};
     return true;
 }
