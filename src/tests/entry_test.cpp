@@ -25,10 +25,11 @@ public:
         return std::regex_search(output, reg_test);
     }
 
-    void base_call(::event_info &ei, const std::string &source) {
+    std::string base_call(::event_info &ei, const std::string &source) {
         std::string output;
         dicebot::try_fill_nickname(ei);
         dicebot::message_pipeline(source, ei, output);
+        return output;
     }
 };
 
@@ -520,22 +521,19 @@ TEST_F(entry_test, range_exceed) {
         ei, ".r100d6", std::regex(" \\* dice 投掷过多骰子，最大为50")));
     ASSERT_TRUE(this->test_call(
         ei, ".r1d1001", std::regex(" \\* dice 投掷骰子面数过多，最大为1000")));
-    ASSERT_TRUE(this->test_call(
+
+
+    std::string must_pos_int(u8" * dice 骰子的数量、面数、重复次数必须为正整数");
+
+    std::string ret;
+    ret = this->base_call(ei, ".r(-1)d10");
+    ASSERT_EQ(this->base_call(ei, ".r(-1)d10"), must_pos_int);
+    ASSERT_EQ(this->base_call(ei,".r1d(3.6)"), must_pos_int);
+    ASSERT_EQ(this->base_call(ei,".r1d10k(-2)"), must_pos_int);
+    ASSERT_EQ(this->base_call(
         ei,
-        ".r(-1)d10",
-        std::regex(" \\* dice 骰子的数量、面数、重复次数必须为正整数")));
-    ASSERT_TRUE(this->test_call(
-        ei,
-        ".r1d(3.6)",
-        std::regex(" \\* dice 骰子的数量、面数、重复次数必须为正整数")));
-    ASSERT_TRUE(this->test_call(
-        ei,
-        ".r1d10k(-2)",
-        std::regex(" \\* dice 骰子的数量、面数、重复次数必须为正整数")));
-    ASSERT_TRUE(this->test_call(
-        ei,
-        ".r12345678901234567890123456789012345678901234567890d6",
-        std::regex(" \\* dice 数值超出计算范围")));
+        ".r12345678901234567890123456789012345678901234567890d6"),
+        u8" * dice 数值超出计算范围");
 }
 
 int main(int argc, char **argv) {
