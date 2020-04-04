@@ -3,9 +3,8 @@
 #include <list>
 #include <regex>
 
-#include "gtest/gtest.h"
-
 #include "dicebot/dicebot.h"
+#include "gtest/gtest.h"
 
 #ifndef DB_FOLDER
 #define DB_FOLDER ""
@@ -23,6 +22,14 @@ public:
         dicebot::try_fill_nickname(ei);
         dicebot::message_pipeline(source, ei, output);
         return std::regex_search(output, reg_test);
+    }
+
+    bool test_call(::event_info &ei, const std::string &source,
+                   const std::string &reg_test) {
+        std::string output;
+        dicebot::try_fill_nickname(ei);
+        dicebot::message_pipeline(source, ei, output);
+        return output == reg_test;
     }
 
     std::string base_call(::event_info &ei, const std::string &source) {
@@ -436,46 +443,31 @@ TEST_F(entry_test, poker) {
     ASSERT_NO_THROW(this->base_call(ei, ".pinit minor arcana"));
     ASSERT_NO_THROW(this->base_call(ei, ".pd 10"));
 
-    ::std::string cqcode_test = 
+    ::std::string cqcode_test =
         ".pinit [CQ:emoji,id=127838],[CQ:face,id=113],"
         "[CQ:emoji,id=127828],[CQ:emoji,id=127839],"
         "[CQ:emoji,id=127867],[CQ:emoji,id=127866]";
-    ASSERT_TRUE(this->test_call(
-        ei, cqcode_test, std::regex(" \\* dice 已初始化牌库，总计6张牌")));
+    ASSERT_TRUE(
+        this->test_call(ei, cqcode_test, " * dice 已初始化牌库，总计6张牌"));
     ASSERT_NO_THROW(this->base_call(ei, ".pd 10"));
 
-    std::regex one_card(" \\* dice 已初始化牌库，总计1张牌");
-    ASSERT_TRUE(this->test_call(
-        ei, ".pinit test", one_card));
-    ASSERT_TRUE(this->test_call(
-        ei, ".pinit test,", one_card));
-    ASSERT_TRUE(this->test_call(
-        ei, ".pinit ,test", one_card));
-    ASSERT_TRUE(this->test_call(
-        ei, ".pinit 0,", one_card));
-    ASSERT_TRUE(this->test_call(
-        ei, ".pinit ,0", one_card));
+    std::string one_card(" * dice 已初始化牌库，总计1张牌");
+    ASSERT_TRUE(this->test_call(ei, ".pinit test", one_card));
+    ASSERT_TRUE(this->test_call(ei, ".pinit test,", one_card));
+    ASSERT_TRUE(this->test_call(ei, ".pinit ,test", one_card));
+    ASSERT_TRUE(this->test_call(ei, ".pinit 0,", one_card));
+    ASSERT_TRUE(this->test_call(ei, ".pinit ,0", one_card));
 
-    std::regex two_card(" \\* dice 已初始化牌库，总计2张牌");
-    ASSERT_TRUE(this->test_call(
-        ei, ".pinit 1,2", two_card));
-    ASSERT_TRUE(this->test_call(
-        ei, ".pinit 1,2,", two_card));
-    ASSERT_TRUE(this->test_call(
-        ei, ".pinit ,1,2", two_card));
-    ASSERT_TRUE(this->test_call(
-        ei, ".pinit 1/2", two_card));
-    ASSERT_TRUE(this->test_call(
-        ei, ".pinit /1/2", two_card));
-    ASSERT_TRUE(this->test_call(
-        ei, ".pinit 1/2/", two_card));
-    ASSERT_TRUE(this->test_call(
-        ei, ".pinit 1;2", two_card));
-    ASSERT_TRUE(this->test_call(
-        ei, ".pinit ;1;2", two_card));
-    ASSERT_TRUE(this->test_call(
-        ei, ".pinit 1;2;", two_card));
-
+    std::string two_card(" * dice 已初始化牌库，总计2张牌");
+    ASSERT_TRUE(this->test_call(ei, ".pinit 1,2", two_card));
+    ASSERT_TRUE(this->test_call(ei, ".pinit 1,2,", two_card));
+    ASSERT_TRUE(this->test_call(ei, ".pinit ,1,2", two_card));
+    ASSERT_TRUE(this->test_call(ei, ".pinit 1/2", two_card));
+    ASSERT_TRUE(this->test_call(ei, ".pinit /1/2", two_card));
+    ASSERT_TRUE(this->test_call(ei, ".pinit 1/2/", two_card));
+    ASSERT_TRUE(this->test_call(ei, ".pinit 1;2", two_card));
+    ASSERT_TRUE(this->test_call(ei, ".pinit ;1;2", two_card));
+    ASSERT_TRUE(this->test_call(ei, ".pinit 1;2;", two_card));
 }
 
 TEST_F(entry_test, multiline_case_fullcmd) {
@@ -522,18 +514,17 @@ TEST_F(entry_test, range_exceed) {
     ASSERT_TRUE(this->test_call(
         ei, ".r1d1001", std::regex(" \\* dice 投掷骰子面数过多，最大为1000")));
 
-
-    std::string must_pos_int(u8" * dice 骰子的数量、面数、重复次数必须为正整数");
+    std::string must_pos_int(
+        u8" * dice 骰子的数量、面数、重复次数必须为正整数");
 
     std::string ret;
     ret = this->base_call(ei, ".r(-1)d10");
     ASSERT_EQ(this->base_call(ei, ".r(-1)d10"), must_pos_int);
-    ASSERT_EQ(this->base_call(ei,".r1d(3.6)"), must_pos_int);
-    ASSERT_EQ(this->base_call(ei,".r1d10k(-2)"), must_pos_int);
+    ASSERT_EQ(this->base_call(ei, ".r1d(3.6)"), must_pos_int);
+    ASSERT_EQ(this->base_call(ei, ".r1d10k(-2)"), must_pos_int);
     ASSERT_EQ(this->base_call(
-        ei,
-        ".r12345678901234567890123456789012345678901234567890d6"),
-        u8" * dice 数值超出计算范围");
+                  ei, ".r12345678901234567890123456789012345678901234567890d6"),
+              u8" * dice 数值超出计算范围");
 }
 
 int main(int argc, char **argv) {
