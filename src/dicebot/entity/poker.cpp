@@ -1,9 +1,11 @@
 #include "./poker.h"
+
 #include <array>
 #include <deque>
 #include <regex>
 #include <unordered_map>
 #include <vector>
+
 #include "../random/random_provider.h"
 #include "../utils/string_utils.h"
 #include "../utils/utils.h"
@@ -292,69 +294,64 @@ auto split_with_first_separator(const std::string& source)
 
     ::std::deque<::utils::string_view> unbracketed;
     auto start_point = source.begin();
-    while(start_point != source.end()){
-        auto lbracket = ::std::find(start_point,source.end(),'[');
-        if(lbracket == source.end()){
-            unbracketed.push_back({start_point,source.end()});
+    while (start_point != source.end()) {
+        auto lbracket = ::std::find(start_point, source.end(), '[');
+        if (lbracket == source.end()) {
+            unbracketed.push_back({start_point, source.end()});
             break;
         }
-        auto rbracket = ::std::find(lbracket,source.end(),']');
-        if(rbracket == source.end()){
-            unbracketed.push_back({start_point,source.end()});
+        auto rbracket = ::std::find(lbracket, source.end(), ']');
+        if (rbracket == source.end()) {
+            unbracketed.push_back({start_point, source.end()});
             break;
         }
-        if(lbracket != start_point)
-            unbracketed.push_back({start_point,lbracket});
+        if (lbracket != start_point)
+            unbracketed.push_back({start_point, lbracket});
         start_point = rbracket + 1;
     }
-    
+
     std::regex reg_separator(u8"(,|\\/|&|;|，|。|、|；)");
     ::utils::string_view sv_sep;
     auto where = unbracketed.begin();
-    for (; where != unbracketed.end(); where++)
-    {
+    for (; where != unbracketed.end(); where++) {
         std::smatch match_separator;
         std::regex_search(
             where->begin(), where->end(), match_separator, reg_separator);
-        if (match_separator.empty()) continue;
-        else
-        {
+        if (match_separator.empty())
+            continue;
+        else {
             sv_sep = match_separator[0];
             break;
         }
     }
 
-    auto trim_push = [&ret_val](
-            ::utils::string_view::iterator left, 
-            ::utils::string_view::iterator right){
+    auto trim_push = [&ret_val](::utils::string_view::iterator left,
+                                ::utils::string_view::iterator right) {
         ::utils::string_view sv = {left, right};
         if (::utils::trim(sv)) {
             ret_val.push_back(std::move(sv));
         }
     };
 
-    if(where == unbracketed.end()){
+    if (where == unbracketed.end()) {
         trim_push(source.begin(), source.end());
-    }
-    else{
+    } else {
         auto source_begin_point = source.begin();
         trim_push(source_begin_point, sv_sep.begin());
         source_begin_point = sv_sep.end();
 
         auto start_point = sv_sep.end();
         auto end_point = where->end();
-        while (true)
-        {
+        while (true) {
             auto found = ::std::search(
                 start_point, end_point, sv_sep.begin(), sv_sep.end());
-            if(found == end_point){
-                where ++;
-                if(where == unbracketed.end()) break;
+            if (found == end_point) {
+                where++;
+                if (where == unbracketed.end()) break;
                 start_point = where->begin();
                 end_point = where->end();
                 continue;
-            }
-            else{
+            } else {
                 trim_push(source_begin_point, found);
                 start_point = source_begin_point = found + sv_sep.size();
             }

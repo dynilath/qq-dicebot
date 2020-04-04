@@ -1,7 +1,8 @@
+#include "../dicebot/utils/number.h"
+
 #include <climits>
 #include <cmath>
 
-#include "../dicebot/utils/number.h"
 #include "gtest/gtest.h"
 
 namespace dicebot::test {
@@ -33,7 +34,8 @@ namespace dicebot::test {
 
         oper<double> double_oper;
 
-        std::string compare = std::to_string(double_oper((double)val1, (double)val2));
+        std::string compare =
+            std::to_string(double_oper((double)val1, (double)val2));
         int pos = compare.find_last_not_of('0');
         if (pos != std::string::npos)
             compare.assign(compare.substr(0, pos + 1));
@@ -53,11 +55,13 @@ namespace dicebot::test {
         oper<double> double_oper;
 
         if (is_int)
-            compare = std::to_string(std::lround(double_oper((double)val1, (double)val2)));
+            compare = std::to_string(
+                std::lround(double_oper((double)val1, (double)val2)));
         else {
             compare = std::to_string(double_oper((double)val1, (double)val2));
             int pos = compare.find_last_not_of('0');
-            if (pos != std::string::npos) compare.assign(compare.substr(0, pos + 1));
+            if (pos != std::string::npos)
+                compare.assign(compare.substr(0, pos + 1));
         }
         ASSERT_EQ(std::string(ret), compare);
         ASSERT_EQ(ret.is_using_int, is_int);

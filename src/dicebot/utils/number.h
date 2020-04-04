@@ -2,6 +2,7 @@
 #include <cmath>
 #include <cstdint>
 #include <exception>
+#include <iostream>
 #include <string>
 namespace dicebot {
 
@@ -56,11 +57,13 @@ namespace dicebot {
         bool operator==(const float_type val1) const;
 
         operator std::string() const noexcept;
-        friend std::ostream &operator<<(std::ostream &os, const number &num) noexcept {
+        friend std::ostream &operator<<(std::ostream &os,
+                                        const number &num) noexcept {
             os << std::string(num);
             return os;
         }
-        friend std::ostream &operator<<(std::ostream &os, number &&num) noexcept {
+        friend std::ostream &operator<<(std::ostream &os,
+                                        number &&num) noexcept {
             os << std::string(num);
             return os;
         }

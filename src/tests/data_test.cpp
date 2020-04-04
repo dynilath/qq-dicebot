@@ -1,4 +1,4 @@
-#include <experimental/filesystem>
+#include <filesystem>
 
 #include "../dicebot/dicebot.h"
 #include "gtest/gtest.h"
@@ -22,7 +22,8 @@ namespace dicebot::test {
         std::string test_db = DB_FOLDER_1;
 
         dicebot::initialize(test_db.c_str());
-        auto md = manual::manual_dice_control::get_instance()->find_manual_dice(ei);
+        auto md =
+            manual::manual_dice_control::get_instance()->find_manual_dice(ei);
         md->second.killall();
         const int test_face = 6;
         md->second.add({test_face, test_face, test_face, test_face});
@@ -34,7 +35,8 @@ namespace dicebot::test {
         dicebot::salvage();
 
         dicebot::initialize(test_db.c_str());
-        auto md2 = manual::manual_dice_control::get_instance()->find_manual_dice(ei);
+        auto md2 =
+            manual::manual_dice_control::get_instance()->find_manual_dice(ei);
         for (auto& item : md2->second.mdice) {
             ASSERT_EQ(item.second, result.front());
             result.pop_front();
@@ -51,7 +53,8 @@ namespace dicebot::test {
         std::string test_db = DB_FOLDER_2;
 
         dicebot::initialize(test_db.c_str());
-        auto pf = profile::profile_manager::get_instance()->get_profile(ei.user_id);
+        auto pf =
+            profile::profile_manager::get_instance()->get_profile(ei.user_id);
         pf->sys_vars[profile::sys_var_type::rs_on] = profile::var_rs_on;
         pf->sys_vars[profile::sys_var_type::rs_on] = profile::var_rs_off;
 
@@ -61,12 +64,15 @@ namespace dicebot::test {
         std::string test_roll = "(4d6k3)";
         std::string test_roll_name = "strength";
         pf->mac_rolls[test_roll_name] = test_roll;
-        ASSERT_TRUE(profile::profile_manager::get_instance()->force_update(ei.user_id));
+        ASSERT_TRUE(
+            profile::profile_manager::get_instance()->force_update(ei.user_id));
         dicebot::salvage();
 
         dicebot::initialize(test_db.c_str());
-        auto pf2 = profile::profile_manager::get_instance()->get_profile(ei.user_id);
-        ASSERT_EQ(pf2->sys_vars[profile::sys_var_type::rs_on], profile::var_rs_off);
+        auto pf2 =
+            profile::profile_manager::get_instance()->get_profile(ei.user_id);
+        ASSERT_EQ(pf2->sys_vars[profile::sys_var_type::rs_on],
+                  profile::var_rs_off);
         ASSERT_EQ(pf2->def_roll[profile::def_roll_type::def_roll], def_roll);
         ASSERT_EQ(pf2->mac_rolls[test_roll_name], test_roll);
         dicebot::salvage();

@@ -3,7 +3,7 @@ $config_type = $args[0]
 $start_location = Resolve-Path .
 
 if ($null -eq $config_type) {
-    Write-Warning "No configuration specified, using Debug as default, if you want release, use `"confguire.ps1 Release`" instead."
+    Write-Warning "No configuration specified, using Debug as default, if you want release, use `"bootstrap.ps1 Release`" instead."
     $config_type = "Debug"
 }
 else{
@@ -48,18 +48,28 @@ function Test-And-Install-Packages {
     $_val = (& .\vcpkg list $_module_name)
     if ($null -eq $_val -or $_val -match '^No packages are installed') {
         Write-Host "Installing $_module_name ..."
-        .\vcpkg install $_module_name
+        (& .\vcpkg install $_module_name)
+
+        $_val = (& .\vcpkg list $_module_name)
+        if ($null -eq $_val -or $_val -match '^No packages are installed') {
+            Write-Warning "$_val is not installed"
+            Set-Location $_start_loc
+            return $false
+        }
     }
-    else {
-        $_val = $_val.SubString(0,$_val.IndexOf("  "))
-        Write-Host "$_val is installed" 
-    }
+    $_val = $_val.SubString(0,$_val.IndexOf("  "))
+    Write-Host "$_val is installed" 
     Set-Location $_start_loc
+    return $true
 }
 
 Write-Host "Checking denpendecies..." -ForegroundColor Green
-Test-And-Install-Packages("sqlite3")
-Test-And-Install-Packages("gtest")
+if( -not (Test-And-Install-Packages("sqlite3"))){
+    exit
+}
+if( -not (Test-And-Install-Packages("gtest"))){
+    exit
+}
 Write-Host "Dependencies checked." -ForegroundColor Green
 
 if (-not (Test-Path -Path ".\build")) {
@@ -70,11 +80,34 @@ $build_dir = Resolve-Path ".\build"
 Set-Location $build_dir
 
 Write-Host "Configuration begins." -ForegroundColor Green
-cmake `
-    -DCMAKE_TOOLCHAIN_FILE="$VCPKG_RT\scripts\buildsystems\vcpkg.cmake" `
-    -DCMAKE_CONFIGURATION_TYPES="$config_type" `
-    -DCMAKE_BUILD_TYPE="$config_type" `
-    ..
+
+try {
+    Get-Variable -Name IsWindows
+}
+catch{
+    try {
+        $os_str = (Get-ChildItem -Path Env:OS).value
+        $IsWindows = $os_str -match "^Windows"
+    }
+    catch{
+        $IsWindows = $false
+    }
+}
+
+if ($IsWindows){
+    Write-Host "Build for win32..."
+    cmake -A "Win32"`
+        -DCMAKE_TOOLCHAIN_FILE="$VCPKG_RT\scripts\buildsystems\vcpkg.cmake" `
+        -DCMAKE_CONFIGURATION_TYPES="$config_type" `
+        ..
+}else {
+    Write-Host "Build for anything..."
+    cmake `
+        -DCMAKE_TOOLCHAIN_FILE="$VCPKG_RT\scripts\buildsystems\vcpkg.cmake" `
+        -DCMAKE_BUILD_TYPE="$config_type" `
+        ..
+}
+
 
 Write-Host "Build begins." -ForegroundColor Green
 cmake --build .  --config $config_type

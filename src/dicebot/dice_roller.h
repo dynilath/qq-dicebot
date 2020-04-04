@@ -2,12 +2,14 @@
 
 #include <exception>
 #include <memory>
+#include <string>
 #include <vector>
 
 #include "./constants.h"
 namespace dicebot::roll {
 
-#define CHECK_LIMITS(_Num, _Face) ((_Face < MAX_DICE_FACE && _Num < MAX_DICE_NUM) && (_Face > 1 && _Num >= 1))
+#define CHECK_LIMITS(_Num, _Face) \
+    ((_Face < MAX_DICE_FACE && _Num < MAX_DICE_NUM) && (_Face > 1 && _Num >= 1))
 
     using dice_pair = std::pair<int32_t, bool>;
 
@@ -38,7 +40,8 @@ namespace dicebot::roll {
 
     void roll_coc(dice_roll& dice, int const i_bp);
 
-    void roll_wod(dice_roll& dice, int const i_val, int const i_d, int const i_bonus, bool failing);
+    void roll_wod(dice_roll& dice, int const i_val, int const i_d,
+                  int const i_bonus, bool failing);
 
     void roll_fate(dice_roll& dice, int const i_val);
 } // namespace dicebot::roll

@@ -199,7 +199,7 @@ number::operator std::string() const noexcept {
         return std::to_string(this->value.i_value);
     else {
         std::string ret = std::to_string(this->value.f_value);
-        int pos = ret.find_last_not_of('0');
+        size_t pos = ret.find_last_not_of('0');
         if (pos != std::string::npos) ret.assign(ret.substr(0, pos + 1));
         return ret;
     }
@@ -214,7 +214,7 @@ std::string number::str_holder() const noexcept {
     } else {
         std::string ret = "(";
         std::string fr = std::to_string(this->value.f_value);
-        int pos = fr.find_last_not_of('0');
+        size_t pos = fr.find_last_not_of('0');
         if (pos != std::string::npos)
             ret.append(fr.substr(0, pos + 1)).append(")");
         else

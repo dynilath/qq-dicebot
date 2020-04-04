@@ -21,16 +21,19 @@ entry_nickname::entry_nickname() noexcept {
         u8"指令.ns [名字]：上述命令的简写形式";
 }
 
-static std::regex filter_command("^(s)(?:ilence)? *", std::regex_constants::icase);
+static std::regex filter_command("^(s)(?:ilence)? *",
+                                 std::regex_constants::icase);
 
-bool entry_nickname::resolve_request(std::string const& message, event_info& event, std::string& response) noexcept {
+bool entry_nickname::resolve_request(std::string const& message,
+                                     event_info& event,
+                                     std::string& response) noexcept {
     bool is_silence = false;
     std::smatch match_list_silence;
     std::regex_search(message, match_list_silence, filter_command);
 
     if (match_list_silence.empty()) {
         std::string message_cp;
-        int pos_t = message.find_first_not_of(" \t");
+        size_t pos_t = message.find_first_not_of(" \t");
         if (pos_t != std::string ::npos)
             message_cp.assign(message.substr(pos_t));
         else
@@ -54,7 +57,7 @@ bool entry_nickname::resolve_request(std::string const& message, event_info& eve
         }
     } else {
         std::string s_message = match_list_silence.suffix().str();
-        int pos_t = s_message.find_first_not_of(" \t");
+        size_t pos_t = s_message.find_first_not_of(" \t");
         if (pos_t != std::string::npos) s_message = s_message.substr(pos_t);
 
         if (s_message.length() > 0) {
