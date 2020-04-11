@@ -2,6 +2,7 @@
 
 [![License](https://img.shields.io/github/license/dynilath/coolq-dicebot)](LICENSE)
 [![Build Status](https://img.shields.io/appveyor/build/dynilath/coolqdicebot)](https://ci.appveyor.com/project/dynilath/coolqdicebot)  
+[![dicebot开发测试](https://img.shields.io/badge/dicebot%E5%BC%80%E5%8F%91%E6%B5%8B%E8%AF%95-736910610-green.svg)](https://jq.qq.com/?_wv=1027&k=5g3t8RC)
 Just a simple dicebot for coolq in development.  
 只是一个简单的酷Q骰子机器人。  
 ![image](/dicebot_test.gif)   
