@@ -1,6 +1,5 @@
-#include "cqcppsdk/cqcppsdk.h"
-
 #include "./cqtool.h"
+#include "cqcppsdk/cqcppsdk.h"
 #include "dicebot/dicebot.h"
 
 namespace cqlogging = cq::logging; // 用于日志
@@ -43,7 +42,7 @@ CQ_INIT {
         if (!dicebot::utils::basic_event_filter(e.message)) return;
         event_info ei(e.user_id, e.discuss_id, event_type::group);
         if (!dicebot::try_fill_nickname(ei)) {
-            if (!get_group_nickname(ei, e.discuss_id, e.user_id)) return;
+            if (!get_nickname(ei, e.user_id)) return;
         }
         resolve_cap(ei, e.message, e.target);
     });
