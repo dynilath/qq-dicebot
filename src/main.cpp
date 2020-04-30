@@ -39,6 +39,13 @@ CQ_INIT {
     });
 
     cq::on_discuss_message([](const cq::DiscussMessageEvent &e) {
+        cq::message::Message msg = e.message;
+        for (auto &seg : msg) {
+            if (seg.type == "at") {
+                int64_t uid = ::std::stoll(seg.data["qq"]);
+            }
+        }
+
         if (!dicebot::utils::basic_event_filter(e.message)) return;
         event_info ei(e.user_id, e.discuss_id, event_type::group);
         if (!dicebot::try_fill_nickname(ei)) {
@@ -53,8 +60,7 @@ void resolve_cap(event_info &ei, std::string const &raw_source,
     try {
         std::string temp;
         if (!dicebot::message_pipeline(raw_source, ei, temp)) return;
-        auto msg = seg_cq_code(std::move(temp));
-        msg.send(target);
+        cq::send_message(target, temp);
 #ifdef _DEBUG
     } catch (const cq::ApiError &err) {
         cqlogging::debug(u8"DICE",
