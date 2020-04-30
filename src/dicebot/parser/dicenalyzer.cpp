@@ -241,24 +241,16 @@ void comp_holder::print(str_container &strlist) const noexcept {
 }
 
 static auto fit_for_dice = [](const number &num) -> int {
-    if (num.is_using_int && num.value.i_value > 0)
-        return num.value.i_value;
-    else {
-        if (num.value.f_value > MAX_DICE_NUM) {
-            throw dice_exceed();
-        }
-        throw invalid_dice();
-    }
+    if (!num.is_using_int) throw invalid_dice();
+    if (num.value.i_value < 0) throw invalid_dice();
+    if (num.value.i_value > MAX_DICE_NUM) throw dice_exceed();
+    return num.value.i_value;
 };
 static auto fit_for_face = [](const number &num) -> int {
-    if (num.is_using_int && num.value.i_value > 0)
-        return num.value.i_value;
-    else {
-        if (num.value.f_value > MAX_DICE_FACE) {
-            throw face_exceed();
-        }
-        throw invalid_dice();
-    }
+    if (!num.is_using_int) throw invalid_dice();
+    if (num.value.i_value < 0) throw invalid_dice();
+    if (num.value.i_value > MAX_DICE_FACE) throw face_exceed();
+    return num.value.i_value;
 };
 
 number comp_dice_rdk::roll_the_dice(str_container &out) const {
