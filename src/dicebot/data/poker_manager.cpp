@@ -1,9 +1,13 @@
 #include "./poker_manager.h"
 
+#include <mutex>
+
 using namespace dicebot;
 using namespace poker;
 
 std::unique_ptr<poker_manager> poker_manager::instance = nullptr;
+
+std::mutex poker_manager_mutex;
 
 poker_manager* poker_manager::create_instance() noexcept {
     poker_manager::instance = std::make_unique<poker_manager>();
@@ -16,12 +20,13 @@ void poker_manager::destroy_instance() noexcept {
     poker_manager::instance = nullptr;
 }
 
-poker_deck* poker_manager::get_deck(const int64_t group_id) {
+poker_deck& poker_manager::get_deck(const int64_t group_id) {
+    std::unique_lock pokerm_lock(poker_manager_mutex);
     auto iter = this->poker_map.find(group_id);
     if (iter != this->poker_map.end()) {
-        return &iter->second;
+        return iter->second;
     } else {
         auto iter_insert = this->poker_map.insert({group_id, poker_deck()});
-        return &iter_insert.first->second;
+        return iter_insert.first->second;
     }
 }

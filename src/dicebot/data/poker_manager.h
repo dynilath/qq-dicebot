@@ -13,6 +13,6 @@ namespace dicebot::poker {
         static poker_manager* create_instance() noexcept;
         static void destroy_instance() noexcept;
 
-        poker_deck* get_deck(const int64_t);
+        poker_deck& get_deck(const int64_t);
     };
 } // namespace dicebot::poker

@@ -7,6 +7,8 @@
 using namespace dicebot;
 using namespace dicebot::database;
 
+std::shared_mutex dicebot::database::database_mutex;
+
 constexpr char cstr_file_db[] = "com.dynilath.coolqdicebot.db";
 
 std::unique_ptr<database_manager> database_manager::instance;
