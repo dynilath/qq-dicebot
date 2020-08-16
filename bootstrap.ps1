@@ -39,6 +39,8 @@ catch {
 
 Write-Host "VCPKG_ROOT at $VCPKG_RT." -ForegroundColor Green
 
+$target_triplet = "x86-windows-static"
+
 function Test-And-Install-Packages {
     param (
         $_module_name
@@ -46,12 +48,15 @@ function Test-And-Install-Packages {
     $_start_loc = Resolve-Path .
     Set-Location $VCPKG_RT
     $_val = (& .\vcpkg list $_module_name)
-    if ($null -eq $_val -or $_val -match '^No packages are installed') {
-        Write-Host "Installing $_module_name ..."
-        (& .\vcpkg install $_module_name)
+    Write-Host "Checking $_module_name"
+    if ($null -eq $_val -or $_val -match 'No packages are installed') {
+
+        Write-Host "run .\vcpkg install $_module_name --triplet $target_triplet"
+
+        (& .\vcpkg install $_module_name --triplet $target_triplet)
 
         $_val = (& .\vcpkg list $_module_name)
-        if ($null -eq $_val -or $_val -match '^No packages are installed') {
+        if ($null -eq $_val -or $_val -match 'No packages are installed') {
             Write-Warning "$_val is not installed"
             Set-Location $_start_loc
             return $false
@@ -67,13 +72,16 @@ Write-Host "Checking denpendecies..." -ForegroundColor Green
 if( -not (Test-And-Install-Packages("sqlite3"))){
     exit
 }
-if( -not (Test-And-Install-Packages("gtest"))){
-    exit
-}
+
+$_start_loc = Resolve-Path .
+Set-Location $VCPKG_RT
+(& .\vcpkg install sqlite3 --triplet $target_triplet)
+Set-Location $_start_loc
+
 Write-Host "Dependencies checked." -ForegroundColor Green
 
 if (-not (Test-Path -Path ".\build")) {
-    New-Item -Path ".\build" -ItemType "directory"
+    New-Item -Path ".\build" -ItemType "directory" | Out-Null
 }
 $build_dir = Resolve-Path ".\build"
 
@@ -81,24 +89,20 @@ Set-Location $build_dir
 
 Write-Host "Configuration begins." -ForegroundColor Green
 
+Write-Host "Env:OS is $Env:OS"
 try {
-    Get-Variable -Name IsWindows
+    $is_windows = ($Env:OS -match "Win")
 }
-catch{
-    try {
-        $os_str = (Get-ChildItem -Path Env:OS).value
-        $IsWindows = $os_str -match "^Windows"
-    }
-    catch{
-        $IsWindows = $false
-    }
+catch {
+    $is_windows = $false
 }
 
-if ($IsWindows){
+if ($is_windows){
     Write-Host "Build for win32..."
     cmake -A "Win32"`
         -DCMAKE_TOOLCHAIN_FILE="$VCPKG_RT\scripts\buildsystems\vcpkg.cmake" `
         -DCMAKE_CONFIGURATION_TYPES="$config_type" `
+        -DVCPKG_TARGET_TRIPLET="$target_triplet" `
         ..
 }else {
     Write-Host "Build for anything..."
@@ -107,7 +111,6 @@ if ($IsWindows){
         -DCMAKE_BUILD_TYPE="$config_type" `
         ..
 }
-
 
 Write-Host "Build begins." -ForegroundColor Green
 cmake --build .  --config $config_type
