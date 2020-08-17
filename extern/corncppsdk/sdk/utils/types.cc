@@ -1,8 +1,10 @@
 /*
-Cornerstone SDK
--- Corn SDK for Modern C++
+Cornerstone SDK v0.2.0
+-- 面向现代 C++ 的 Corn SDK
+兼容 Corn SDK v2.6.5
+https://github.com/Sc-Softs/CornerstoneSDK
 
-Licensed under the MIT License
+使用 MIT License 进行许可
 SPDX-License-Identifier: MIT
 Copyright © 2020 Contributors of Cornerstone SDK
 
@@ -27,7 +29,10 @@ SOFTWARE.
 
 #include "../sdk.h"
 
-string GBKtoUTF8(const char* src_str)
+#include <cstring>
+#include <type_traits>
+
+std::string GBKtoUTF8(const char *src_str)
 {
     auto len = MultiByteToWideChar(CP_ACP, 0, src_str, -1, nullptr, 0);
     auto wstr = new wchar_t[len + 1];
@@ -45,7 +50,7 @@ string GBKtoUTF8(const char* src_str)
     return strTemp;
 }
 
-string UTF8toGBK(const string& src_str)
+std::string UTF8toGBK(const std::string &src_str)
 {
     auto len = MultiByteToWideChar(CP_UTF8, 0, src_str.c_str(), -1, nullptr, 0);
     auto wszGBK = new wchar_t[len + 1];
@@ -61,4 +66,22 @@ string UTF8toGBK(const string& src_str)
     if (szGBK)
         delete[] szGBK;
     return strTemp;
+}
+
+earray::earray() noexcept
+{
+    // 分配一个空间专门给框架释放着玩
+    this->heap = GetProcessHeap();
+    this->data = HeapAlloc(heap, HEAP_ZERO_MEMORY, 1);
+    *((std::uint8_t *)this->data) = 1;
+}
+
+earray::~earray() noexcept
+{
+    HeapFree(this->heap, 0, this->data);
+}
+
+size_t earray::GetDimension() const noexcept
+{
+    return ((eint *)this->data)[0];
 }

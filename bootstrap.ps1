@@ -62,22 +62,24 @@ function Test-And-Install-Packages {
             return $false
         }
     }
-    $_val = $_val.SubString(0,$_val.IndexOf("  "))
-    Write-Host "$_val is installed" 
+
+    $_module_good = $false
+    $_val | ForEach-Object {
+        $_module_good = ($_.SubString($_.IndexOf(":")+1,$_.IndexOf(" "))  -match $target_triplet)
+    }
+    if ($_module_good) {
+        Write-Host "$_module_name is installed" 
+    }else {
+        Write-Host  "$_module_name is not installed" -ForegroundColor Red 
+    }
     Set-Location $_start_loc
-    return $true
+    return $_module_good
 }
 
 Write-Host "Checking denpendecies..." -ForegroundColor Green
 if( -not (Test-And-Install-Packages("sqlite3"))){
     exit
 }
-
-$_start_loc = Resolve-Path .
-Set-Location $VCPKG_RT
-(& .\vcpkg install sqlite3 --triplet $target_triplet)
-Set-Location $_start_loc
-
 Write-Host "Dependencies checked." -ForegroundColor Green
 
 if (-not (Test-Path -Path ".\build")) {

@@ -1,8 +1,10 @@
 /*
-Cornerstone SDK
--- Corn SDK for Modern C++
+Cornerstone SDK v0.2.0
+-- 面向现代 C++ 的 Corn SDK
+兼容 Corn SDK v2.6.5
+https://github.com/Sc-Softs/CornerstoneSDK
 
-Licensed under the MIT License
+使用 MIT License 进行许可
 SPDX-License-Identifier: MIT
 Copyright © 2020 Contributors of Cornerstone SDK
 
@@ -31,9 +33,10 @@ SOFTWARE.
 //系统
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
-// 第三方
 
+// 第三方
 #include "third_party/json.hpp"
+using Json = nlohmann::json;
 
 // 工具
 #include "utils/types.h"
@@ -43,32 +46,25 @@ SOFTWARE.
 #include "api/api.h"
 
 // 好友消息事件
-EventProcess OnPrivateMessage(volatile PrivateMessageData* data);
+EventProcess OnPrivateMessage(volatile PrivateMessageData *data);
 // 群消息事件
-EventProcess OnGroupMessage(volatile GroupMessageData* data);
+EventProcess OnGroupMessage(volatile GroupMessageData *data);
 // 插件卸载事件（未知参数）
-EventProcess OnUninstall(void*);
+EventProcess OnUninstall(void *);
 // 插件设置事件（未知参数），这里可以弹出对话框
-EventProcess OnSettings(void*);
+EventProcess OnSettings(void *);
 // 插件被启用事件（未知参数）
-EventProcess OnEnabled(void*);
+EventProcess OnEnabled(void *);
 // 插件被禁用事件（未知参数）
-EventProcess OnDisabled(void*);
+EventProcess OnDisabled(void *);
 // 事件消息
-EventProcess OnEvent(volatile EventData* data);
+EventProcess OnEvent(volatile EventData *data);
 
-// 入口点
+// 插件入口点，extern "C" 防止命名重整
 extern "C" etext __stdcall apprun(etext apidata, etext pluginkey);
 
-// 调试
-#ifdef DEBUG
-#define debug() MessageBoxA(nullptr, (string(__FUNCTION__) + ":" + std::to_string(__LINE__)).c_str(), "DEBUG at", MB_OK | MB_ICONINFORMATION)
-#else
-#define debug()
-#endif
-
-class API;
 // API对象
-extern API* api;
+class API;
+extern API *api;
 
-#endif  // CORNERSTONE_HEADER_SDK_H_
+#endif // CORNERSTONE_HEADER_SDK_H_

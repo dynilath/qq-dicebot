@@ -1,75 +1,57 @@
-#include "extern/corncppsdk/sdk/sdk.h"
+#include "../extern/corncppsdk/sdk/sdk.h"
 #include "dicebot/dicebot.h"
 #include <cstdint>
 
 auto my_logger = [](const std::string&v1,const std::string&v2){
             api->OutputLog(v1+" : "+v2);};
 
-void resolve_cap(event_info &ei, std::string const &raw_source,int64_t myself,int64_t target) noexcept {
+template<typename Sender>
+void resolve_cap(event_info &ei, std::string const &raw_source, Sender sender) noexcept {
     try {
         std::string temp;
         if (!dicebot::message_pipeline(raw_source, ei, temp)) return;
-        api->SendFriendMessage(myself,target,temp);
+        sender(temp);
     } catch (const std::exception &err) {
-        my_logger(u8"DICE",
-                           u8"发生std exception：" + std::string(err.what())
-                               + u8"\n发送消息为：" + raw_source);
-    }
-}
-
-struct group_target{
-    int64_t group_id;
-    int64_t qq_id;
-};
-
-void resolve_cap(event_info &ei, std::string const &raw_source,int64_t myself,group_target target) noexcept {
-    try {
-        std::string temp;
-        if (!dicebot::message_pipeline(raw_source, ei, temp)) return;
-        api->SendGroupMessage(myself,target.group_id,temp);
-    } catch (const std::exception &err) {
-        my_logger(u8"DICE",
-                           u8"发生std exception：" + std::string(err.what())
-                               + u8"\n发送消息为：" + raw_source);
+        my_logger("DICE","exception：" + std::string(err.what()) + ",message：" + raw_source);
     }
 }
 
 EventProcess OnPrivateMessage(volatile PrivateMessageData* data)
 {
+    auto this_qq = data->ThisQQ;
+    auto sender_qq = data->SenderQQ;
     auto content = GBKtoUTF8(data->MessageContent);
 
-    if (!dicebot::utils::basic_event_filter(content)) return;
-    ::event_info ei(data->SenderQQ);
+    if (!dicebot::utils::basic_event_filter(content)) return EventProcess::Ignore;
+
+    ::event_info ei(sender_qq);
     if (!dicebot::try_fill_nickname(ei)) {
-        try{
-            auto nick = api->GetSignature(data->ThisQQ, data->SenderQQ);
-            ei.nickname = nick;
-        }
-        catch(...){
-            api->OutputLog("unable to get nickname");
-            return EventProcess::Ignore;
-        }
+        //ei.nickname = api->GetNameForce(sender_qq);
     }
-    resolve_cap(ei, content,data->ThisQQ, data->SenderQQ);
+
+    resolve_cap(ei, content, [=](const std::string& ret) {
+        api->SendFriendMessage(this_qq, sender_qq, ret);
+    });
+
     return EventProcess::Ignore;
 }
 
 EventProcess OnGroupMessage(volatile GroupMessageData* data){
+    auto this_qq = data->ThisQQ;
+    auto group_qq = data->MessageGroupQQ;
+    auto sender_qq = data->SenderQQ;
     auto content = GBKtoUTF8(data->MessageContent);
 
-    if (!dicebot::utils::basic_event_filter(content)) return;
+    if (!dicebot::utils::basic_event_filter(content)) return EventProcess::Ignore;
+
     ::event_info ei(data->SenderQQ, data->MessageGroupQQ, ::event_type::group);
     if (!dicebot::try_fill_nickname(ei)) {
-        try{
-            auto nick = api->GetGroupNickname(data->ThisQQ,data->MessageGroupQQ,data->SenderQQ);
-            ei.nickname = nick;
-        }
-        catch(...){
-            api->OutputLog("unable to get nickname");
-            return EventProcess::Ignore;
-        }
+        auto nick = api->GetGroupNickname(this_qq, group_qq, sender_qq);
     }
-    resolve_cap(ei, content, data->ThisQQ,{data->SenderQQ,data->MessageGroupQQ});
+
+    resolve_cap(ei, content, [=](const std::string& ret) {
+        api->SendGroupMessage(this_qq, group_qq, ret);
+    });
 
     return EventProcess::Ignore;    
 }

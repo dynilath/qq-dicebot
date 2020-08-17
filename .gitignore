@@ -6,3 +6,4 @@ scripts/install.ps1
 .vscode/settings.json
 test
 tmp
+CMakeSettings.json

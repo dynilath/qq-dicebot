@@ -297,7 +297,7 @@ number comp_dice_rdk::roll_the_dice(str_container &out) const {
 
     switch (this->mode) {
     case dice_rdk_mode::single_d: {
-        roll_base(dr, 1, fit_for_dice(this->face));
+        roll_base(dr, 1, fit_for_face(this->face));
         break;
     }
     case dice_rdk_mode::numbered_d: {

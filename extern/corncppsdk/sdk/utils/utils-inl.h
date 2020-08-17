@@ -1,8 +1,10 @@
 /*
-Cornerstone SDK
--- Corn SDK for Modern C++
+Cornerstone SDK v0.2.0
+-- 面向现代 C++ 的 Corn SDK
+兼容 Corn SDK v2.6.5
+https://github.com/Sc-Softs/CornerstoneSDK
 
-Licensed under the MIT License
+使用 MIT License 进行许可
 SPDX-License-Identifier: MIT
 Copyright © 2020 Contributors of Cornerstone SDK
 
@@ -30,75 +32,79 @@ SOFTWARE.
 
 #include "../sdk.h"
 
-class Unpacker
-{
-public:
-    Unpacker(const void *data){
-        this->data = (uint8_t *)data;
-    }
+#include <string>
 
-    template <class RetT>
-    RetT& get(){
-        auto& ret = *((RetT*)data);
-        data += sizeof(RetT);
-        return ret;
-    }
-private:
-    uint8_t *data;
-};
+template<typename>
+struct FuncRestruct;
 
-class earray1D
-{
-public:
-    /**
-     * @brief 解包易语言数组（成员为简单类型）
-     */
-    template <class ESimpleT>
-    static size_t Unpack(const void* data, vector<ESimpleT>& array)
-    {
-        auto unpacker = Unpacker(data);
-        auto dimension = unpacker.get<eint>();  // 数组维度 
-        if (dimension != 1)  // 只考虑1维的情况
-        {
-            return -1;
-        }
-        auto size = unpacker.get<eint>();
-        array.clear();
-        for (auto i = 0; i < size; i++)
-        {
-            array.push_back(unpacker.get<ESimpleT>());
-        }
-        return size;
-    }
-
-    /**
-     * @brief 解包易语言数组（成员为自定义结构）
-     */
-    template <class EStructT>
-    static size_t UnpackStruct(const void* data, vector<EStructT>& array)
-    {
-        auto unpacker = Unpacker(data);
-        auto dimension = unpacker.get<eint>();  // 数组维度 
-        if (dimension != 1)  // 只考虑1维的情况
-        {
-            return -1;
-        }
-        auto size = unpacker.get<eint>();
-        array.clear();
-        for (auto i = 0; i < size; i++)
-        {
-            volatile EStructT* tmp = unpacker.get<volatile EStructT*>();
-            EStructT tmp_ = EStructT((const EStructT &)*tmp);
-            array.push_back(tmp_);
-        }
-        return size;
-    }
+template<typename RetT,typename ...ArgT>
+struct FuncRestruct<RetT(ArgT...)> {
+    using stdcall_t = RetT(__stdcall*)(ArgT...);
 };
 
 template <class FuncT>
-inline FuncT* _f(Json api, const char* name)
+inline auto _f(Json api, const char *name)
 {
-    return (FuncT*)((uintptr_t)api[name]);
+    using stdcall_t = FuncRestruct<FuncT>::stdcall_t;
+    auto value = static_cast<uintptr_t>(api[name]);
+    return reinterpret_cast<stdcall_t>(value);
 }
 
-#endif  // CORNERSTONE_HEADER_UNTILS_INL_H_
+/**
+ * @brief 获取API返回的JSON文本中的返回码
+ * @param retstr API返回的JSON文本
+ * @return 返回码
+ */
+inline std::int32_t get_retcode(std::string retstr)
+{
+    return (std::int32_t)(Json::parse(retstr)["retcode"]);
+}
+
+inline std::string to_string(const char *value)
+{
+    return std::string(value);
+}
+
+inline std::string to_string(const std::string &value)
+{
+    return value;
+}
+
+template <class T>
+inline std::string to_string(T value)
+{
+    return std::to_string(value);
+}
+
+/**
+ * @brief 依次连接所有参数
+ * @return 所有参数连接后的字符串
+ */
+template <class... Types>
+inline std::string sum_string(Types... args)
+{
+    return (... + to_string(args));
+}
+
+constexpr std::uint32_t make_color(std::uint8_t r, std::uint8_t g, std::uint8_t b)
+{
+    return (r) | (g << 8) | (b << 16);
+}
+
+constexpr void read_color(std::uint32_t color, std::uint8_t &r, std::uint8_t &g, std::uint8_t &b)
+{
+    b = color >> 16;
+    g = color & 0x0000ff00 >> 8;
+    r = color & 0x000000ff;
+}
+
+// 调试
+#ifdef DEBUG
+#define debug() MessageBoxA(nullptr, sum_string(__FUNCTION__, ":", __LINE__).c_str(), "DEBUG at", MB_OK | MB_ICONINFORMATION)
+#define debugEx(x) MessageBoxA(nullptr, sum_string(__FUNCTION__, ":", __LINE__, "\r\n", x).c_str(), "DEBUG at", MB_OK | MB_ICONINFORMATION)
+#else
+#define debug()
+#define debugEx(x)
+#endif
+
+#endif // CORNERSTONE_HEADER_UNTILS_INL_H_

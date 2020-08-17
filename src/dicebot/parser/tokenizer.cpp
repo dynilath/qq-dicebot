@@ -1,6 +1,7 @@
 #include "./tokenizer.h"
 
 #include <algorithm>
+#include <iterator>
 #include <list>
 #include "../constants.h"
 #include "../utils/utils.h"
@@ -301,30 +302,29 @@ void tokenizer::move_next_cursor(token_t& src_token, size_t length) const {
     }
 }
 
-std::pair<size_t, bool> greed_map_find(std::string const& source, size_t start_pos, tokenizer::macro_map_t const& map) {
-    std::vector<char> source_cp;
-    source_cp.reserve(source.size() + 1);
+size_t greed_map_find(std::string const& source, size_t start_pos, tokenizer::macro_map_t const& map) {
+    std::string source_cot;
 
     size_t maxlen = source.find_first_of(illegal_identifier, start_pos);
 
-    std::string::const_iterator end_point;
+    decltype(source.end()) end_point;
     if (maxlen == 0)
-        return {0, false};
+        return { 0 };
     else if (maxlen == npos)
-        end_point = source.cend();
+        end_point = source.end();
     else
         end_point = source.begin() + maxlen;
-    std::copy(source.cbegin() + start_pos, end_point, std::back_inserter(source_cp));
-    source_cp.push_back('\0');
+    std::copy(source.cbegin() + start_pos, end_point, std::back_inserter(source_cot));
 
-    for (auto ri = source_cp.rbegin(); ri != source_cp.rend(); ri++) {
-        auto target = map.find(source_cp.data());
-        if (target != map.cend()) {
-            return {target->first.size(), target->second.front() == '('};
+    while (!source_cot.empty()) {
+        auto target = map.find(source_cot);
+        if (target != map.end()) {
+            // the second return value represents that the macro is a random or dicelet expression
+            return { target->first.size() };
         }
-        *ri = '\0';
+        source_cot.pop_back();
     }
-    return {0, false};
+    return { 0 };
 }
 
 bool tokenizer::resolve_identifier(token_t& target) const {
@@ -338,75 +338,81 @@ bool tokenizer::resolve_identifier(token_t& target) const {
     // thus if there is two macro such as "abc" and "abcde"
     // input "abcdef" would match "abcde"
     // "abcd" still match "abc"
-    auto find_result = greed_map_find(src, target.pos_next, *this->macro_map);
+    auto identifier_length = greed_map_find(src, target.pos_next, *this->macro_map);
 
-    if (find_result.first == 0) return false;
+    if (identifier_length == 0) return false;
 
-    if (find_result.second) {
-        // the macro is a random or dicelet expression
+    // ambiguity identifier is at most 2 chars
+    if (identifier_length > 2) {
         target.id = token_index::index_macro;
-        this->move_next_cursor(target, find_result.first);
+        this->move_next_cursor(target, identifier_length);
         return true;
-    } else if (find_result.first <= 2) {
-        // the macro is a number, and it appears as a keyword
-        // begin ambiguity deduction
-        std::string suppose_macro = src.substr(target.pos_next, find_result.first);
+    }
 
-        utils::lower_case(suppose_macro);
+    std::string suppose_macro = src.substr(target.pos_next, identifier_length);
+    utils::lower_case(suppose_macro);
 
-        do {
-            if ((this->ambi_flag.ambiguity_d) && suppose_macro == "d" || (this->ambi_flag.ambiguity_k) && suppose_macro == "k"
-                || (this->ambi_flag.ambiguity_kl) && suppose_macro == "kl")
-                ;
-            else
+    if ((this->ambi_flag.ambiguity_d) && suppose_macro == "d"
+        || (this->ambi_flag.ambiguity_k) && suppose_macro == "k"
+        || (this->ambi_flag.ambiguity_kl) && suppose_macro == "kl")
+        ;
+    else {
+        target.id = token_index::index_macro;
+        this->move_next_cursor(target, identifier_length);
+        return true;
+    }
+
+    token_t suppose_target = target;
+    suppose_target.pos_next += identifier_length;
+    if (suppose_target.pos_next >= this->sources->at(suppose_target.source_index)->size()) 
+        suppose_target.pos_next = npos;
+
+    // if "d" "k" "kl" is a macro, it would work just
+    // like const_unit/var_unit/dicelet_unit.
+    // there is no way a number, ")", or "}" infront of
+    // them. also this is sufficient to decide whether a
+    // k/kl is allowed here, for k/kl is always following
+    // a unit.
+    if (!(this->token_container.empty())
+        && (this->token_container.back().id == token_index::index_number
+            || this->token_container.back().id == token_index::punct_rparenthesis
+            || this->token_container.back().id == token_index::punct_rbrace)) {
+        return false;
+    }
+
+    // The situation of multiple "d"s is a little more
+    // complex. "d d" indicates the last "d" is a macro.
+    // "d d d" indicates that the first and last "d" is
+    // a maro.
+    // In addition, "d d 'number'" indicates that the first "d" is a
+    // macro.
+    // the "d" in "d 'number'" should be keyword.
+    do
+    {
+        if ((this->ambi_flag.ambiguity_d) && suppose_macro == "d") {
+            if (!(this->token_container.empty()) && this->token_container.back().id == token_index::keyword_d) break;
+            token_t tn = peek_next(suppose_target);
+
+            if (tn.id == token_index::punct_lbrace || tn.id == token_index::punct_lparenthesis
+                || tn.id == token_index::index_number || tn.id == token_index::ambiguity_indentifier)
+                return false;
+
+            if (tn.id == token_index::index_stop || tn.id == token_index::punct_rbrace
+                || tn.id == token_index::punct_rparenthesis || tn.id == token_index::punct_comma)
                 break;
 
-            token_t suppose_target = target;
-            suppose_target.pos_next += find_result.first;
-            if (suppose_target.pos_next >= this->sources->at(suppose_target.source_index)->size()) suppose_target.pos_next = npos;
-
-            // if "d" "k" "kl" is a macro, it would work just
-            // like const_unit/var_unit/dicelet_unit.
-            // there is no way a number, ")", or "}" infront of
-            // them. also this is sufficient to decide whether a
-            // k/kl is allowed here, for k/kl is always following
-            // a unit.
-            if (!(this->token_container.empty())
-                && (this->token_container.back().id == token_index::index_number
-                    || this->token_container.back().id == token_index::punct_rparenthesis
-                    || this->token_container.back().id == token_index::punct_rbrace)) {
-                return false;
-            }
-
-            // The situation of multiple "d"s is a little more
-            // complex. "d d" indicates the last "d" is a macro.
-            // "d d d" indicates that the first and last "d" is
-            // a maro.
-            // In addition, "d d 'number'" indicates that the first "d" is a
-            // macro
-            if ((this->ambi_flag.ambiguity_d) && suppose_macro == "d") {
-                if (!(this->token_container.empty()) && this->token_container.back().id == token_index::keyword_d) break;
-                token_t tn = peek_next(suppose_target);
-                if (tn.id == token_index::punct_lbrace || tn.id == token_index::punct_lparenthesis
-                    || tn.id == token_index::index_number || tn.id == token_index::ambiguity_indentifier)
-                    return false;
-
-                if (tn.id == token_index::index_stop || tn.id == token_index::punct_rbrace
-                    || tn.id == token_index::punct_rparenthesis || tn.id == token_index::punct_comma)
+            if (tn.id == token_index::ambiguity_macro_d) {
+                token_t tnn = peek_next(tn);
+                if (tnn.id == token_index::ambiguity_macro_d || tnn.id == token_index::index_number)
                     break;
-
-                if (tn.id == token_index::ambiguity_macro_d) {
-                    token_t tnn = peek_next(tn);
-                    if (tnn.id == token_index::ambiguity_macro_d || tnn.id == token_index::index_number)
-                        break;
-                    else
-                        return false;
-                }
+                else
+                    return false;
             }
-        } while (false);
-    }
+        }
+    } while (false);
+
     target.id = token_index::index_macro;
-    this->move_next_cursor(target, find_result.first);
+    this->move_next_cursor(target, identifier_length);
     return true;
 }
 
@@ -425,31 +431,30 @@ token_t tokenizer::peek_next(token_t const& origin) const {
 }
 
 bool tokenizer::peek_identifier_d(token_t& target) const {
-    if (target.source_index != 0) return false;
+
+    // index 0 is top level, others is macro
+    // we dont expand macro in a macro
+    if (target.source_index != 0) return false; 
+
     std::string const& src = *this->sources->at(target.source_index);
-    target.pos_next = src.find_first_not_of(' ', target.pos_next);
+    
+    target.pos_next = src.find_first_not_of(illegal_identifier, target.pos_next);
     if (target.pos_next == npos) {
         target.id = token_index::index_stop;
         return false;
     }
 
-    auto find_result = greed_map_find(src, target.pos_next, *this->macro_map);
+    auto id_length = greed_map_find(src, target.pos_next, *this->macro_map);
 
-    if (find_result.first >= 2 || find_result.first == 0) return false;
+    if (id_length >= 2 || id_length == 0) return false;
 
-    if (find_result.second) {
-        target.id = token_index::index_macro;
-        this->move_next_cursor(target, find_result.first);
-        return true;
-    }
-
-    std::string suppose_macro = src.substr(target.pos_next, find_result.first);
+    std::string suppose_macro = src.substr(target.pos_next, id_length);
     utils::lower_case(suppose_macro);
 
     if (this->ambi_flag.ambiguity_d && suppose_macro == "d") {
         target.id = token_index::ambiguity_macro_d;
     } else
         target.id = token_index::ambiguity_indentifier;
-    this->move_next_cursor(target, find_result.first);
+    this->move_next_cursor(target, id_length);
     return true;
 }
