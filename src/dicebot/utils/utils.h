@@ -5,6 +5,8 @@
 #include <string>
 #include <vector>
 
+#include "./string_view.h"
+
 namespace dicebot::utils {
 
     void remove_blank(std::string& source);
@@ -18,6 +20,7 @@ namespace dicebot::utils {
     }
 
     bool basic_event_filter(const std::string& message) noexcept;
+    bool basic_event_filter(const utils::string_view& message) noexcept;
 
     void lower_case(std::string& target);
     std::string lower_case_copy(const std::string& target);

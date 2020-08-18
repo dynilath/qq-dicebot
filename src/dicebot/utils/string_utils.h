@@ -6,6 +6,7 @@
 
 namespace dicebot::utils {
     std::list<utils::string_view> split_line(std::string const&);
+    std::list<utils::string_view> split_line_corn(std::string const&);
     bool trim(utils::string_view &);
     bool jump_to_front_of_point(utils::string_view &);
 

@@ -12,12 +12,14 @@ public:
 
     event_info(int64_t id, int64_t group, event_type ev) {
         this->user_id = id;
+        this->nickname = std::to_string(id);
         this->group_id = group;
         this->type = ev;
     }
 
     event_info(int64_t id) {
         this->user_id = id;
+        this->nickname = std::to_string(id);
         this->group_id = 0;
         this->type = event_type::pmessage;
     }

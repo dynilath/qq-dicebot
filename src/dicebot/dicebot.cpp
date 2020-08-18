@@ -69,12 +69,11 @@ bool dicebot::try_fill_nickname(event_info& event) {
 }
 
 bool dicebot::message_pipeline(std::string const& source, event_info& event, std::string& output) {
-    //std::list<utils::string_part> source_parts;
-    //utils::split_line_part(source, source_parts);
-    auto lines = utils::split_line(source);
+    auto lines = utils::split_line_corn(source);
 
     std::ostringstream ot;
 
+    bool ignore_stand_alone = false;
     bool is_output_available = false;
 
     for (auto& item : lines) {
@@ -89,15 +88,18 @@ bool dicebot::message_pipeline(std::string const& source, event_info& event, std
 
         utils::string_view suffix = match_cmd.suffix();
         if (target_entry->is_stand_alone) {
-            if (target_entry->resolve_request(suffix, event, output)) {
+            if (!ignore_stand_alone
+                && target_entry->resolve_request(suffix, event, output)) {
                 return is_output_available = true;
             }
-        } else {
+            else continue;
+        }else {
             std::string response;
             if (target_entry->resolve_request(suffix, event, response)) {
                 if (is_output_available) ot << std::endl;
                 ot << response;
                 is_output_available = true;
+                ignore_stand_alone = true;
                 continue;
             }
         }
