@@ -3,8 +3,8 @@ project(dicebot)
 
 set(CMAKE_CXX_STANDARD 17)
 set(VCPKG_TARGET_ARCHITECTURE x86)
-set(VCPKG_CRT_LINKAGE static)
-set(VCPKG_LIBRARY_LINKAGE static)
+# set(VCPKG_CRT_LINKAGE dynamic)
+# set(VCPKG_LIBRARY_LINKAGE dynamic)
 
 include_directories(src)
 include_directories(extern/cqcppsdk/include)
@@ -38,4 +38,6 @@ file(GLOB_RECURSE SOURCE_FILES src/plugin.cc)
 set(LIB_NAME "dicebot")
 add_library(${LIB_NAME} SHARED ${DICEBOT_SOURCE} ${SOURCE_FILES} ${CORN_SOURCE} ${BASE64_SOURCE})
 target_link_libraries(${LIB_NAME} sqlite3)
+
+include(src/tests/test.cmake)
 
