@@ -39,7 +39,7 @@ catch {
 
 Write-Host "VCPKG_ROOT at $VCPKG_RT." -ForegroundColor Green
 
-$target_triplet = "x86-windows-static"
+$target_triplet = "x86-windows"
 
 function Test-And-Install-Packages {
     param (
@@ -47,9 +47,23 @@ function Test-And-Install-Packages {
     )
     $_start_loc = Resolve-Path .
     Set-Location $VCPKG_RT
-    $_val = (& .\vcpkg list $_module_name)
+
     Write-Host "Checking $_module_name"
-    if ($null -eq $_val -or $_val -match 'No packages are installed') {
+
+    $_val = (& .\vcpkg list $_module_name)
+    $module_good = $false
+    if($_val -match 'No packages are installed'){
+        $module_good = $false
+    }else {
+        foreach ($_ in $_val) {
+            if($_.SubString($_.IndexOf(":")+1,$_.IndexOf(" ")).Trim()  -match "^$target_triplet$"){
+                $module_good = $true
+                break
+            }
+        }
+    }
+
+    if (-not $module_good) {
 
         Write-Host "run .\vcpkg install $_module_name --triplet $target_triplet"
 
@@ -57,27 +71,31 @@ function Test-And-Install-Packages {
 
         $_val = (& .\vcpkg list $_module_name)
         if ($null -eq $_val -or $_val -match 'No packages are installed') {
-            Write-Warning "$_val is not installed"
-            Set-Location $_start_loc
-            return $false
+            $module_good = $false
+        }else{
+            foreach ($_ in $_val) {
+                if($_.SubString($_.IndexOf(":")+1,$_.IndexOf(" ")).Trim()  -match "^$target_triplet$"){
+                    $module_good = $true
+                    break
+                }
+            }
         }
     }
 
-    $_module_good = $false
-    $_val | ForEach-Object {
-        $_module_good = ($_.SubString($_.IndexOf(":")+1,$_.IndexOf(" "))  -match $target_triplet)
-    }
-    if ($_module_good) {
+    if ($module_good) {
         Write-Host "$_module_name is installed" 
     }else {
         Write-Host  "$_module_name is not installed" -ForegroundColor Red 
     }
     Set-Location $_start_loc
-    return $_module_good
+    return $module_good
 }
 
 Write-Host "Checking denpendecies..." -ForegroundColor Green
 if( -not (Test-And-Install-Packages("sqlite3"))){
+    exit
+}
+if( -not (Test-And-Install-Packages("gtest"))){
     exit
 }
 Write-Host "Dependencies checked." -ForegroundColor Green
