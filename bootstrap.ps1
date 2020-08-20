@@ -39,7 +39,7 @@ catch {
 
 Write-Host "VCPKG_ROOT at $VCPKG_RT." -ForegroundColor Green
 
-$target_triplet = "x86-windows"
+$target_triplet = "x86-windows-static-md"
 
 function Test-And-Install-Packages {
     param (

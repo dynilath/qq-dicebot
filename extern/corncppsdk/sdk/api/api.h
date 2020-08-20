@@ -34,6 +34,9 @@ SOFTWARE.
 
 class API
 {
+private:
+    Json j;
+    std::string key;
 public:
     /**
      * @brief 载入插件关键字和系统API函数指针
@@ -961,9 +964,6 @@ public:
      */
     std::string FriendFollowRedEnvelope(std::int64_t thisQQ, std::int32_t total_number, std::int32_t total_amount, std::int64_t otherQQ, std::string follow_content, std::string payment_password, std::int32_t card_serial = 0);
 
-private:
-    Json j;
-    char *key;
 };
 
 #endif // CORNERSTONE_HEADER_API_H_

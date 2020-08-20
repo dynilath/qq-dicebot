@@ -35,37 +35,23 @@ SOFTWARE.
 std::string GBKtoUTF8(const char *src_str)
 {
     auto len = MultiByteToWideChar(CP_ACP, 0, src_str, -1, nullptr, 0);
-    auto wstr = new wchar_t[len + 1];
-    memset(wstr, 0, len + 1);
-    MultiByteToWideChar(CP_ACP, 0, src_str, -1, wstr, len);
-    len = WideCharToMultiByte(CP_UTF8, 0, wstr, -1, nullptr, 0, nullptr, nullptr);
-    auto str = new char[len + 1];
-    memset(str, 0, len + 1);
-    WideCharToMultiByte(CP_UTF8, 0, wstr, -1, str, len, nullptr, nullptr);
-    std::string strTemp = str;
-    if (wstr)
-        delete[] wstr;
-    if (str)
-        delete[] str;
-    return strTemp;
+    std::vector<wchar_t> wstr(len);
+    MultiByteToWideChar(CP_ACP, 0, src_str, -1, wstr.data(), len);
+    len = WideCharToMultiByte(CP_UTF8, 0, wstr.data(), -1, nullptr, 0, nullptr, nullptr);
+    std::string utf8(len-1,' ');
+    WideCharToMultiByte(CP_UTF8, 0, wstr.data(), -1, utf8.data(), len, nullptr, nullptr);
+    return utf8;
 }
 
 std::string UTF8toGBK(const std::string &src_str)
 {
     auto len = MultiByteToWideChar(CP_UTF8, 0, src_str.c_str(), -1, nullptr, 0);
-    auto wszGBK = new wchar_t[len + 1];
-    memset(wszGBK, 0, len + 1);
-    MultiByteToWideChar(CP_UTF8, 0, src_str.c_str(), -1, wszGBK, len);
-    len = WideCharToMultiByte(CP_ACP, 0, wszGBK, -1, nullptr, 0, nullptr, nullptr);
-    auto szGBK = new char[len + 1];
-    memset(szGBK, 0, len + 1);
-    WideCharToMultiByte(CP_ACP, 0, wszGBK, -1, szGBK, len, nullptr, nullptr);
-    std::string strTemp(szGBK);
-    if (wszGBK)
-        delete[] wszGBK;
-    if (szGBK)
-        delete[] szGBK;
-    return strTemp;
+    std::vector<wchar_t> wszGBK(len);
+    MultiByteToWideChar(CP_UTF8, 0, src_str.c_str(), -1, wszGBK.data(), len);
+    len = WideCharToMultiByte(CP_ACP, 0, wszGBK.data(), -1, nullptr, 0, nullptr, nullptr);
+    std::string szGBK(len-1,' ');
+    WideCharToMultiByte(CP_ACP, 0, wszGBK.data(), -1, szGBK.data(), len, nullptr, nullptr);
+    return szGBK;
 }
 
 earray::earray() noexcept
