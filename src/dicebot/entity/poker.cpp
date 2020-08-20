@@ -20,7 +20,7 @@ namespace {
     constexpr char poker_standard_deck_name[] = "standard";
 
     constexpr char poker_name_ascii[][14] = {
-        "heart 2",   "Heart 3",   "Heart 4",   "Heart 5",    "Heart 6",
+        "Heart 2",   "Heart 3",   "Heart 4",   "Heart 5",    "Heart 6",
         "Heart 7",   "Heart 8",   "Heart 9",   "Heart 10",   "Heart J",
         "Heart Q",   "Heart K",   "Heart A",
 
@@ -38,20 +38,31 @@ namespace {
 
         "Joker",     "Joker(bw)"};
 
+    #define heart "\\u2661"
+    #define spade "\\u2664"
+    #define diamd "\\u2662"
+    #define club "\\u2667"
+
     constexpr char poker_name_unicode_lite[][14] = {
-        "♡2",    "♡3",       "♡4", "♡5", "♡6", "♡7", "♡8",
-        "♡9",    "♡10",      "♡J", "♡Q", "♡K", "♡A",
+        heart "2", heart "3",  heart "4", heart "5", heart "6", heart "7", heart "8",
+        heart "9", heart "10", heart "J", heart "Q", heart "K", heart "A",
 
-        "♠2",    "♠3",       "♠4", "♠5", "♠6", "♠7", "♠8",
-        "♠9",    "♠10",      "♠J", "♠Q", "♠K", "♠A",
-
-        "♢2",    "♢3",       "♢4", "♢5", "♢6", "♢7", "♢8",
-        "♢9",    "♢10",      "♢J", "♢Q", "♢K", "♢A",
-
-        "♣2",    "♣3",       "♣4", "♣5", "♣6", "♣7", "♣8",
-        "♣9",    "♣10",      "♣J", "♣Q", "♣K", "♣A",
+        spade "2", spade "3",  spade "4", spade "5", spade "6", spade "7", spade "8",
+        spade "9", spade "10", spade "J", spade "Q", spade "K", spade "A",
+        
+        diamd "2", diamd "3",  diamd "4", diamd "5", diamd "6", diamd "7", diamd "8",
+        diamd "9", diamd "10", diamd "J", diamd "Q", diamd "K", diamd "A",
+        
+        club "2", club "3",  club "4", club "5", club "6", club "7", club "8",
+        club "9", club "10", club "J", club "Q", club "K", club "A",
 
         "Joker", "Joker(bw)"};
+
+    #undef heart
+    #undef spade
+    #undef diamd
+    #undef club
+
 
     constexpr char poker_name_unicode_pretty[][14] = {
         "🂲", "🂳",   "🂴", "🂵", "🂶", "🂷", "🂸", "🂹", "🂺", "🂻", "🂽", "🂾", "🂱",
