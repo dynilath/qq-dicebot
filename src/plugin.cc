@@ -21,6 +21,8 @@ EventProcess OnPrivateMessage(volatile PrivateMessageData* data)
     auto this_qq = data->ThisQQ;
     auto sender_qq = data->SenderQQ;
     auto content = GBKtoUTF8(data->MessageContent);
+    auto type = data->MessageType;
+    auto group_qq = data->MessageGroupQQ;
 
     //if (!dicebot::utils::basic_event_filter(content)) return EventProcess::Ignore;
 
@@ -33,8 +35,10 @@ EventProcess OnPrivateMessage(volatile PrivateMessageData* data)
     }
 
     resolve_cap(ei, content, [=](const std::string& ret) {
-        //my_logger("dicebot", "private msg to(" + std::to_string(sender_qq) + "): " + ret);
-        api->SendFriendMessage(this_qq, sender_qq, ret);
+        if(type == MessageType::FriendUsualMessage)
+            api->SendFriendMessage(this_qq, sender_qq, ret);
+        else if(type == MessageType::Temporary)
+            api->SendGroupTemporaryMessage(this_qq, group_qq, sender_qq,ret);
     });
 
     return EventProcess::Ignore;
@@ -45,6 +49,7 @@ EventProcess OnGroupMessage(volatile GroupMessageData* data){
     auto group_qq = data->MessageGroupQQ;
     auto sender_qq = data->SenderQQ;
     auto content = GBKtoUTF8(data->MessageContent);
+    auto type = data->MessageType;
 
     //if (!dicebot::utils::basic_event_filter(content)) return EventProcess::Ignore;
 
