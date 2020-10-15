@@ -1,3 +1,4 @@
+#include "./config.h"
 #include "../extern/corncppsdk/sdk/sdk.h"
 #include "dicebot/dicebot.h"
 #include <cstdint>
@@ -16,84 +17,72 @@ void resolve_cap(event_info &ei, std::string const &raw_source, Sender sender) n
     }
 }
 
-EventProcess OnPrivateMessage(volatile PrivateMessageData* data)
+EventProcessEnum OnPrivateMessage(PrivateMessageData data)
 {
-    auto this_qq = data->ThisQQ;
-    auto sender_qq = data->SenderQQ;
-    auto content = GBKtoUTF8(data->MessageContent);
-    auto type = data->MessageType;
-    auto group_qq = data->MessageGroupQQ;
-
     //if (!dicebot::utils::basic_event_filter(content)) return EventProcess::Ignore;
 
     //my_logger("dicebot", "private msg from(" + std::to_string(sender_qq) + "): " + content);
 
-    ::event_info ei(sender_qq);
+    ::event_info ei(data.SenderQQ);
     if (!dicebot::try_fill_nickname(ei)) {
-        // ei.nickname = std::to_string(sender_qq);
-        // ei.nickname = api->GetNameForce(sender_qq);
+        ei.nickname = api->GetNameForce(data.ThisQQ, data.SenderQQ);
     }
 
-    resolve_cap(ei, content, [=](const std::string& ret) {
-        if(type == MessageType::FriendUsualMessage)
-            api->SendFriendMessage(this_qq, sender_qq, ret);
-        else if(type == MessageType::Temporary)
-            api->SendGroupTemporaryMessage(this_qq, group_qq, sender_qq,ret);
+    resolve_cap(ei, data.MessageContent, [&](const std::string& ret) {
+        if(data.MessageType == MessageTypeEnum::FriendUsualMessage)
+            api->SendFriendMessage(data.ThisQQ, data.SenderQQ, ret);
+        else if(data.MessageType == MessageTypeEnum::Temporary)
+            api->SendGroupTemporaryMessage(data.ThisQQ, data.MessageGroupQQ, data.SenderQQ, ret);
     });
 
-    return EventProcess::Ignore;
+    return EventProcessEnum::Ignore;
 }
 
-EventProcess OnGroupMessage(volatile GroupMessageData* data){
-    auto this_qq = data->ThisQQ;
-    auto group_qq = data->MessageGroupQQ;
-    auto sender_qq = data->SenderQQ;
-    auto content = GBKtoUTF8(data->MessageContent);
-    auto type = data->MessageType;
+EventProcessEnum OnGroupMessage(GroupMessageData data){
 
     //if (!dicebot::utils::basic_event_filter(content)) return EventProcess::Ignore;
 
-    ::event_info ei(data->SenderQQ, data->MessageGroupQQ, ::event_type::group);
+    ::event_info ei(data.SenderQQ, data.MessageGroupQQ, ::event_type::group);
     if (!dicebot::try_fill_nickname(ei)) {
-        //ei.nickname = api->GetGroupNickname(this_qq, group_qq, sender_qq);
+        ei.nickname = api->GetGroupNickname(data.ThisQQ, data.MessageGroupQQ, data.SenderQQ);
     }
 
-    resolve_cap(ei, content, [=](const std::string& ret) {
-        api->SendGroupMessage(this_qq, group_qq, ret);
+    resolve_cap(ei, data.MessageContent, [&](const std::string& ret) {
+        api->SendGroupMessage(data.ThisQQ, data.MessageGroupQQ, ret);
     });
 
-    return EventProcess::Ignore;    
+    return EventProcessEnum::Ignore;    
 }
 
 // 插件卸载事件（未知参数）
-EventProcess OnUninstall(void*){
+EventProcessEnum OnUninstall(){
     delete api;  // 清除app对象避免内存泄漏
-    return EventProcess::Ignore;
+    return EventProcessEnum::Ignore;
 }
 
 // 插件设置事件（未知参数），这里可以弹出对话框
-EventProcess OnSettings(void*){
-    return EventProcess::Ignore;
+EventProcessEnum OnSettings(){
+    return EventProcessEnum::Ignore;
 }
 
 
 // 插件被启用事件（未知参数）
-EventProcess OnEnabled(void*){
+EventProcessEnum OnEnabled(){
     std::string dir = api->GetPluginDataDirectory();
     dicebot::initialize(dir.c_str());
     dicebot::set_logger(my_logger);
     my_logger(u8"dicebot", u8"插件已启动");
 
-    return EventProcess::Ignore;
+    return EventProcessEnum::Ignore;
 }
 
 // 插件被禁用事件（未知参数）
-EventProcess OnDisabled(void*){
+EventProcessEnum OnDisabled(){
     dicebot::salvage(); 
-    return EventProcess::Ignore;
+    return EventProcessEnum::Ignore;
 }
 
 // 事件消息
-EventProcess OnEvent(volatile EventData* data){
-    return EventProcess::Ignore;
+EventProcessEnum OnEvent(EventData data){
+    return EventProcessEnum::Ignore;
 }

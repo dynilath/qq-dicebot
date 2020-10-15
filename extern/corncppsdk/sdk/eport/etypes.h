@@ -27,40 +27,16 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#pragma once
+#include <cstdint>
 
-#include <cstring>
-#include <unordered_map>
-#include <type_traits>
-#include <algorithm>
-
-#include "../sdk.h"
-#include "utils-inl.h"
-
-#include "../eport/etypes.h"
-#include "../framework/constants.h"
-
-// 易语言常量
-constexpr ebool etrue = 1;
-constexpr ebool efalse = 0;
-
-// 易语言类型转换
-constexpr ebool bool2ebool(const bool &b)
-{
-    return b ? etrue : efalse;
-}
-
-constexpr bool ebool2bool(const ebool &e)
-{
-    return e == etrue;
-}
-
-constexpr ebool b2e(const bool &b)
-{
-    return bool2ebool(b);
-}
-
-constexpr bool e2b(const ebool &e)
-{
-    return ebool2bool(e);
-}
+using ebyte = std::uint8_t;        // 易语言字节型
+using eshort = std::int16_t;       // 易语言短整数型
+using eint = std::int32_t;         // 易语言整数型
+using elong = std::int64_t;        // 易语言长整数型
+using efloat = float;              // 易语言小数型
+using edouble = double;            // 易语言双精度小数型
+using edate = std::uint64_t;       // 易语言日期时间型
+using ebool = std::int32_t;        // 易语言逻辑型
+using etext = const char *;        // 易语言文本型(GBK)
+using ebin = const std::uint8_t *; // 易语言字节集
+using esubptr = std::uintptr_t;    // 易语言子程序指针

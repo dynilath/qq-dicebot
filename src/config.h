@@ -1,5 +1,5 @@
 // 插件信息
-constexpr auto Configuration = R"CFG(
+const char * Configuration = R"CFG(
 {
     "插件名称": "dicebot",
     "插件作者": "dynilath",

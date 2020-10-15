@@ -29,38 +29,53 @@ SOFTWARE.
 
 #pragma once
 
-#include <cstring>
-#include <unordered_map>
-#include <type_traits>
-#include <algorithm>
+#include <string>
 
-#include "../sdk.h"
-#include "utils-inl.h"
+#include "../../eport/etypes.h"
+#include "../constants.h"
+#include "./etext2string_mem.h"
 
-#include "../eport/etypes.h"
-#include "../framework/constants.h"
-
-// 易语言常量
-constexpr ebool etrue = 1;
-constexpr ebool efalse = 0;
-
-// 易语言类型转换
-constexpr ebool bool2ebool(const bool &b)
+#pragma pack(4)
+// Note: _EType_开头的是内部转换用的类型，请使用普通的CardInformation
+struct _EType_CardInformation
 {
-    return b ? etrue : efalse;
-}
+    // 序列
+    eint Serial;
+    // 尾号
+    etext TailNumber = nullptr;
+    // 银行
+    etext Bank = nullptr;
+    // 绑定手机
+    etext BindPhone = nullptr;
+    // bind_serial
+    etext BindSerial = nullptr;
+    // bank_type
+    etext BankType = nullptr;
+};
+#pragma pack()
 
-constexpr bool ebool2bool(const ebool &e)
+// 银行卡信息
+struct CardInformation
 {
-    return e == etrue;
-}
+    // 序列
+    eint Serial;
+    // 尾号
+    ::std::string TailNumber;
+    // 银行
+    ::std::string Bank;
+    // 绑定手机
+    ::std::string BindPhone;
+    // bind_serial
+    ::std::string BindSerial;
+    // bank_type
+    ::std::string BankType;
 
-constexpr ebool b2e(const bool &b)
-{
-    return bool2ebool(b);
-}
-
-constexpr bool e2b(const ebool &e)
-{
-    return ebool2bool(e);
-}
+    CardInformation(const _EType_CardInformation &info) : Serial{info.Serial}
+    {
+        string_e2std(this->TailNumber, info.TailNumber);
+        string_e2std(this->Bank, info.Bank);
+        string_e2std(this->BindPhone, info.BindPhone);
+        string_e2std(this->BindSerial, info.BindSerial);
+        string_e2std(this->BankType, info.BankType);
+    }
+};

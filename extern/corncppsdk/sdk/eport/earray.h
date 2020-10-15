@@ -29,38 +29,63 @@ SOFTWARE.
 
 #pragma once
 
-#include <cstring>
-#include <unordered_map>
-#include <type_traits>
 #include <algorithm>
+#include <vector>
+#include <type_traits>
 
-#include "../sdk.h"
-#include "utils-inl.h"
+#define WIN32_LEAN_AND_MEAN
+#include <Windows.h>
 
-#include "../eport/etypes.h"
-#include "../framework/constants.h"
+#include "./etypes.h"
 
-// 易语言常量
-constexpr ebool etrue = 1;
-constexpr ebool efalse = 0;
-
-// 易语言类型转换
-constexpr ebool bool2ebool(const bool &b)
+struct earray_head
 {
-    return b ? etrue : efalse;
-}
+    void *data;
+    HANDLE heap;
 
-constexpr bool ebool2bool(const ebool &e)
-{
-    return e == etrue;
-}
+    earray_head() noexcept
+    {
+        this->heap = GetProcessHeap();
+        this->data = HeapAlloc(heap, HEAP_ZERO_MEMORY, 1);
+        reinterpret_cast<std::uint8_t *>(this->data)[0] = 1;
+    }
 
-constexpr ebool b2e(const bool &b)
-{
-    return bool2ebool(b);
-}
+    ~earray_head() noexcept
+    {
+        HeapFree(this->heap, 0, this->data);
+    }
 
-constexpr bool e2b(const ebool &e)
+    operator void **()
+    {
+        return &this->data;
+    }
+};
+
+template <typename EType, typename CPPType>
+size_t earray1d2vector(const earray_head &earr, ::std::vector<CPPType> &out)
 {
-    return ebool2bool(e);
+    auto srcptr = reinterpret_cast<eint *>(earr.data);
+    auto dim = srcptr[0];
+    if (dim != 1)
+        return static_cast<size_t>(-1);
+    auto size = srcptr[1];
+    if constexpr (::std::is_compound<CPPType>::value)
+    {
+        auto pptr = reinterpret_cast<EType **>(srcptr + 2);
+        out.clear();
+        out.reserve(size);
+        ::std::for_each(pptr, pptr + size, [&](auto ptr) {
+            out.emplace_back(*ptr);
+        });
+    }
+    else
+    {
+        auto ptr = reinterpret_cast<EType *>(srcptr + 2);
+        out.clear();
+        out.reserve(size);
+        ::std::for_each(ptr, ptr + size, [&](auto val) {
+            out.emplace_back(val);
+        });
+    }
+    return size;
 }

@@ -29,38 +29,19 @@ SOFTWARE.
 
 #pragma once
 
-#include <cstring>
-#include <unordered_map>
-#include <type_traits>
-#include <algorithm>
+#include "./datatype/private_message_data.h"
+#include "./datatype/group_message_data.h"
+#include "./datatype/event_data.h"
 
-#include "../sdk.h"
-#include "utils-inl.h"
+#include "./datatype/service_information.h"
+#include "./datatype/friend_information.h"
 
-#include "../eport/etypes.h"
-#include "../framework/constants.h"
+#include "./datatype/group_member_information.h"
+#include "./datatype/group_information.h"
+#include "./datatype/group_card_information.h"
+#include "./datatype/group_file_information.h"
 
-// 易语言常量
-constexpr ebool etrue = 1;
-constexpr ebool efalse = 0;
-
-// 易语言类型转换
-constexpr ebool bool2ebool(const bool &b)
-{
-    return b ? etrue : efalse;
-}
-
-constexpr bool ebool2bool(const ebool &e)
-{
-    return e == etrue;
-}
-
-constexpr ebool b2e(const bool &b)
-{
-    return bool2ebool(b);
-}
-
-constexpr bool e2b(const ebool &e)
-{
-    return ebool2bool(e);
-}
+#include "./datatype/order_detail.h"
+#include "./datatype/card_information.h"
+#include "./datatype/wallet_information.h"
+#include "./datatype/captcha_information.h"

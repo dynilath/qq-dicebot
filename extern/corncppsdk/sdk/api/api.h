@@ -1,7 +1,7 @@
 /*
-Cornerstone SDK v0.2.0
+Cornerstone SDK v1.0.1
 -- 面向现代 C++ 的 Corn SDK
-兼容 Corn SDK v2.6.5
+兼容小栗子框架 v2.7.1-v2.7.2 和 Corn SDK v2.7.1
 https://github.com/Sc-Softs/CornerstoneSDK
 
 使用 MIT License 进行许可
@@ -27,16 +27,14 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#ifndef CORNERSTONE_HEADER_API_H_
-#define CORNERSTONE_HEADER_API_H_
+#pragma once
 
 #include "../sdk.h"
+#include "../framework/datatypes.h"
+#include "../framework/permission.h"
 
 class API
 {
-private:
-    Json j;
-    std::string key;
 public:
     /**
      * @brief 载入插件关键字和系统API函数指针
@@ -44,8 +42,6 @@ public:
      * @param plugin_key 插件标识符
      */
     API(etext api_data, etext plugin_key);
-
-    ~API();
 
     /**
      * @brief 输出日志
@@ -90,8 +86,8 @@ public:
      * @param groupQQ 群号
      * @param otherQQ 对方QQ
      * @param content 发送内容
-     * @param random 撤回消息用
-     * @param req 撤回消息用
+     * @param random 撤回消息用（传出）
+     * @param req 撤回消息用（传出）
      * @return 成功返回的time用于撤回消息
      */
     std::string SendGroupTemporaryMessage(std::int64_t thisQQ, std::int64_t groupQQ, std::int64_t otherQQ, const std::string &content, std::int64_t &random, std::int32_t &req);
@@ -111,6 +107,7 @@ public:
      * @param thisQQ 框架QQ
      * @param otherQQ 对方QQ
      * @param verification 设置回答问题答案或是验证消息，多个问题答案用"|"分隔开
+     * @param comment 自定义给对方的备注
      */
     std::string AddFriend(std::int64_t thisQQ, std::int64_t otherQQ, const std::string &verification);
 
@@ -150,8 +147,8 @@ public:
      * @param thisQQ 框架QQ
      * @param friendQQ 好友QQ
      * @param json_content json发送内容
-     * @param random 撤回消息用
-     * @param req 撤回消息用
+     * @param random 撤回消息用（传出）
+     * @param req 撤回消息用（传出）
      * @return 成功返回的time用于撤回消息
      */
     std::string SendFriendJSONMessage(std::int64_t thisQQ, std::int64_t friendQQ, const std::string &json_content, std::int64_t &random, std::int32_t &req);
@@ -199,22 +196,22 @@ public:
      * @param thisQQ 框架QQ
      * @param friendQQ 好友QQ
      * @param audio 语音数据
-     * @param audio_type 语音类型 0：普通语音，1：变声语音，2：文字语音，3：红包匹配语音
+     * @param audio_type 语音类型
      * @param audio_text 语音文字 文字语音填附加文字(貌似会自动替换为语音对应的文本), 匹配语音填a、b、s、ss、sss，注意是小写
      * @return 成功返回语音代码
      */
-    std::string UploadFriendAudio(std::int64_t thisQQ, std::int64_t friendQQ, const std::uint8_t *audio, size_t size, std::int32_t audio_type, const std::string &audio_text);
+    std::string UploadFriendAudio(std::int64_t thisQQ, std::int64_t friendQQ, const std::uint8_t *audio, size_t size, AudioTypeEnum audio_type = AudioTypeEnum::Normal, const std::string &audio_text = "");
 
     /**
      * @brief 上传群语音
      * @param thisQQ 框架QQ
      * @param groupQQ 群号
      * @param audio 语音数据
-     * @param audio_type 语音类型 0：普通语音，1：变声语音，2：文字语音，3：红包匹配语音
+     * @param audio_type 语音类型
      * @param audio_text 语音文字 文字语音填附加文字(貌似会自动替换为语音对应的文本), 匹配语音填a、b、s、ss、sss，注意是小写
      * @return 成功返回语音代码
      */
-    std::string UploadGroupAudio(std::int64_t thisQQ, std::int64_t groupQQ, const std::uint8_t *audio, size_t size, std::int32_t audio_type = 0, const std::string &audio_text = "");
+    std::string UploadGroupAudio(std::int64_t thisQQ, std::int64_t groupQQ, const std::uint8_t *audio, size_t size, AudioTypeEnum audio_type = AudioTypeEnum::Normal, const std::string &audio_text = "");
 
     /**
      * @brief 上传头像
@@ -225,16 +222,16 @@ public:
     std::string UploadAvatar(std::int64_t thisQQ, const std::uint8_t *picture, size_t size);
 
     /**
-     * @brief silk解码 无权限要求 尚未实现！
+     * @brief silk解码 无权限要求（尚未实现！）
      * @param audio_file_path 音频文件路径 注意文件后缀必须和文件格式相对应
      */
-    const std::uint8_t *SilkDecode(std::string audio_file_path);
+    const std::uint8_t *SilkDecode(const std::string &audio_file_path);
 
     /**
-     * @brief silk编码 无权限要求 尚未实现！
+     * @brief silk编码 无权限要求（尚未实现！）
      * @param audio_file_path 音频文件路径 注意文件后缀必须和文件格式相对应
      */
-    const std::uint8_t *SilkEncode(std::string audio_file_path);
+    const std::uint8_t *SilkEncode(const std::string &audio_file_path);
 
     /**
      * @brief 设置群名片
@@ -253,11 +250,12 @@ public:
     std::string GetNameFromCache(std::int64_t otherQQ);
 
     /**
-     * @brief 从缓存获取昵称
+     * @brief 强制获取昵称
+     * @param thisQQ 框架QQ
      * @param otherQQ 对方QQ
      * @return 成功返回昵称
      */
-    std::string GetNameForce(std::int64_t otherQQ);
+    std::string GetNameForce(std::int64_t thisQQ, std::int64_t otherQQ);
 
     /**
      * @brief 从缓存获取群名（如果是框架QQ没加的群，[查询群信息]后也会记录缓存）
@@ -296,7 +294,7 @@ public:
     /**
      * @brief 获取好友列表
      * @param thisQQ 框架QQ
-     * @param friend_list 好友信息列表
+     * @param friend_list 好友信息列表（传出）
      * @return 成功返回好友数量，失败或无权限返回0
      */
     size_t GetFriendList(std::int64_t thisQQ, std::vector<FriendInformation> &friend_list);
@@ -304,7 +302,7 @@ public:
     /**
      * @brief 获取群列表
      * @param thisQQ 框架QQ
-     * @param group_list 群信息列表
+     * @param group_list 群信息列表（传出）
      * @return 成功返回群数量，失败或无权限返回0
      */
     size_t GetGroupList(std::int64_t thisQQ, std::vector<GroupInformation> &group_list);
@@ -313,7 +311,7 @@ public:
      * @brief 获取群成员列表
      * @param thisQQ 框架QQ
      * @param groupQQ 群号
-     * @param group_member_list 群成员信息列表
+     * @param group_member_list 群成员信息列表（传出）
      * @return 失败或无权限返回数量0
      */
     std::int32_t GetGroupMemberList(std::int64_t thisQQ, std::int64_t groupQQ, std::vector<GroupMemberInformation> &group_member_list);
@@ -359,15 +357,16 @@ public:
      * @param name 昵称
      * @return 失败或无权限返回false
      */
-    bool SetName(std::int64_t thisQQ, std::string name);
+    bool SetName(std::int64_t thisQQ, const std::string &name);
 
     /**
      * @brief 修改个性签名
      * @param thisQQ 框架QQ
      * @param signature 签名
+     * @param location 可自定义签名地点
      * @return 失败或无权限返回false
      */
-    bool SetSignature(std::int64_t thisQQ, std::string signature);
+    bool SetSignature(std::int64_t thisQQ, const std::string &signature, const std::string &location = "");
 
     /**
      * @brief 删除群成员
@@ -384,7 +383,7 @@ public:
      * @param thisQQ 框架QQ
      * @param groupQQ 群号
      * @param otherQQ 群成员QQ
-     * @param time 禁言时长 单位：秒
+     * @param time 禁言时长 单位：秒，为0时解除禁言
      * @return 失败或无权限返回false
      */
     bool ShutUpGroupMember(std::int64_t thisQQ, std::int64_t groupQQ, std::int64_t otherQQ, std::int32_t time);
@@ -560,73 +559,122 @@ public:
      * @param source_groupQQ 来源群号
      * @param triggerQQ 触发QQ
      * @param message_seq 消息Seq
-     * @param operate_type 操作类型 11: 同意, 12: 拒绝, 14: 忽略
-     * @param event_type 事件类型 群事件_某人申请加群(Group_MemberVerifying)或群事件_我被邀请加入群(Group_Invited);
+     * @param operate_type 操作类型
+     * @param event_type 事件类型 群事件_某人申请加群(Group_MemberVerifying)或群事件_我被邀请加入群(Group_Invited)
+     * @param refuse_reason 拒绝理由 当拒绝时，可在此设置拒绝理由
      */
-    void ProcessGroupVerificationEvent(std::int64_t thisQQ, std::int64_t source_groupQQ, std::int64_t triggerQQ, std::int64_t message_seq, std::int32_t operate_type, std::int32_t event_type);
+    void ProcessGroupVerificationEvent(std::int64_t thisQQ, std::int64_t source_groupQQ, std::int64_t triggerQQ, std::int64_t message_seq, GroupVerificationOperateEnum operate_type, std::int32_t event_type, const std::string &refuse_reason = "");
 
     /**
      * @brief 处理好友验证事件 在好友验证事件下使用，无权限时不执行
      * @param thisQQ 框架QQ
      * @param triggerQQ 触发QQ
      * @param message_seq 消息Seq
-     * @param operate_type 操作类型 1: 同意, 2: 拒绝
+     * @param operate_type 操作类型
      */
-    void ProcessFriendVerificationEvent(std::int64_t thisQQ, std::int64_t triggerQQ, std::int64_t message_seq, std::int32_t operate_type);
+    void ProcessFriendVerificationEvent(std::int64_t thisQQ, std::int64_t triggerQQ, std::int64_t message_seq, FriendVerificationOperateEnum operate_type);
 
     /**
      * @brief 查看转发聊天记录内容 私聊消息也可以使用此命令解析，无权限时不执行
      * @param thisQQ 框架QQ
      * @param resID resID 可在xml消息代码中获取到
-     * @param message_content 消息内容 私聊消息也可从该结构获取信息
+     * @param message_content 消息内容 私聊消息也可从该结构获取信息（传出）
      */
-    void ReadForwardedChatHistory(std::int64_t thisQQ, std::string resID, std::vector<GroupMessageData> &message_content);
+    void ReadForwardedChatHistory(std::int64_t thisQQ, const std::string &resID, std::vector<GroupMessageData> &message_content);
 
     /**
      * @brief 上传群文件 本命令为耗时操作，请另开线程执行，本命令不支持上百mb的文件，无权限时不执行
      * @param thisQQ 框架QQ
      * @param groupQQ 群号
      * @param path 文件路径 本地文件路径
-     * @param folder 文件夹 该空保留，暂时无效
+     * @param folder 文件夹名 上传到哪个文件夹，填文件夹名，根目录留空或填/
      */
-    void UploadGroupFile(std::int64_t thisQQ, std::int64_t groupQQ, std::string path, std::string folder = "");
+    std::string UploadGroupFile(std::int64_t thisQQ, std::int64_t groupQQ, const std::string &path, const std::string &folder = "");
 
     /**
      * @brief 创建群文件夹
      * @param thisQQ 框架QQ
      * @param groupQQ 群号
      * @param folder 文件夹名
+     */
+    std::string CreateGroupFolder(std::int64_t thisQQ, std::int64_t groupQQ, const std::string &folder);
+
+    /**
+     * @brief 重命名群文件夹
+     * @param thisQQ 框架QQ
+     * @param groupQQ 群号
+     * @param old_folder 旧文件夹名
+     * @param new_folder 新文件夹名
      * @return 失败或无权限返回false
      */
-    bool CreateGroupFolder(std::int64_t thisQQ, std::int64_t groupQQ, std::string folder);
+    std::string RenameGroupFolder(std::int64_t thisQQ, std::int64_t groupQQ, const std::string &old_folder, const std::string &new_folder);
+
+    /**
+     * @brief 删除群文件夹
+     * @param thisQQ 框架QQ
+     * @param groupQQ 群号
+     * @param folder 文件夹名
+     */
+    std::string DeleteGroupFolder(std::int64_t thisQQ, std::int64_t groupQQ, const std::string &folder);
+
+    /**
+     * @brief 删除群文件
+     * @param thisQQ 框架QQ
+     * @param groupQQ 群号
+     * @param file_id 文件FileID
+     * @param folder 文件所在的文件夹名，根目录留空或填/
+     */
+    std::string DeleteGroupFile(std::int64_t thisQQ, std::int64_t groupQQ, const std::string &file_id, const std::string &folder);
+
+    /**
+     * @brief 移动群文件
+     * @param thisQQ 框架QQ
+     * @param groupQQ 群号
+     * @param file_id 文件FileID
+     * @param old_folder 当前所在的文件夹名，根目录留空或填/
+     * @param new_folder 目标文件夹名，根目录留空或填/
+     */
+    std::string MoveGroupFile(std::int64_t thisQQ, std::int64_t groupQQ, const std::string &file_id, const std::string &old_folder, const std::string &new_folder);
+
+    /**
+     * @brief 取群文件列表
+     * @param thisQQ 框架QQ
+     * @param groupQQ 群号
+     * @param folder 欲查看的文件夹名，根目录留空或填/
+     * @param group_file_list 群文件信息列表（传出）
+     */
+    std::string GetGroupFileList(std::int64_t thisQQ, std::int64_t groupQQ, const std::string &folder, std::vector<GroupFileInformation> &group_file_list);
+
+    // 微云之所以用拼音WeiYun是因为官方用的拼音，也找不到官方的英文名
+    /**
+     * @brief 保存文件到微云
+     * @param thisQQ 框架QQ
+     * @param groupQQ 群号
+     * @param file_id 文件FileID
+     */
+    std::string SaveFileToWeiYun(std::int64_t thisQQ, std::int64_t groupQQ, const std::string &file_id, const std::string &folder);
 
     /**
     * @brief 设置在线状态
     * @param thisQQ 框架QQ
-    * @param main main 11: 在线, 31: 离开, 41: 隐身, 50: 忙碌, 60: Q我吧, 70: 请勿打扰
-    * @param sun sun 当main=11时，可进一步设置 0: 普通在线, 1000: 我的电量, 1011: 信号弱, 1016: 睡觉中, 1017: 游戏中, 1018: 学习中, 1019: 吃饭中, 1021: 煲剧中, 1022: 度假中, 1024: 在线学习, 1025: 在家旅游, 1027: TiMi中, 1028: 我在听歌, 1032: 熬夜中, 1050: 打球中, 1051: 恋爱中, 1052: 我没事
-    * @param battery 电量 sun=1000时，可以设置上报电量，取值1到100
+    * @param main 主要在线状态
+    * @param sun 详细在线状态 当main为Online(在线)时，可进一步设置详细在线状态
+    * @param battery 电量 当sun为ShowBattery(我的电量)时，可以设置上报电量，取值1到100
     * @return 失败或无权限返回false
     */
-    bool SetStatus(std::int64_t thisQQ, std::int32_t main, std::int32_t sun = 0, std::int32_t battery = 0);
+    bool SetStatus(std::int64_t thisQQ, StatusTypeEnum main, StatusOnlineTypeEnum sun = StatusOnlineTypeEnum::Normal, std::int32_t battery = 0);
 
     /**
      * @brief 判断某api是否有权限
      * @param permission 权限
      */
-    bool CheckPermission(Permission permission);
+    bool CheckPermission(PermissionEnum permission);
 
     /**
      * @brief 判断某api是否有权限
      * @param permission 权限
      */
-    bool CheckPermission(std::string permission);
-
-    /**
-     * @brief 重载自身 [暂时无效，请勿调用]没有权限限制，请勿将新的插件文件下载至plugin文件夹，请确保新旧文件appname一致
-     * @param new_file_path 新文件路径 若要更新插件，可将插件文件下载后在此填写新文件路径
-    */
-    void ReloadPlugin(std::string new_file_path = "");
+    bool CheckPermission(const std::string &permission);
 
     /**
      * @brief 获取插件数据目录 没有权限限制，建议将设置文件之类的都写这里面
@@ -647,13 +695,13 @@ public:
      * @param thisQQ 框架QQ 群聊图片必填，私聊图片必空
      * @param groupQQ 群号 群聊图片必填，私聊图片必空
      */
-    std::string GetImageDownloadLink(std::string image_code, std::int64_t thisQQ = 0, std::int64_t groupQQ = 0);
+    std::string GetImageDownloadLink(const std::string &image_code, std::int64_t thisQQ = 0, std::int64_t groupQQ = 0);
 
     /**
      * @brief 查询好友信息
      * @param thisQQ 框架QQ
      * @param otherQQ 对方QQ
-     * @param data 数据
+     * @param data 数据（传出）
      * @return 支持陌生人查询
      */
     bool GetFriendInformation(std::int64_t thisQQ, std::int64_t otherQQ, FriendInformation &data);
@@ -662,13 +710,12 @@ public:
      * @brief 查询群信息
      * @param thisQQ 框架QQ
      * @param groupQQ 群号
-     * @param data 数据
+     * @param data 数据（传出）
      */
     bool GetGroupInformation(std::int64_t thisQQ, std::int64_t groupQQ, GroupCardInformation &data);
 
     /**
-     * @brief 框架重启
-     * @return 有权限限制，建议使用前检查是否具有权限
+     * @brief 框架重启 有权限限制，建议使用前检查是否具有权限
      */
     void Reboot();
 
@@ -680,32 +727,34 @@ public:
      * @param fileID FileId
      * @return 失败或无权限返回false
      */
-    bool ForwardGroupFileToGroup(std::int64_t thisQQ, std::int64_t source_groupQQ, std::int64_t target_groupQQ, std::string fileID);
+    bool ForwardGroupFileToGroup(std::int64_t thisQQ, std::int64_t source_groupQQ, std::int64_t target_groupQQ, const std::string &fileID);
 
     /**
      * @brief 转发群文件至好友
      * @param thisQQ 框架QQ
-     * @param souce_groupQQ 来源群号
+     * @param source_groupQQ 来源群号
      * @param otherQQ 目标QQ
      * @param fileID FileId
-     * @param file_name Filename
-     * @param req Req 撤回消息用
-     * @param random Random 撤回消息用
-     * @param time time 撤回消息用
+     * @param file_name 文件名
+     * @param file_size 文件大小
+     * @param req Req 撤回消息用（传出）
+     * @param random Random 撤回消息用（传出）
+     * @param time time 撤回消息用（传出）
      * @return 失败或无权限返回false
      */
-    bool ForwardGroupFileToFriend(std::int64_t thisQQ, std::int64_t souce_groupQQ, std::int64_t otherQQ, std::string fileID, std::string file_name, std::int32_t &req, std::int64_t &random, std::int32_t &time);
+    bool ForwardGroupFileToFriend(std::int64_t thisQQ, std::int64_t source_groupQQ, std::int64_t otherQQ, const std::string &fileID, const std::string &file_name, std::int64_t file_size, std::int32_t &req, std::int64_t &random, std::int32_t &time);
 
     /**
      * @brief 转发群文件至好友（若要撤回消息请使用另一重载）
      * @param thisQQ 框架QQ
-     * @param souce_groupQQ 来源群号
+     * @param source_groupQQ 来源群号
      * @param otherQQ 目标QQ
      * @param fileID FileId
-     * @param file_name Filename
+     * @param file_name 文件名
+     * @param file_size 文件大小
      * @return 失败或无权限返回false
      */
-    bool ForwardGroupFileToFriend(std::int64_t thisQQ, std::int64_t souce_groupQQ, std::int64_t otherQQ, std::string fileID, std::string file_name);
+    bool ForwardGroupFileToFriend(std::int64_t thisQQ, std::int64_t source_groupQQ, std::int64_t otherQQ, const std::string &fileID, const std::string &file_name, std::int64_t file_size);
 
     /**
      * @brief 转发好友文件至好友
@@ -713,13 +762,14 @@ public:
      * @param sourceQQ 来源QQ
      * @param targetQQ 目标QQ
      * @param fileID FileId
-     * @param file_name Filename
-     * @param req Req 撤回消息用
-     * @param random Random 撤回消息用
-     * @param time time 撤回消息用
+     * @param file_name 文件名
+     * @param file_size 文件大小
+     * @param req Req 撤回消息用（传出）
+     * @param random Random 撤回消息用（传出）
+     * @param time time 撤回消息用（传出）
      * @return 失败或无权限返回false
      */
-    bool ForwardFriendFileToFriend(std::int64_t thisQQ, std::int64_t sourceQQ, std::int64_t targetQQ, std::string fileID, std::string file_name, std::int32_t &req, std::int32_t &random, std::int32_t &time);
+    bool ForwardFriendFileToFriend(std::int64_t thisQQ, std::int64_t sourceQQ, std::int64_t targetQQ, const std::string &fileID, const std::string &file_name, std::int64_t file_size, std::int32_t &req, std::int64_t &random, std::int32_t &time);
 
     /**
      * @brief 转发好友文件至好友（若要撤回消息请使用另一重载）
@@ -727,10 +777,11 @@ public:
      * @param sourceQQ 来源QQ
      * @param targetQQ 目标QQ
      * @param fileID FileId
-     * @param file_name Filename
+     * @param file_name 文件名
+     * @param file_size 文件大小
      * @return 失败或无权限返回false
      */
-    bool ForwardFriendFileToFriend(std::int64_t thisQQ, std::int64_t sourceQQ, std::int64_t targetQQ, std::string fileID, std::string file_name);
+    bool ForwardFriendFileToFriend(std::int64_t thisQQ, std::int64_t sourceQQ, std::int64_t targetQQ, const std::string &fileID, const std::string &file_name, std::int64_t file_size);
 
     /**
      * @brief 设置群消息接收
@@ -746,9 +797,9 @@ public:
      * @param thisQQ 框架QQ
      * @param groupQQ 群号
      * @param otherQQ 对方QQ
-     * @param packageID packageID 299: 卡布奇诺, 302: 猫咪手表, 280: 牵你的手, 281: 可爱猫咪, 284: 神秘面具, 285: 甜wink, 286: 我超忙的, 289: 快乐肥宅水, 290: 幸运手链, 313: 坚强, 307: 绒绒手套, 312: 爱心口罩, 308: 彩虹糖果
+     * @param gift 礼物
      */
-    std::string SendFreeGift(std::int64_t thisQQ, std::int64_t groupQQ, std::int64_t otherQQ, std::int32_t packageID);
+    std::string SendFreeGift(std::int64_t thisQQ, std::int64_t groupQQ, std::int64_t otherQQ, FreeGiftEnum gift);
 
     /**
      * @brief 获取好友在线状态
@@ -761,7 +812,7 @@ public:
     /**
      * @brief 获取QQ钱包个人信息
      * @param thisQQ 框架QQ
-     * @param data 数据 获取银行卡信息时注意不要数组越界
+     * @param data 数据（传出）
      * @return 包括余额、名字、银行卡等
      */
     std::string GetQQWalletPersonalInformation(std::int64_t thisQQ, QQWalletInformation &data);
@@ -770,10 +821,10 @@ public:
      * @brief 获取订单详情
      * @param thisQQ 框架QQ
      * @param orderID 订单号或者称之为listid
-     * @param data 数据
+     * @param data 数据（传出）
      * @return 可以查订单，比如别人给你转账，你可以查询转账的详情
      */
-    std::string GetOrderDetail(std::int64_t thisQQ, std::string orderID, OrderDetail &data);
+    std::string GetOrderDetail(std::int64_t thisQQ, const std::string &orderID, OrderDetail &data);
 
     /**
      * @brief 提交支付验证码
@@ -783,7 +834,7 @@ public:
      * @param payment_password 支付密码 用于验证并支付
      * @return 用银行卡支付时需要验证，只需要验证一次
      */
-    std::string SubmitPaymentCaptcha(std::int64_t thisQQ, volatile CaptchaInformation *captcha_information, std::string captcha, std::string payment_password);
+    std::string SubmitPaymentCaptcha(std::int64_t thisQQ, CaptchaInformation *captcha_information, const std::string &captcha, const std::string &payment_password);
 
     /**
      * @brief 分享音乐
@@ -798,7 +849,7 @@ public:
      * @param share_type 分享类型 0私聊 1群聊  默认0
      * @return 失败或无权限返回false
      */
-    bool ShareMusic(std::int64_t thisQQ, std::int64_t otherQQ, std::string music_name, std::string artist_name, std::string redirect_link, std::string cover_link, std::string file_path, std::int32_t app_type = 0, std::int32_t share_type = 0);
+    bool ShareMusic(std::int64_t thisQQ, std::int64_t otherQQ, const std::string &music_name, const std::string &artist_name, const std::string &redirect_link, const std::string &cover_link, const std::string &file_path, std::int32_t app_type = 0, std::int32_t share_type = 0);
 
     /**
      * @brief 更改群聊消息内容（使用此命令可以更改当前群聊消息内容，并使更改后的内容投递给之后的插件）
@@ -806,7 +857,7 @@ public:
      * @param new_message_content 新消息内容
      * @return 无权限返回false
      */
-    bool ModifyGroupMessageContent(std::int32_t data_pointer, std::string new_message_content);
+    bool ModifyGroupMessageContent(std::int32_t data_pointer, const std::string &new_message_content);
 
     /**
      * @brief 更改私聊消息内容（使用此命令可以更改当前私聊消息内容，并使更改后的内容投递给之后的插件）
@@ -814,7 +865,7 @@ public:
      * @param new_message_content 新消息内容
      * @return 无权限返回false
      */
-    bool ModifyPrivateMessageContent(std::int32_t data_pointer, std::string new_message_content);
+    bool ModifyPrivateMessageContent(std::int32_t data_pointer, const std::string &new_message_content);
 
     /**
      * @brief 群聊口令红包
@@ -826,7 +877,7 @@ public:
      * @param payment_password 支付密码
      * @param card_serial 银行卡序列 大于0时使用银行卡支付
      */
-    std::string GroupPasswordRedEnvelope(std::int64_t thisQQ, std::int32_t total_number, std::int32_t total_amount, std::int64_t groupQQ, std::string password, std::string payment_password, std::int32_t card_serial = 0);
+    std::string GroupPasswordRedEnvelope(std::int64_t thisQQ, std::int32_t total_number, std::int32_t total_amount, std::int64_t groupQQ, const std::string &password, const std::string &payment_password, std::int32_t card_serial = 0);
 
     /**
      * @brief 群聊拼手气红包
@@ -839,7 +890,7 @@ public:
      * @param card_serial 银行卡序列 大于0时使用银行卡支付
      * @param skinID 红包皮肤Id 1522光与夜之恋
      */
-    std::string GroupRandomRedEnvelope(std::int64_t thisQQ, std::int32_t total_number, std::int32_t total_amount, std::int64_t groupQQ, std::string blessing, std::string payment_password, std::int32_t card_serial = 0, std::int32_t skinID = 0);
+    std::string GroupRandomRedEnvelope(std::int64_t thisQQ, std::int32_t total_number, std::int32_t total_amount, std::int64_t groupQQ, const std::string &blessing, const std::string &payment_password, std::int32_t card_serial = 0, std::int32_t skinID = 0);
 
     /**
      * @brief 群聊普通红包
@@ -852,7 +903,7 @@ public:
      * @param card_serial 银行卡序列 大于0时使用银行卡支付
      * @param skinID 红包皮肤Id 1522: 光与夜之恋, 1527: 代号：三国（打了一辈子仗）, 1525: 街霸：对决, 1518: 代号：三国（俺送红包来了）, 1476: 天涯明月刀, 1512: 一人之下，其他皮肤id自己找
      */
-    std::string GroupNormalRedEnvelope(std::int64_t thisQQ, std::int32_t total_number, std::int32_t total_amount, std::int64_t groupQQ, std::string blessing, std::string payment_password, std::int32_t card_serial = 0, std::int32_t skinID = 0);
+    std::string GroupNormalRedEnvelope(std::int64_t thisQQ, std::int32_t total_number, std::int32_t total_amount, std::int64_t groupQQ, const std::string &blessing, const std::string &payment_password, std::int32_t card_serial = 0, std::int32_t skinID = 0);
 
     /**
      * @brief 群聊画图红包
@@ -864,7 +915,7 @@ public:
      * @param payment_password 支付密码
      * @param card_serial 银行卡序列 大于0时使用银行卡支付
      */
-    std::string GroupDrawRedEnvelope(std::int64_t thisQQ, std::int32_t total_number, std::int32_t total_amount, std::int64_t groupQQ, std::string question, std::string payment_password, std::int32_t card_serial = 0);
+    std::string GroupDrawRedEnvelope(std::int64_t thisQQ, std::int32_t total_number, std::int32_t total_amount, std::int64_t groupQQ, const std::string &question, const std::string &payment_password, std::int32_t card_serial = 0);
 
     /**
      * @brief 群聊语音红包
@@ -876,7 +927,7 @@ public:
      * @param payment_password 支付密码
      * @param card_serial 银行卡序列 大于0时使用银行卡支付
      */
-    std::string GroupAudioRedEnvelope(std::int64_t thisQQ, std::int32_t total_number, std::int32_t total_amount, std::int64_t groupQQ, std::string audio_password, std::string payment_password, std::int32_t card_serial = 0);
+    std::string GroupAudioRedEnvelope(std::int64_t thisQQ, std::int32_t total_number, std::int32_t total_amount, std::int64_t groupQQ, const std::string &audio_password, const std::string &payment_password, std::int32_t card_serial = 0);
 
     /**
      * @brief 群聊接龙红包
@@ -888,7 +939,7 @@ public:
      * @param payment_password 支付密码
      * @param card_serial 银行卡序列 大于0时使用银行卡支付
      */
-    std::string GroupFollowRedEnvelope(std::int64_t thisQQ, std::int32_t total_number, std::int32_t total_amount, std::int64_t groupQQ, std::string follow_content, std::string payment_password, std::int32_t card_serial = 0);
+    std::string GroupFollowRedEnvelope(std::int64_t thisQQ, std::int32_t total_number, std::int32_t total_amount, std::int64_t groupQQ, const std::string &follow_content, const std::string &payment_password, std::int32_t card_serial = 0);
 
     /**
      * @brief 群聊专属红包
@@ -902,7 +953,7 @@ public:
      * @param card_serial 银行卡序列 大于0时使用银行卡支付
      * @param is_equal 是否均分 默认不均分（拼手气）
      */
-    std::string GroupExclusiveRedEnvelope(std::int64_t thisQQ, std::int32_t total_number, std::int32_t total_amount, std::int64_t groupQQ, std::string otherQQ, std::string blessing, std::string payment_password = "", std::int32_t card_serial = 0, bool is_equal = false);
+    std::string GroupExclusiveRedEnvelope(std::int64_t thisQQ, std::int32_t total_number, std::int32_t total_amount, std::int64_t groupQQ, const std::string &otherQQ, const std::string &blessing, const std::string &payment_password = "", std::int32_t card_serial = 0, bool is_equal = false);
 
     /**
      * @brief 好友口令红包 不支持非好友
@@ -914,7 +965,7 @@ public:
      * @param payment_password 支付密码
      * @param card_serial 银行卡序列 大于0时使用银行卡支付
      */
-    std::string FriendPasswordRedEnvelope(std::int64_t thisQQ, std::int32_t total_number, std::int32_t total_amount, std::int64_t otherQQ, std::string password, std::string payment_password, std::int32_t card_serial = 0);
+    std::string FriendPasswordRedEnvelope(std::int64_t thisQQ, std::int32_t total_number, std::int32_t total_amount, std::int64_t otherQQ, const std::string &password, const std::string &payment_password, std::int32_t card_serial = 0);
     /**
      * @brief 好友普通红包 不支持非好友
      * @param thisQQ 框架QQ
@@ -926,7 +977,7 @@ public:
      * @param card_serial 银行卡序列 大于0时使用银行卡支付
      * @param skinID 红包皮肤Id 1522: 光与夜之恋, 1527: 代号：三国（打了一辈子仗）, 1525: 街霸：对决, 1518: 代号：三国（俺送红包来了）, 1476: 天涯明月刀, 1512: 一人之下，其他皮肤id自己找
      */
-    std::string FriendNormalRedEnvelope(std::int64_t thisQQ, std::int32_t total_number, std::int32_t total_amount, std::int64_t otherQQ, std::string blessing, std::string payment_password, std::int32_t card_serial = 0, std::int32_t skinID = 0);
+    std::string FriendNormalRedEnvelope(std::int64_t thisQQ, std::int32_t total_number, std::int32_t total_amount, std::int64_t otherQQ, const std::string &blessing, const std::string &payment_password, std::int32_t card_serial = 0, std::int32_t skinID = 0);
 
     /**
      * @brief 好友画图红包 不支持非好友
@@ -938,7 +989,7 @@ public:
      * @param payment_password 支付密码
      * @param card_serial 银行卡序列 大于0时使用银行卡支付
      */
-    std::string FriendDrawRedEnvelope(std::int64_t thisQQ, std::int32_t total_number, std::int32_t total_amount, std::int64_t otherQQ, std::string question, std::string payment_password, std::int32_t card_serial = 0);
+    std::string FriendDrawRedEnvelope(std::int64_t thisQQ, std::int32_t total_number, std::int32_t total_amount, std::int64_t otherQQ, const std::string &question, const std::string &payment_password, std::int32_t card_serial = 0);
 
     /**
      * @brief 好友语音红包 不支持非好友
@@ -950,7 +1001,7 @@ public:
      * @param payment_password 支付密码
      * @param card_serial 银行卡序列 大于0时使用银行卡支付
      */
-    std::string FriendAudioRedEnvelope(std::int64_t thisQQ, std::int32_t total_number, std::int32_t total_amount, std::int64_t otherQQ, std::string audio_password, std::string payment_password, std::int32_t card_serial = 0);
+    std::string FriendAudioRedEnvelope(std::int64_t thisQQ, std::int32_t total_number, std::int32_t total_amount, std::int64_t otherQQ, const std::string &audio_password, const std::string &payment_password, std::int32_t card_serial = 0);
 
     /**
      * @brief 好友接龙红包 不支持非好友
@@ -962,8 +1013,18 @@ public:
      * @param payment_password 支付密码
      * @param card_serial 银行卡序列 大于0时使用银行卡支付
      */
-    std::string FriendFollowRedEnvelope(std::int64_t thisQQ, std::int32_t total_number, std::int32_t total_amount, std::int64_t otherQQ, std::string follow_content, std::string payment_password, std::int32_t card_serial = 0);
+    std::string FriendFollowRedEnvelope(std::int64_t thisQQ, std::int32_t total_number, std::int32_t total_amount, std::int64_t otherQQ, const std::string &follow_content, const std::string &payment_password, std::int32_t card_serial = 0);
 
+    /**
+     * @brief 设置专属头衔
+     * @param thisQQ 框架QQ
+     * @param groupQQ 群号
+     * @param otherQQ 对方QQ
+     * @param title 头衔
+     */
+    bool SetExclusiveTitle(std::int64_t thisQQ, std::int64_t groupQQ, std::int64_t otherQQ, std::string title);
+
+private:
+    Json j;
+    ::std::string key;
 };
-
-#endif // CORNERSTONE_HEADER_API_H_

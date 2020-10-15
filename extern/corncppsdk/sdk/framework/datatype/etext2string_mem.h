@@ -29,38 +29,10 @@ SOFTWARE.
 
 #pragma once
 
-#include <cstring>
-#include <unordered_map>
-#include <type_traits>
-#include <algorithm>
+#include "../../encoding/encoding.h"
 
-#include "../sdk.h"
-#include "utils-inl.h"
-
-#include "../eport/etypes.h"
-#include "../framework/constants.h"
-
-// 易语言常量
-constexpr ebool etrue = 1;
-constexpr ebool efalse = 0;
-
-// 易语言类型转换
-constexpr ebool bool2ebool(const bool &b)
-{
-    return b ? etrue : efalse;
-}
-
-constexpr bool ebool2bool(const ebool &e)
-{
-    return e == etrue;
-}
-
-constexpr ebool b2e(const bool &b)
-{
-    return bool2ebool(b);
-}
-
-constexpr bool e2b(const ebool &e)
-{
-    return ebool2bool(e);
-}
+// 将etext赋予::std::string，constexpr产生隐式inline等
+constexpr auto string_e2std = [](::std::string &member, const etext &src) {
+    if (src != nullptr)
+        member = e2s_s(src);
+};

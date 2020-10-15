@@ -13,6 +13,7 @@ add_compile_options("$<$<CXX_COMPILER_ID:MSVC>:/utf-8>")
 
 # fix sqlite3 include and link for appveyor
 find_path(SQLITE_INCLUDE sqlite3.h)
+message(SQLITE_INCLUDE is ${SQLITE_INCLUDE})
 include_directories(${SQLITE_INCLUDE})
 if(CMAKE_BUILD_TYPE STREQUAL Debug)
   set(SQLITE_LIB_DIR ${SQLITE_INCLUDE}/../debug/lib/)
@@ -21,7 +22,7 @@ else()
 endif()
 link_directories(${SQLITE_LIB_DIR})
 
-find_package(sqlite3 REQUIRED)
+find_package(SQLite3 REQUIRED)
 
 file(GLOB_RECURSE BASE64_SOURCE 
 	extern/cqcppsdk/src/utils/base64.cpp
@@ -35,7 +36,8 @@ file(GLOB_RECURSE SOURCE_FILES src/plugin.cc)
 
 set(LIB_NAME "dicebot")
 add_library(${LIB_NAME} SHARED ${DICEBOT_SOURCE} ${SOURCE_FILES} ${CORN_SOURCE} ${BASE64_SOURCE})
-target_link_libraries(${LIB_NAME} PRIVATE sqlite3)
+target_link_libraries(${LIB_NAME} PRIVATE SQLite3)
+target_link_options(${LIB_NAME} PRIVATE "$<$<CXX_COMPILER_ID:MSVC>:/export:apprun=_apprun@8>")
 
 include(src/tests/test.cmake)
 

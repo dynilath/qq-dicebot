@@ -29,38 +29,51 @@ SOFTWARE.
 
 #pragma once
 
-#include <cstring>
-#include <unordered_map>
-#include <type_traits>
-#include <algorithm>
+#include <string>
 
-#include "../sdk.h"
-#include "utils-inl.h"
+#include "../../eport/etypes.h"
+#include "../constants.h"
+#include "./etext2string_mem.h"
 
-#include "../eport/etypes.h"
-#include "../framework/constants.h"
-
-// 易语言常量
-constexpr ebool etrue = 1;
-constexpr ebool efalse = 0;
-
-// 易语言类型转换
-constexpr ebool bool2ebool(const bool &b)
+#pragma pack(4)
+// Note: _EType_开头的是内部转换用的类型，请使用普通的GroupCardInformation
+struct _EType_GroupCardInformation
 {
-    return b ? etrue : efalse;
-}
+    // 群名称
+    etext GroupName = nullptr;
+    // 群地点
+    etext GroupLocation = nullptr;
+    // 群分类
+    etext GroupClassification = nullptr;
+    // 群标签 以|分割
+    etext GroupTags = nullptr;
+    // 群介绍
+    etext GroupDescription = nullptr;
+};
+#pragma pack()
 
-constexpr bool ebool2bool(const ebool &e)
+// 群卡片信息
+struct GroupCardInformation
 {
-    return e == etrue;
-}
+    // 群名称
+    ::std::string GroupName;
+    // 群地点
+    ::std::string GroupLocation;
+    // 群分类
+    ::std::string GroupClassification;
+    // 群标签 以|分割
+    ::std::string GroupTags;
+    // 群介绍
+    ::std::string GroupDescription;
 
-constexpr ebool b2e(const bool &b)
-{
-    return bool2ebool(b);
-}
+    GroupCardInformation() = default;
 
-constexpr bool e2b(const ebool &e)
-{
-    return ebool2bool(e);
-}
+    GroupCardInformation(const _EType_GroupCardInformation &info)
+    {
+        string_e2std(this->GroupName, info.GroupName);
+        string_e2std(this->GroupLocation, info.GroupLocation);
+        string_e2std(this->GroupClassification, info.GroupClassification);
+        string_e2std(this->GroupTags, info.GroupTags);
+        string_e2std(this->GroupDescription, info.GroupDescription);
+    }
+};

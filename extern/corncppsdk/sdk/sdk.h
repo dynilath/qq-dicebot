@@ -1,7 +1,7 @@
 /*
-Cornerstone SDK v0.2.0
+Cornerstone SDK v1.0.1
 -- 面向现代 C++ 的 Corn SDK
-兼容 Corn SDK v2.6.5
+兼容小栗子框架 v2.7.1-v2.7.2 和 Corn SDK v2.7.1
 https://github.com/Sc-Softs/CornerstoneSDK
 
 使用 MIT License 进行许可
@@ -27,10 +27,9 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#ifndef CORNERSTONE_HEADER_SDK_H_
-#define CORNERSTONE_HEADER_SDK_H_
+#pragma once
 
-//系统
+// 系统
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
 
@@ -39,6 +38,7 @@ SOFTWARE.
 using Json = nlohmann::json;
 
 // 工具
+#include "encoding/encoding.h"
 #include "utils/types.h"
 #include "utils/utils-inl.h"
 
@@ -46,25 +46,35 @@ using Json = nlohmann::json;
 #include "api/api.h"
 
 // 好友消息事件
-EventProcess OnPrivateMessage(volatile PrivateMessageData *data);
+EventProcessEnum OnPrivateMessage(PrivateMessageData data);
 // 群消息事件
-EventProcess OnGroupMessage(volatile GroupMessageData *data);
-// 插件卸载事件（未知参数）
-EventProcess OnUninstall(void *);
-// 插件设置事件（未知参数），这里可以弹出对话框
-EventProcess OnSettings(void *);
-// 插件被启用事件（未知参数）
-EventProcess OnEnabled(void *);
-// 插件被禁用事件（未知参数）
-EventProcess OnDisabled(void *);
-// 事件消息
-EventProcess OnEvent(volatile EventData *data);
+EventProcessEnum OnGroupMessage(GroupMessageData data);
+// 插件卸载事件
+EventProcessEnum OnUninstall();
+// 插件设置事件 这里可以弹出对话框
+EventProcessEnum OnSettings();
+// 插件被启用事件
+EventProcessEnum OnEnabled();
+// 插件被禁用事件
+EventProcessEnum OnDisabled();
+// 其他事件
+EventProcessEnum OnEvent(EventData data);
 
-// 插件入口点，extern "C" 防止命名重整
-extern "C" etext __stdcall apprun(etext apidata, etext pluginkey);
+// 私聊消息事件回调包装
+EventProcessEnum ECallBack_OnPrivateMessage(volatile _EType_PrivateMessageData *eData);
+// 群消息事件回调包装
+EventProcessEnum ECallBack_OnGroupMessage(volatile _EType_GroupMessageData *eData);
+// 插件卸载事件回调包装（未知参数）
+EventProcessEnum ECallBack_OnUninstall(void *);
+// 插件设置事件回调包装（未知参数）
+EventProcessEnum ECallBack_OnSettings(void *);
+// 插件被启用事件回调包装（未知参数）
+EventProcessEnum ECallBack_OnEnabled(void *);
+// 插件被禁用事件回调包装（未知参数）
+EventProcessEnum ECallBack_OnDisabled(void *);
+// 其他事件回调包装
+EventProcessEnum ECallBack_OnEvent(volatile _EType_EventData *eData);
 
 // API对象
 class API;
 extern API *api;
-
-#endif // CORNERSTONE_HEADER_SDK_H_
