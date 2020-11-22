@@ -49,7 +49,7 @@ p_entry const entry_manager::get_entry(std::string command) const {
         return (*iter).second;
 }
 
-std::regex const* entry_manager::get_regex_command() const { return &(this->regex_command); }
+std::regex const& entry_manager::get_regex_command() const { return this->regex_command; }
 
 entry_help::entry_help() noexcept {
     this->is_stand_alone = true;

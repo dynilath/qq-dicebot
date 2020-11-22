@@ -10,6 +10,8 @@
 #define DB_FOLDER ""
 #endif
 
+auto ret_def_name = []()->::std::string{return "default";};
+
 class entry_test : public ::testing::Test {
 protected:
     entry_test() { dicebot::initialize(DB_FOLDER); }
@@ -19,23 +21,23 @@ public:
     bool test_call(::event_info &ei, const std::string &source,
                    const std::regex &reg_test) {
         std::string output;
-        dicebot::try_fill_nickname(ei);
-        dicebot::message_pipeline(source, ei, output);
+        //dicebot::try_fill_nickname(ei);
+        dicebot::message_pipeline(source, ei, ret_def_name,output);
         return std::regex_search(output, reg_test);
     }
 
     bool test_call(::event_info &ei, const std::string &source,
                    const std::string &reg_test) {
         std::string output;
-        dicebot::try_fill_nickname(ei);
-        dicebot::message_pipeline(source, ei, output);
+        //dicebot::try_fill_nickname(ei);
+        dicebot::message_pipeline(source, ei, ret_def_name, output);
         return output == reg_test;
     }
 
     std::string base_call(::event_info &ei, const std::string &source) {
         std::string output;
-        dicebot::try_fill_nickname(ei);
-        dicebot::message_pipeline(source, ei, output);
+        //dicebot::try_fill_nickname(ei);
+        dicebot::message_pipeline(source, ei, ret_def_name, output);
         return output;
     }
 };
@@ -137,7 +139,6 @@ TEST_F(entry_test, roll_brace_calculus) {
 
 TEST_F(entry_test, name) {
     ::event_info ei(123456, 10000, ::event_type::group);
-    ei.nickname = "dynilath";
 
     ei.group_id = 10001;
     ASSERT_TRUE(this->test_call(
@@ -166,16 +167,20 @@ TEST_F(entry_test, name) {
         u8"^ \\* dice2 掷骰: 2d20 \\+ 4 = \\[\\d{1,2} \\+ \\d{1,2}\\] \\+ 4 = "
         u8"\\d{1,2}$");
 
+    ei.nickname.clear();
     ei.group_id = 10001;
     ASSERT_TRUE(this->test_call(ei, ".rs2d20+4", result_reg_r1));
 
+    ei.nickname.clear();
     ei.group_id = 10002;
     ASSERT_TRUE(this->test_call(ei, ".rs2d20+4", result_reg_r2));
 
+    ei.nickname.clear();
     ei.group_id = 10001;
     ASSERT_TRUE(this->test_call(
         ei, ".ndice", std::regex(u8"^ \\* dice1 的新名字是 dice$")));
 
+    ei.nickname.clear();
     ei.group_id = 10002;
     ASSERT_TRUE(this->test_call(
         ei, ".ndice", std::regex(u8"^ \\* dice2 的新名字是 dice$")));

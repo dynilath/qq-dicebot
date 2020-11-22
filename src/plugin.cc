@@ -6,11 +6,22 @@
 auto my_logger = [](const std::string&v1,const std::string&v2){
             api->OutputLog(v1+" : "+v2);};
 
+::std::string get_user_nick(int64_t this_qq,int64_t other_qq){
+    return api->GetNameForce(this_qq, other_qq);
+}
+
+::std::string get_group_nick(int64_t this_qq, int64_t group_qq, int64_t other_qq){
+    ::std::string ret = api->GetGroupNickname(this_qq, group_qq,other_qq);
+    if(ret.empty()) return api->GetNameForce(this_qq, other_qq);
+    else return ret;
+}
+
+
 template<typename Sender>
-void resolve_cap(event_info &ei, std::string const &raw_source, Sender sender) noexcept {
+void resolve_cap(event_info &ei, std::string const &raw_source, dicebot::nick_fill_call filler , Sender sender) noexcept {
     try {
         std::string temp;
-        if (!dicebot::message_pipeline(raw_source, ei, temp)) return;
+        if (!dicebot::message_pipeline(raw_source, ei, filler, temp)) return;
         sender(temp);
     } catch (const std::exception &err) {
         my_logger("DICE","exception：" + std::string(err.what()) + ",message：" + raw_source);
@@ -24,11 +35,13 @@ EventProcessEnum OnPrivateMessage(PrivateMessageData data)
     //my_logger("dicebot", "private msg from(" + std::to_string(sender_qq) + "): " + content);
 
     ::event_info ei(data.SenderQQ);
-    if (!dicebot::try_fill_nickname(ei)) {
-        ei.nickname = api->GetNameForce(data.ThisQQ, data.SenderQQ);
-    }
+    // if (!dicebot::try_fill_nickname(ei)) {
+    //     ei.nickname = api->GetNameForce(data.ThisQQ, data.SenderQQ);
+    // }
 
-    resolve_cap(ei, data.MessageContent, [&](const std::string& ret) {
+    resolve_cap(ei, data.MessageContent, 
+    ::std::bind(get_user_nick,data.ThisQQ,data.SenderQQ),
+    [&](const std::string& ret) {
         if(data.MessageType == MessageTypeEnum::FriendUsualMessage)
             api->SendFriendMessage(data.ThisQQ, data.SenderQQ, ret);
         else if(data.MessageType == MessageTypeEnum::Temporary)
@@ -43,11 +56,13 @@ EventProcessEnum OnGroupMessage(GroupMessageData data){
     //if (!dicebot::utils::basic_event_filter(content)) return EventProcess::Ignore;
 
     ::event_info ei(data.SenderQQ, data.MessageGroupQQ, ::event_type::group);
-    if (!dicebot::try_fill_nickname(ei)) {
-        ei.nickname = api->GetGroupNickname(data.ThisQQ, data.MessageGroupQQ, data.SenderQQ);
-    }
+    // if (!dicebot::try_fill_nickname(ei)) {
+    //     ei.nickname = api->GetGroupNickname(data.ThisQQ, data.MessageGroupQQ, data.SenderQQ);
+    // }
 
-    resolve_cap(ei, data.MessageContent, [&](const std::string& ret) {
+    resolve_cap(ei, data.MessageContent, 
+    ::std::bind(get_group_nick,data.ThisQQ,data.MessageGroupQQ,data.SenderQQ),
+    [&](const std::string& ret) {
         api->SendGroupMessage(data.ThisQQ, data.MessageGroupQQ, ret);
     });
 
