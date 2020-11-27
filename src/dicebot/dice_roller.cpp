@@ -129,7 +129,7 @@ std::string dice_roll::detail_wod(int const adjust) noexcept{
     if(adjust > 0)
         ost << " + " << adjust;
     else if(adjust < 0)
-        ost << " - " << adjust;
+        ost << " - " << -adjust;
     return ost.str();
 }
 
