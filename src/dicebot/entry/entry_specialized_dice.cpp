@@ -11,7 +11,7 @@ using namespace dicebot::entry;
 
 #pragma region wod
 
-static const std::regex wod_full_dice("^(\\d+)(?:d(\\d+))?(?:b(\\d+))? *", std::regex_constants::icase);
+static const std::regex wod_full_dice("^(\\d+)(?:d(\\d+))?(?:b(\\d+))? *(?:([+-]) *(\\d+))?", std::regex_constants::icase);
 
 static const std::regex wod_filter_command("^(n|o) *", std::regex_constants::icase);
 
@@ -38,10 +38,17 @@ static bool roll_owod(std::string const& message, const event_info& event, std::
                 strs << " B" << bonus;
             }
 
+            int adjust = 0;
+            if (command_match[5].matched) {
+                adjust = stoi(command_match[5]);
+                if(*(command_match[4].first) == '-')
+                    adjust = -adjust;
+            }
+
             roll::dice_roll dr;
-            roll::roll_wod(dr, dice, difficulty, bonus, true);
+            roll::roll_wod(dr, dice, difficulty, bonus, adjust, true);
             output_constructor oc(event.nickname, command_match.suffix());
-            oc.append_roll(strs.str(), dr.detail(), dr.summary);
+            oc.append_roll(strs.str(), dr.detail_wod(adjust), dr.summary);
             response = oc;
             return true;
         } catch (std::invalid_argument&) {
@@ -76,10 +83,17 @@ static bool roll_nwod(std::string const& message, const event_info& event, std::
                 strs << " B" << bonus;
             }
 
+            int adjust = 0;
+            if (command_match[5].matched) {
+                adjust = stoi(command_match[5]);
+                if(*(command_match[4].first) == '-')
+                    adjust = -adjust;
+            }
+
             roll::dice_roll dr;
-            roll::roll_wod(dr, dice, difficulty, bonus, false);
+            roll::roll_wod(dr, dice, difficulty, bonus, adjust, false);
             output_constructor oc(event.nickname, command_match.suffix());
-            oc.append_roll(strs.str(), dr.detail(), dr.summary);
+            oc.append_roll(strs.str(), dr.detail_wod(adjust), dr.summary);
             response = oc;
             return true;
         } catch (std::invalid_argument&) {

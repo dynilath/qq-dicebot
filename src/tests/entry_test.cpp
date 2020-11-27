@@ -321,6 +321,16 @@ TEST_F(entry_test, roll_wod) {
     std::regex reg_wodn6_msg(
         u8"^ \\* dice test 掷骰: nWoD = \\[((?:\\d{1,2}|(?:\\d\\*){1,2}) \\+ "
         u8"){5,}(?:\\d{1,2}|(?:\\d\\*){1,2})\\] = \\d");
+        
+    std::regex reg_wodo6_adj(
+        u8"^ \\* dice 掷骰: oWoD = \\[((\\d{1,2}|(\\d){1,2}\\*) \\+ "
+        u8"){5}(\\d{1,2}|(\\d){1,2}\\*)\\] \\+ 4 = "
+        u8"\\d");
+    std::regex reg_wodn6_adj(
+        u8"^ \\* dice 掷骰: nWoD = \\[((\\d{1,2}|(\\d){1,2}\\*) \\+ "
+        u8"){5,}(\\d{1,2}|(\\d){1,2}\\*)\\] \\+ 4 = "
+        u8"\\d");
+
     this->base_call(ei, ".ndice");
     ASSERT_TRUE(this->test_call(ei, ".wodo6", reg_wodo6));
     ASSERT_TRUE(this->test_call(ei, ".wodn6", reg_wodn6));
@@ -330,6 +340,8 @@ TEST_F(entry_test, roll_wod) {
     ASSERT_TRUE(this->test_call(ei, ".wodn6test", reg_wodn6_msg));
     ASSERT_TRUE(this->test_call(ei, ".wo6 test", reg_wodo6_msg));
     ASSERT_TRUE(this->test_call(ei, ".wn6test", reg_wodn6_msg));
+    ASSERT_TRUE(this->test_call(ei, ".wo6+4", reg_wodo6_adj));
+    ASSERT_TRUE(this->test_call(ei, ".wn6+4", reg_wodn6_adj));
 }
 
 TEST_F(entry_test, roll_fate) {
