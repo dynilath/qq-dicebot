@@ -60,6 +60,8 @@ file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/data_test_db_1)
 file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/data_test_db_2)
 target_compile_definitions(${TEST_BUILD_NAME} PRIVATE DB_FOLDER_1="${CMAKE_BINARY_DIR}/data_test_db_1")
 target_compile_definitions(${TEST_BUILD_NAME} PRIVATE DB_FOLDER_2="${CMAKE_BINARY_DIR}/data_test_db_2")
+target_compile_definitions(${TEST_BUILD_NAME} PRIVATE DB_FOLDER_3="${CMAKE_BINARY_DIR}/data_test_db_3")
+target_compile_definitions(${TEST_BUILD_NAME} PRIVATE DB_FOLDER_4="${CMAKE_BINARY_DIR}/data_test_db_4")
     
 foreach(X IN LISTS TEST_NAME_GROUP)
     set(TEST_BUILD_NAME dicebot.gtest.${X})

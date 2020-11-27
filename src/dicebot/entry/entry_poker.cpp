@@ -21,9 +21,11 @@ static bool init_poker (const std::string &suffix, const event_info &event,
         return false;
 
     auto& deck =
-        poker::poker_manager::get_instance()->get_deck(event.group_id);
+        poker::poker_manager::get_instance()->get_deck(event.pair());
 
     deck.init(suffix);
+
+    poker::poker_manager::get_instance()->sync_database(event.pair());
 
     output_constructor oc(event.nickname);
     oc << u8"已初始化牌库，总计" << deck.size() << u8"张牌";
@@ -34,7 +36,7 @@ static bool init_poker (const std::string &suffix, const event_info &event,
 static bool draw_poker(const std::string &suffix, const event_info &event,
                        std::string &response) noexcept {
     auto& deck =
-        poker::poker_manager::get_instance()->get_deck(event.group_id);
+        poker::poker_manager::get_instance()->get_deck(event.pair());
 
     auto show_drawer = [&deck](output_constructor &oc, bool detailed) {
         if (detailed) {
@@ -74,6 +76,7 @@ static bool draw_poker(const std::string &suffix, const event_info &event,
     bool detailed_roll = static_cast<bool>(var.second);
 
     if (deck.draw(draw_count)) {
+        poker::poker_manager::get_instance()->sync_database_draw(event.pair());
         output_constructor oc(event.nickname);
         oc << u8"抽出了 ";
         bool is_first = true;
@@ -103,8 +106,9 @@ static auto shuffle_poker = [](const std::string &suffix,
                                const event_info &event,
                                std::string &response) noexcept -> bool {
     auto& deck =
-        poker::poker_manager::get_instance()->get_deck(event.group_id);
+        poker::poker_manager::get_instance()->get_deck(event.pair());
     deck.shuffle();
+    poker::poker_manager::get_instance()->sync_database_draw(event.pair());
 
     output_constructor oc(event.nickname);
     oc << u8"已将牌堆重新切洗";
