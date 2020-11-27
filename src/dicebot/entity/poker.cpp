@@ -496,12 +496,12 @@ std::string poker_deck::render_name(const card_item_t& item) const noexcept {
     else if (std::holds_alternative<major_arcana_card_t>(item)){
         auto v = std::get<major_arcana_card_t>(item).value;
         if(v < major_len)
-            return poker_name[v];
+            return major_arcana_card_names[v];
     }
     else if (std::holds_alternative<minor_arcana_card_t>(item)){
         auto v = std::get<minor_arcana_card_t>(item).value;
         if(v < minor_len)
-            return poker_name[v];
+            return minor_arcana_card_names[v];
     }
     else if (std::holds_alternative<user_defined_card_t>(item)){
         auto v = std::get<user_defined_card_t>(item).value;
