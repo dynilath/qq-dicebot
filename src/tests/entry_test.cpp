@@ -351,24 +351,28 @@ TEST_F(entry_test, roll_fate) {
     std::regex reg_fate(
         u8"^ \\* dice 掷骰: FATE = \\[([o+\\-] ){3}[o+\\-]\\] = -?\\d");
     std::regex reg_fate1(
-        u8"^ \\* dice 掷骰: FATE \\+1 = \\[([o+\\-] ){3}[o+\\-]\\] \\+ 1 = "
+        u8"^ \\* dice 掷骰: FATE \\+ 1 = \\[([o+\\-] ){3}[o+\\-]\\] \\+ 1 = "
         u8"-?\\d");
     std::regex reg_fate_msg(
         u8"^ \\* dice test 掷骰: FATE = \\[([o+\\-] ){3}[o+\\-]\\] = -?\\d");
     std::regex reg_fate1_msg(
-        u8"^ \\* dice test 掷骰: FATE \\+1 = \\[([o+\\-] ){3}[o+\\-]\\] \\+ 1 "
+        u8"^ \\* dice test 掷骰: FATE \\+ 1 = \\[([o+\\-] ){3}[o+\\-]\\] \\+ 1 "
         u8"= "
         u8"-?\\d");
 
     this->base_call(ei, ".ndice");
     ASSERT_TRUE(this->test_call(ei, ".f", reg_fate));
     ASSERT_TRUE(this->test_call(ei, ".f+1", reg_fate1));
+    ASSERT_TRUE(this->test_call(ei, ".f + 1", reg_fate1));
     ASSERT_TRUE(this->test_call(ei, ".fate", reg_fate));
     ASSERT_TRUE(this->test_call(ei, ".fate+1", reg_fate1));
+    ASSERT_TRUE(this->test_call(ei, ".fate + 1", reg_fate1));
     ASSERT_TRUE(this->test_call(ei, ".ftest", reg_fate_msg));
     ASSERT_TRUE(this->test_call(ei, ".f+1test", reg_fate1_msg));
+    ASSERT_TRUE(this->test_call(ei, ".f + 1test", reg_fate1_msg));
     ASSERT_TRUE(this->test_call(ei, ".fate test", reg_fate_msg));
     ASSERT_TRUE(this->test_call(ei, ".fate+1 test", reg_fate1_msg));
+    ASSERT_TRUE(this->test_call(ei, ".fate + 1 test", reg_fate1_msg));
 }
 
 TEST_F(entry_test, manual_dice) {

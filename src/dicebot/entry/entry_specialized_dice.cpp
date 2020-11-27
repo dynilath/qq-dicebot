@@ -254,7 +254,7 @@ entry_fate_dice::entry_fate_dice() noexcept {
         u8"指令.f+4：指定+4修正";
 }
 
-static const std::regex fate_full_dice("^([\\+\\-]\\d+) *");
+static const std::regex fate_full_dice("^(?:([+-]) *(\\d+)) *");
 
 bool entry_fate_dice::resolve_request(std::string const& message, event_info& event, std::string& response) noexcept {
     std::string::const_iterator work_point = message.begin();
@@ -269,8 +269,10 @@ bool entry_fate_dice::resolve_request(std::string const& message, event_info& ev
     roll_source << "FATE";
     try {
         if (!roll_match.empty()) {
-            roll_source << " " << roll_match[1];
-            i_modifier = stoi(roll_match[1]);
+            roll_source << " " << roll_match[1] <<" " << roll_match[2];
+            i_modifier = stoi(roll_match[2]);
+            if(*(roll_match[1].first) == '-')
+                i_modifier = -i_modifier;
             is_modifier_exist = true;
         }
     } catch (const std::invalid_argument&) {
