@@ -137,7 +137,7 @@ namespace dicebot::test {
         std::string name;
 
         dicebot::initialize(test_db.c_str());
-        auto& deck1 = poker::poker_manager::get_instance()->get_deck(ei.pair());
+        auto& deck1 = poker::poker_manager::get_instance()->get_deck(ei);
         deck1.init(poker_command);
         ASSERT_TRUE(deck1.size() == 7);
         ASSERT_TRUE(deck1.drawer.size() == 0);
@@ -145,13 +145,32 @@ namespace dicebot::test {
         deck1.draw(2);
         ASSERT_TRUE(deck1.size() == 5);
         ASSERT_TRUE(deck1.drawer.size() == 2);
-        poker::poker_manager::get_instance()->sync_database(ei.pair());
+        poker::poker_manager::get_instance()->sync_database(ei);
         dicebot::salvage();
 
         dicebot::initialize(test_db.c_str());
-        auto deck2 = poker::poker_manager::get_instance()->get_deck(ei.pair());
+        auto deck2 = poker::poker_manager::get_instance()->get_deck(ei);
         ASSERT_TRUE(deck2.size() == 5);
         ASSERT_TRUE(deck2.drawer.size() == 2);
+        dicebot::salvage();
+
+        std::string grp_poker_command = "a,b,c,d,e,f";
+        ::event_info ei1(123456, 123456, event_type::group);
+        ei1.nickname = "dynilath";
+        dicebot::initialize(test_db.c_str());
+        auto& deck3 = poker::poker_manager::get_instance()->get_deck(ei1);
+        deck3.init(grp_poker_command);
+        ASSERT_TRUE(deck3.size() == 6);
+        ASSERT_TRUE(deck3.drawer.size() == 0);
+        poker::poker_manager::get_instance()->sync_database(ei1);
+        dicebot::salvage();
+
+        ::event_info ei2(123457, 123456, event_type::group);
+        ei.nickname = "dynilath";
+        dicebot::initialize(test_db.c_str());
+        auto& deck4 = poker::poker_manager::get_instance()->get_deck(ei2);
+        ASSERT_TRUE(deck4.size() == 6);
+        ASSERT_TRUE(deck4.drawer.size() == 0);
         dicebot::salvage();
     }
 #pragma endregion
