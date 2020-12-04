@@ -3,11 +3,6 @@ include(GoogleTest)
 
 find_package(GTest REQUIRED)
 
-set(BASE64SRC 
-    extern/cqcppsdk/src/utils/vendor/cpp-base64/base64.cpp
-    extern/cqcppsdk/src/utils/base64.cpp
-)
-
 # build tests
 set(TEST_NAME_GROUP 
     roll_test 
@@ -24,8 +19,7 @@ file(GLOB_RECURSE TEST_SOURCE_ROLL_TEST
     src/dicebot/random/*.cpp
     src/dicebot/entity/manual_dice.cpp
     src/dicebot/dice_roller.cpp
-    src/dicebot/utils/utils.cpp
-    ${BASE64SRC})
+    src/dicebot/utils/utils.cpp)
 add_executable(${TEST_BUILD_NAME} ${TEST_SOURCE_ROLL_TEST})
 gtest_discover_tests(${TEST_BUILD_NAME})
 
@@ -34,7 +28,6 @@ set(X entry_test)
 set(TEST_BUILD_NAME dicebot.gtest.${X})
 add_executable(${TEST_BUILD_NAME}
     src/tests/${X}.cpp 
-    ${BASE64SRC} 
     ${DICEBOT_SOURCE})
 gtest_discover_tests(${TEST_BUILD_NAME})
 file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/entry_test_db)
@@ -53,7 +46,6 @@ set(X data_test)
 set(TEST_BUILD_NAME dicebot.gtest.${X})
 add_executable(${TEST_BUILD_NAME} 
     src/tests/${X}.cpp
-    ${BASE64SRC}
     ${DICEBOT_SOURCE})
 gtest_discover_tests(${TEST_BUILD_NAME})
 file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/data_test_db_1)

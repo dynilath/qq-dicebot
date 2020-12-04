@@ -5,12 +5,14 @@
 #include <vector>
 #include <sstream>
 
-#include "../../cqcppsdk/src/utils/base64.hpp"
+#include "../../utils/base64.hpp"
 #include "../constants.h"
 #include "../utils/archive.h"
 #ifdef _DEBUG
 #include "../utils/logger.h"
 #endif
+
+using namespace boost::beast::detail;
 
 namespace dicebot::profile {
 
@@ -80,14 +82,14 @@ namespace dicebot::profile {
                 oa << ((*iter_list).first);
                 oa << ((*iter_list).second);
             }
-            return cq::utils::base64_encode((const unsigned char *)(strs.str().c_str()), strs.str().size());
+            return base64_encode((const unsigned char *)(strs.str().c_str()), strs.str().size());
         }
 
         bool decode(std::string const &source) noexcept {
             this->clear();
             // this->swap(std::map<_profile_Key,_profile_Val>());
             std::string source_copy(source);
-            source_copy = cq::utils::base64_decode(source_copy);
+            source_copy = base64_decode(source_copy);
             std::istringstream iss(source_copy);
             dicebot::iarchive ia(iss);
             size_t len = 0;

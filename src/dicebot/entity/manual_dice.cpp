@@ -4,13 +4,15 @@
 #include <regex>
 #include <sstream>
 
-#include "../../cqcppsdk/src/utils/base64.hpp"
+#include "../../utils/base64.hpp"
 #include "../dice_excepts.h"
 #include "../dice_roller.h"
 #include "../random/random_provider.h"
 
 using namespace dicebot;
 using namespace dicebot::manual;
+
+using namespace boost::beast::detail;
 
 static auto check_limits = [](int num, int face) {
     if (num > MAX_DICE_NUM) throw dice_exceed();
@@ -68,12 +70,12 @@ std::string manual_dice::encode() const {
     for (auto& item : this->mdice) {
         strs << item.first << " " << item.second << " ";
     }
-    return cq::utils::base64_encode((const unsigned char*)(strs.str().c_str()), strs.str().size());
+    return base64_encode((const unsigned char*)(strs.str().c_str()), strs.str().size());
 }
 
 void manual_dice::decode(const std::string& source) {
     this->mdice.clear();
-    std::string source_copy = cq::utils::base64_decode(source);
+    std::string source_copy = base64_decode(source);
     std::istringstream iss(source_copy);
 
     this->i_sum_result = 0;

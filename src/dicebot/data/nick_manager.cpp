@@ -4,13 +4,15 @@
 #include <mutex>
 #include <shared_mutex>
 
-#include "../../cqcppsdk/src/utils/base64.hpp"
+#include "../../utils/base64.hpp"
 #include "./nick_manager.h"
 
 using namespace dicebot;
 using namespace dicebot::nickname;
 using namespace dicebot::database;
 using db_manager = dicebot::database::database_manager;
+
+using namespace boost::beast::detail;
 
 #define NICK_TABLE_NAME "nickname"
 #define NICK_TABLE_DEFINE           \
@@ -36,10 +38,10 @@ sqlstmt_wrapper sqlstmt_nickname_update;
 std::shared_mutex nickname_mutex;
 
 static std::string nickname_encode(const std::string &nick) {
-    return cq::utils::base64_encode(reinterpret_cast<const unsigned char *>(nick.c_str()), nick.size());
+    return base64_encode(reinterpret_cast<const unsigned char *>(nick.c_str()), nick.size());
 }
 
-static std::string nickname_decode(const std::string &source) { return cq::utils::base64_decode(source); }
+static std::string nickname_decode(const std::string &source) { return base64_decode(source); }
 
 std::unique_ptr<nickname_manager> nickname_manager::instance = nullptr;
 

@@ -8,7 +8,7 @@
 
 #include <sstream>
 
-#include "../../cqcppsdk/src/utils/base64.hpp"
+#include "../../utils/base64.hpp"
 #include "../random/random_provider.h"
 #include "../utils/string_utils.h"
 #include "../utils/utils.h"
@@ -16,6 +16,8 @@
 
 using namespace dicebot;
 using namespace poker;
+
+using namespace boost::beast::detail;
 
 constexpr size_t MAX_DECK_SIZE = 200;
 
@@ -525,13 +527,13 @@ std::string poker_deck::pack_definition() const noexcept {
         }
     }
     auto outs = utils::integers_2_utf8_bytes(out_buff.begin(),out_buff.end());
-    return cq::utils::base64_encode(outs.data(), outs.size());
+    return base64_encode(outs.data(), outs.size());
 }
 
 auto unpack_definitions(const std::string& in){
     poker_deck::sources_t ret;
     if(in.empty()) return ret;
-    auto ins = cq::utils::base64_decode(in);
+    auto ins = base64_decode(in);
     auto in_ints = utils::utf8_bytes_2_integers(ins.begin(),ins.end());
     auto iter = in_ints.begin();
     size_t full_len = *(iter++);
@@ -559,14 +561,14 @@ std::string pack_deck_t(const poker_deck::deck_t& deck) noexcept{
         out_buff.push_back(get_card_value(i));
     }
     auto outs = utils::integers_2_utf8_bytes(out_buff.begin(),out_buff.end());
-    return cq::utils::base64_encode(outs.data(), outs.size());
+    return base64_encode(outs.data(), outs.size());
 }
 
 auto unpack_deck_t(const std::string& in) noexcept{
     poker_deck::deck_t ret;
     if(in.empty()) return ret;
 
-    auto ins = cq::utils::base64_decode(in);
+    auto ins = base64_decode(in);
     auto in_ints = utils::utf8_bytes_2_integers(ins.begin(),ins.end());
     auto iter = in_ints.begin();
     size_t full_len = *(iter++);

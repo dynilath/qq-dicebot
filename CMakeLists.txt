@@ -24,10 +24,6 @@ link_directories(${SQLITE_LIB_DIR})
 
 find_package(SQLite3 REQUIRED)
 
-file(GLOB_RECURSE BASE64_SOURCE 
-	extern/cqcppsdk/src/utils/base64.cpp
-	extern/cqcppsdk/src/utils/vendor/cpp-base64/base64.cpp)
-
 file(GLOB_RECURSE CORN_SOURCE extern/corncppsdk/**.cc)
 
 file(GLOB_RECURSE DICEBOT_SOURCE src/dicebot/**.cpp)
@@ -35,7 +31,7 @@ file(GLOB_RECURSE DICEBOT_SOURCE src/dicebot/**.cpp)
 file(GLOB_RECURSE SOURCE_FILES src/plugin.cc)
 
 set(LIB_NAME "dicebot")
-add_library(${LIB_NAME} SHARED ${DICEBOT_SOURCE} ${SOURCE_FILES} ${CORN_SOURCE} ${BASE64_SOURCE})
+add_library(${LIB_NAME} SHARED ${DICEBOT_SOURCE} ${SOURCE_FILES} ${CORN_SOURCE})
 target_link_libraries(${LIB_NAME} PRIVATE SQLite3)
 target_link_options(${LIB_NAME} PRIVATE "$<$<CXX_COMPILER_ID:MSVC>:/export:apprun=_apprun@8>")
 
