@@ -357,6 +357,7 @@ std::wstring UnescapeWideChar(const std::wstring &wstr_with_ucs2, const std::wst
                                     wstr += wch;
                                     continue;
                                 }
+                                it++;
                             }
                         }
                     }
