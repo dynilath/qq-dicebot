@@ -543,6 +543,7 @@ auto unpack_definitions(const std::string& in){
         std::string v(this_len,' ');
         auto pt = reinterpret_cast<unsigned char*>(v.data());
         while(this_len--){
+            if(iter == in_ints.end()) return poker_deck::sources_t();
             *pt = static_cast<unsigned char>(*iter);
             pt++; iter++;
         }
@@ -572,6 +573,8 @@ auto unpack_deck_t(const std::string& in) noexcept{
 
     auto ins = base64_decode(in);
     auto in_ints = utils::utf8_bytes_2_integers(ins.begin(),ins.end());
+    if(in_ints.empty()) return ret;
+
     auto iter = in_ints.begin();
     size_t full_len = *(iter++);
     while(full_len--){
