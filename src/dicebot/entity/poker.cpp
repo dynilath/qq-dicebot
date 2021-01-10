@@ -523,7 +523,7 @@ std::string poker_deck::pack_definition() const noexcept {
     {
         out_buff.push_back(i.length());
         for(const auto c : i){
-            out_buff.push_back(c);
+            out_buff.push_back(static_cast<unsigned char>(c));
         }
     }
     auto outs = utils::integers_2_utf8_bytes(out_buff.begin(),out_buff.end());
@@ -541,8 +541,10 @@ auto unpack_definitions(const std::string& in){
     while(full_len--){
         size_t this_len = *(iter++);
         std::string v(this_len,' ');
+        auto pt = reinterpret_cast<unsigned char*>(v.data());
         while(this_len--){
-            v[this_len] = *(iter++);
+            *pt = static_cast<unsigned char>(*iter);
+            pt++; iter++;
         }
         ret.push_back(std::move(v));
     }

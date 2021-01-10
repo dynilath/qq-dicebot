@@ -41,13 +41,13 @@ Iter utf8byte2int(Iter begin, Iter end, unsigned int& value){
 #define BAD_RETURN \
     {value = (unsigned int)-1; \
     return end;}
-
-    if(*begin <= 0x7f){
-        value = *begin;
+    unsigned char lead = *begin;
+    if(lead <= 0x7f){
+        value = lead;
         return begin+1;
     }
-    else if(*begin >= 0x11111000) BAD_RETURN
-    else if(*begin >= 0x11110000){
+    else if(lead >= 0b11111000) BAD_RETURN
+    else if(lead >= 0b11110000){
         unsigned char high = *begin;
         begin++;
         if(begin == end) BAD_RETURN
@@ -65,7 +65,7 @@ Iter utf8byte2int(Iter begin, Iter end, unsigned int& value){
         value = (value << 6) | (low & 0b111111);
         return begin+1;
     }
-    else if(*begin >= 0b11100000){
+    else if(lead >= 0b11100000){
         unsigned char high = *begin;
         begin++;
         if(begin == end) BAD_RETURN
@@ -79,7 +79,7 @@ Iter utf8byte2int(Iter begin, Iter end, unsigned int& value){
         value = (value << 6) | (low & 0b111111);
         return begin+1;
     }
-    else if(*begin >= 0b11000000){
+    else if(lead >= 0b11000000){
         unsigned char high = *begin;
         begin++;
         if(begin == end) BAD_RETURN
