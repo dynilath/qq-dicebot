@@ -154,24 +154,46 @@ namespace dicebot::test {
         ASSERT_TRUE(deck2.drawer.size() == 2);
         dicebot::salvage();
 
-        std::string grp_poker_command = "a,b,c,d,e,f";
-        ::event_info ei1(123456, 123456, event_type::group);
-        ei1.nickname = "dynilath";
-        dicebot::initialize(test_db.c_str());
-        auto& deck3 = poker::poker_manager::get_instance()->get_deck(ei1);
-        deck3.init(grp_poker_command);
-        ASSERT_TRUE(deck3.size() == 6);
-        ASSERT_TRUE(deck3.drawer.size() == 0);
-        poker::poker_manager::get_instance()->sync_database(ei1);
-        dicebot::salvage();
+        {
+            std::string grp_poker_command = "a,b,c,d,e,f";
+            ::event_info ei1(123456, 123456, event_type::group);
+            ei1.nickname = "dynilath";
+            dicebot::initialize(test_db.c_str());
+            auto& deck3 = poker::poker_manager::get_instance()->get_deck(ei1);
+            deck3.init(grp_poker_command);
+            ASSERT_TRUE(deck3.size() == 6);
+            ASSERT_TRUE(deck3.drawer.size() == 0);
+            poker::poker_manager::get_instance()->sync_database(ei1);
+            dicebot::salvage();
 
-        ::event_info ei2(123457, 123456, event_type::group);
-        ei.nickname = "dynilath";
-        dicebot::initialize(test_db.c_str());
-        auto& deck4 = poker::poker_manager::get_instance()->get_deck(ei2);
-        ASSERT_TRUE(deck4.size() == 6);
-        ASSERT_TRUE(deck4.drawer.size() == 0);
-        dicebot::salvage();
+            ::event_info ei2(123457, 123456, event_type::group);
+            ei.nickname = "dynilath";
+            dicebot::initialize(test_db.c_str());
+            auto& deck4 = poker::poker_manager::get_instance()->get_deck(ei2);
+            ASSERT_TRUE(deck4.size() == 6);
+            ASSERT_TRUE(deck4.drawer.size() == 0);
+            dicebot::salvage();
+        }
+        {
+            std::string unicode_poker_command = "甲，乙，丙，丁";
+            ::event_info ei1(123456, 123456, event_type::group);
+            ei1.nickname = "dynilath";
+            dicebot::initialize(test_db.c_str());
+            auto& deck3 = poker::poker_manager::get_instance()->get_deck(ei1);
+            deck3.init(unicode_poker_command);
+            ASSERT_TRUE(deck3.size() == 4);
+            ASSERT_TRUE(deck3.drawer.size() == 0);
+            poker::poker_manager::get_instance()->sync_database(ei1);
+            dicebot::salvage();
+
+            ::event_info ei2(123457, 123456, event_type::group);
+            ei.nickname = "dynilath";
+            dicebot::initialize(test_db.c_str());
+            auto& deck4 = poker::poker_manager::get_instance()->get_deck(ei2);
+            ASSERT_TRUE(deck4.size() == 4);
+            ASSERT_TRUE(deck4.drawer.size() == 0);
+            dicebot::salvage();
+        }
     }
 #pragma endregion
 } // namespace dicebot::test
