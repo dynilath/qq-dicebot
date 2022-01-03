@@ -44,10 +44,10 @@ namespace {
 
         "Joker",     "Joker(bw)"};
 
-    #define heart "\\u2661"
-    #define spade "\\u2664"
-    #define diamd "\\u2662"
-    #define club "\\u2667"
+    #define heart "♡"
+    #define spade "♤"
+    #define diamd "♢"
+    #define club "♧"
 
     constexpr char poker_name_unicode_lite[][14] = {
         heart "2", heart "3",  heart "4", heart "5", heart "6", heart "7", heart "8",

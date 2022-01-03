@@ -28,12 +28,11 @@ file(GLOB_RECURSE CORN_SOURCE extern/corncppsdk/**.cc)
 
 file(GLOB_RECURSE DICEBOT_SOURCE src/dicebot/**.cpp)
 
-file(GLOB_RECURSE SOURCE_FILES src/plugin.cc)
+file(GLOB_RECURSE SOURCE_FILES src/main.cpp src/oicq_impl.cpp)
 
 set(LIB_NAME "dicebot")
 add_library(${LIB_NAME} SHARED ${DICEBOT_SOURCE} ${SOURCE_FILES} ${CORN_SOURCE})
 target_link_libraries(${LIB_NAME} PRIVATE SQLite3)
-target_link_options(${LIB_NAME} PRIVATE "$<$<CXX_COMPILER_ID:MSVC>:/export:apprun=_apprun@8>")
 
 include(src/tests/test.cmake)
 
