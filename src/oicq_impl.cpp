@@ -1,6 +1,7 @@
 #include "oicq_func.hpp"
 
-#define GENERAL_DLL_FUNC(_FUNC) extern "C" __declspec(dllexport) void __stdcall func_##_FUNC
+#define GENERAL_DLL_FUNC(_FUNC) \
+    extern "C" __declspec(dllexport) void func_##_FUNC
 
 using msg_callback_t = void(*)(int64_t, const char *);
 
