@@ -7,3 +7,5 @@ scripts/install.ps1
 test
 tmp
 CMakeSettings.json
+node_modules
+*.lock

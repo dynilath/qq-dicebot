@@ -39,7 +39,8 @@ catch {
 
 Write-Host "VCPKG_ROOT at $VCPKG_RT." -ForegroundColor Green
 
-$target_triplet = "x86-windows-static-md"
+$target_triplet = "x64-windows-static-md"
+$target_arch = "x64"
 
 function Test-And-Install-Packages {
     param (
@@ -52,11 +53,12 @@ function Test-And-Install-Packages {
 
     $_val = (& .\vcpkg list $_module_name)
     $module_good = $false
-    if($_val -match 'No packages are installed'){
+    if ($_val -match 'No packages are installed') {
         $module_good = $false
-    }else {
+    }
+    else {
         foreach ($_ in $_val) {
-            if($_.SubString($_.IndexOf(":")+1,$_.IndexOf(" ")).Trim()  -match "^$target_triplet$"){
+            if ($_.SubString($_.IndexOf(":") + 1, $_.IndexOf(" ")).Trim() -match "^$target_triplet$") {
                 $module_good = $true
                 break
             }
@@ -72,9 +74,10 @@ function Test-And-Install-Packages {
         $_val = (& .\vcpkg list $_module_name)
         if ($null -eq $_val -or $_val -match 'No packages are installed') {
             $module_good = $false
-        }else{
+        }
+        else {
             foreach ($_ in $_val) {
-                if($_.SubString($_.IndexOf(":")+1,$_.IndexOf(" ")).Trim()  -match "^$target_triplet$"){
+                if ($_.SubString($_.IndexOf(":") + 1, $_.IndexOf(" ")).Trim() -match "^$target_triplet$") {
                     $module_good = $true
                     break
                 }
@@ -84,7 +87,8 @@ function Test-And-Install-Packages {
 
     if ($module_good) {
         Write-Host "$_module_name is installed" 
-    }else {
+    }
+    else {
         Write-Host  "$_module_name is not installed" -ForegroundColor Red 
     }
     Set-Location $_start_loc
@@ -92,10 +96,10 @@ function Test-And-Install-Packages {
 }
 
 Write-Host "Checking denpendecies..." -ForegroundColor Green
-if( -not (Test-And-Install-Packages("sqlite3"))){
+if ( -not (Test-And-Install-Packages("sqlite3"))) {
     exit
 }
-if( -not (Test-And-Install-Packages("gtest"))){
+if ( -not (Test-And-Install-Packages("gtest"))) {
     exit
 }
 Write-Host "Dependencies checked." -ForegroundColor Green
@@ -117,18 +121,21 @@ catch {
     $is_windows = $false
 }
 
-if ($is_windows){
-    Write-Host "Build for win32..."
-    cmake -A "Win32"`
+if ($is_windows) {
+    Write-Host "Build for win..."
+    cmake `
         -DCMAKE_TOOLCHAIN_FILE="$VCPKG_RT\scripts\buildsystems\vcpkg.cmake" `
         -DCMAKE_CONFIGURATION_TYPES="$config_type" `
         -DVCPKG_TARGET_TRIPLET="$target_triplet" `
+        -DVCPKG_TARGET_ARCHITECTURE="$target_arch" `
         ..
-}else {
+}
+else {
     Write-Host "Build for anything..."
     cmake `
         -DCMAKE_TOOLCHAIN_FILE="$VCPKG_RT\scripts\buildsystems\vcpkg.cmake" `
         -DCMAKE_BUILD_TYPE="$config_type" `
+        -DVCPKG_TARGET_ARCHITECTURE="$target_arch" `
         ..
 }
 
@@ -137,5 +144,10 @@ cmake --build .  --config $config_type
 
 Set-Location $start_location
 
+if ($is_windows) {
+    $target_artifact = Resolve-Path "$build_dir/$config_type/dicebot.dll"
+    $install_dir = Resolve-Path "."
+    Copy-Item -LiteralPath $target_artifact -Destination $install_dir
+}
 
 
