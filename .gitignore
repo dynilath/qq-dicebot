@@ -6,3 +6,9 @@ scripts/install.ps1
 .vscode/settings.json
 test
 tmp
+CMakeSettings.json
+node_modules
+*.lock
+data
+dicebot_db
+config.json

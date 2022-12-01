@@ -18,9 +18,9 @@ namespace dicebot::diceparser {
     using macro_marker_container_t = std::vector<macro_marker>;
 
     struct ambiguity_flag {
-        bool ambiguity_d : 1;
-        bool ambiguity_k : 1;
-        bool ambiguity_kl : 1;
+        bool ambiguity_d;
+        bool ambiguity_k;
+        bool ambiguity_kl;
     };
 
     class tokenizer {

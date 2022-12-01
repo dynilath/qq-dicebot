@@ -62,6 +62,8 @@ static bool exist_database(const int64_t &qqid, const int64_t &groupid) {
 
 std::unique_ptr<manual_dice_control> manual_dice_control::instance = nullptr;
 
+std::shared_mutex manual_dice_mutex;
+
 manual_dice_control *manual_dice_control::create_instance() {
     db_manager::get_instance()->register_table(MANUALDICE_TABLE_NAME, MANUALDICE_TABLE_DEFINE);
     manual_dice_control::instance = std::make_unique<manual_dice_control>();
@@ -79,6 +81,7 @@ manual_dice_control *manual_dice_control::get_instance() { return instance.get()
 void manual_dice_control::destroy_instance() { instance = nullptr; }
 
 manual_dice_control::md_map_t::iterator manual_dice_control::find_manual_dice(const event_info &event) {
+    std::unique_lock lock(manual_dice_mutex);
     auto iter = this->manual_dice_map.find({event.user_id, event.group_id});
     if (iter != this->manual_dice_map.end()) return iter;
 
@@ -97,6 +100,7 @@ manual_dice_control::md_map_t::iterator manual_dice_control::find_manual_dice(co
 }
 
 void manual_dice_control::sync_database(const md_map_t::iterator iter) const {
+    std::shared_lock lock(manual_dice_mutex);
     if (iter != this->manual_dice_map.end()) {
         auto &[key_pair, manual_dice_target] = *iter;
         auto &[user_id, group_id] = key_pair;

@@ -6,12 +6,18 @@
 #include <unordered_map>
 #include <vector>
 
+#include <sstream>
+
+#include "../../utils/base64.hpp"
 #include "../random/random_provider.h"
 #include "../utils/string_utils.h"
 #include "../utils/utils.h"
+#include "../utils/integer_utf8.h"
 
 using namespace dicebot;
 using namespace poker;
+
+using namespace boost::beast::detail;
 
 constexpr size_t MAX_DECK_SIZE = 200;
 
@@ -20,7 +26,7 @@ namespace {
     constexpr char poker_standard_deck_name[] = "standard";
 
     constexpr char poker_name_ascii[][14] = {
-        "heart 2",   "Heart 3",   "Heart 4",   "Heart 5",    "Heart 6",
+        "Heart 2",   "Heart 3",   "Heart 4",   "Heart 5",    "Heart 6",
         "Heart 7",   "Heart 8",   "Heart 9",   "Heart 10",   "Heart J",
         "Heart Q",   "Heart K",   "Heart A",
 
@@ -38,20 +44,31 @@ namespace {
 
         "Joker",     "Joker(bw)"};
 
+    #define heart "♡"
+    #define spade "♤"
+    #define diamd "♢"
+    #define club "♧"
+
     constexpr char poker_name_unicode_lite[][14] = {
-        "♡2",    "♡3",       "♡4", "♡5", "♡6", "♡7", "♡8",
-        "♡9",    "♡10",      "♡J", "♡Q", "♡K", "♡A",
+        heart "2", heart "3",  heart "4", heart "5", heart "6", heart "7", heart "8",
+        heart "9", heart "10", heart "J", heart "Q", heart "K", heart "A",
 
-        "♠2",    "♠3",       "♠4", "♠5", "♠6", "♠7", "♠8",
-        "♠9",    "♠10",      "♠J", "♠Q", "♠K", "♠A",
-
-        "♢2",    "♢3",       "♢4", "♢5", "♢6", "♢7", "♢8",
-        "♢9",    "♢10",      "♢J", "♢Q", "♢K", "♢A",
-
-        "♣2",    "♣3",       "♣4", "♣5", "♣6", "♣7", "♣8",
-        "♣9",    "♣10",      "♣J", "♣Q", "♣K", "♣A",
+        spade "2", spade "3",  spade "4", spade "5", spade "6", spade "7", spade "8",
+        spade "9", spade "10", spade "J", spade "Q", spade "K", spade "A",
+        
+        diamd "2", diamd "3",  diamd "4", diamd "5", diamd "6", diamd "7", diamd "8",
+        diamd "9", diamd "10", diamd "J", diamd "Q", diamd "K", diamd "A",
+        
+        club "2", club "3",  club "4", club "5", club "6", club "7", club "8",
+        club "9", club "10", club "J", club "Q", club "K", club "A",
 
         "Joker", "Joker(bw)"};
+
+    #undef heart
+    #undef spade
+    #undef diamd
+    #undef club
+
 
     constexpr char poker_name_unicode_pretty[][14] = {
         "🂲", "🂳",   "🂴", "🂵", "🂶", "🂷", "🂸", "🂹", "🂺", "🂻", "🂽", "🂾", "🂱",
@@ -147,24 +164,22 @@ namespace {
     };
 
     auto& poker_name = poker_name_unicode_lite;
+    constexpr auto poker_full_len = c_array_trait<std::remove_reference<decltype(poker_name)>::type>::length;
+    constexpr auto poker_std_len = poker_full_len - 2;
+    constexpr auto major_len = c_array_trait<decltype(major_arcana_card_names)>::length;
+    constexpr auto minor_len = c_array_trait<decltype(minor_arcana_card_names)>::length;
 
-    constexpr size_t house_len = 13;
-    using house_container_t = ::std::array<::std::string, house_len>;
-
-    house_container_t heart;
-    house_container_t spade;
-    house_container_t diamond;
-    house_container_t club;
     ::std::array<::std::string, 2> joker;
-    ::std::array<::std::string, 22> major_arcana;
-    ::std::array<::std::string, 56> minor_arcana;
+    ::std::array<::std::string, major_len> major_arcana;
+    ::std::array<::std::string, minor_len> minor_arcana;
 
-    using p_type = typename ::std::add_pointer<::std::string>::type;
+    //using p_type = typename ::std::add_pointer<::std::string>::type;
 
-    using nick_2_card_map = ::std::unordered_map<std::string, p_type>;
+    using nick_2_card_map = ::std::unordered_map<std::string, card_item_t>;
+
     nick_2_card_map card_nicks;
 
-    ::std::unordered_map<::std::string, ::std::vector<p_type>> preset_deck_map =
+    ::std::unordered_map<::std::string, ::std::vector<card_item_t>> preset_deck_map =
         {{poker_core_deck_name, {}},
          {poker_standard_deck_name, {}},
          {tarot_deck_name, {}},
@@ -172,52 +187,42 @@ namespace {
          {tarot_minor_deck_name, {}}};
 
     void creat_card_name_map() noexcept {
-        constexpr size_t arr_len = heart.size();
-
-        using p_2_containers_t =
-            typename ::std::add_pointer<decltype(heart)>::type;
-        ::std::vector<p_2_containers_t> poker_standard = {
-            &heart, &spade, &diamond, &club};
-
+        
         // init poker decks
         auto& poker_core_vec = preset_deck_map[poker_core_deck_name];
         auto& poker_standard_vec = preset_deck_map[poker_standard_deck_name];
 
-        poker_core_vec.resize(arr_len * 4);
-        poker_standard_vec.resize(arr_len * 4 + 2);
-        for (size_t i = 0; i < arr_len * 4; i++) {
-            auto& p_poker = *(poker_standard[i / arr_len]);
-            p_poker[i % arr_len] = poker_name[i];
-            poker_core_vec[i] = poker_standard_vec[i] = &p_poker[i % arr_len];
+        poker_core_vec.resize(poker_std_len);
+        poker_standard_vec.resize(poker_full_len);
+        for (size_t i = 0; i < 52; i++) {
+            poker_core_vec[i] = poker_standard_vec[i] = poker_card_t{i};
         }
 
-        joker[0] = poker_name[52];
-        joker[1] = poker_name[53];
-        poker_standard_vec[52] = &joker[0];
-        poker_standard_vec[53] = &joker[1];
+        constexpr size_t joker0_offset = poker_full_len - 2;
+        constexpr size_t joker1_offset = poker_full_len - 1;
+        joker[0] = poker_name[joker0_offset];
+        joker[1] = poker_name[joker1_offset];
+        poker_standard_vec[joker0_offset] = poker_card_t{joker0_offset};
+        poker_standard_vec[joker1_offset] = poker_card_t{joker1_offset};
 
         // init arcana decks
         auto& tarot_vec = preset_deck_map[tarot_deck_name];
         auto& major_arcana_vec = preset_deck_map[tarot_major_deck_name];
         auto& minor_arcana_vec = preset_deck_map[tarot_minor_deck_name];
 
-        constexpr size_t major_len =
-            c_array_trait<decltype(major_arcana_card_names)>::length;
-        constexpr size_t minor_len =
-            c_array_trait<decltype(minor_arcana_card_names)>::length;
 
         major_arcana_vec.reserve(major_len);
         minor_arcana_vec.reserve(minor_len);
         tarot_vec.reserve(major_len + minor_len);
         for (size_t i = 0; i < major_len; i++) {
             major_arcana[i] = major_arcana_card_names[i];
-            tarot_vec.push_back(&major_arcana[i]);
-            major_arcana_vec.push_back(&major_arcana[i]);
+            tarot_vec.push_back(major_arcana_card_t{i});
+            major_arcana_vec.push_back(major_arcana_card_t{i});
         }
         for (size_t i = 0; i < minor_len; i++) {
             minor_arcana[i] = minor_arcana_card_names[i];
-            tarot_vec.push_back(&minor_arcana[i]);
-            minor_arcana_vec.push_back(&minor_arcana[i]);
+            tarot_vec.push_back(minor_arcana_card_t{i});
+            minor_arcana_vec.push_back(minor_arcana_card_t{i});
         }
 
         // init poker nicks
@@ -232,8 +237,8 @@ namespace {
              i++) {
             card_nicks[poker_alter_names_set_2[i]] = poker_standard_vec[i];
         }
-        card_nicks["j"] = &joker[0];
-        card_nicks["joker"] = &joker[0];
+        card_nicks["j"] = poker_card_t{joker0_offset};
+        card_nicks["joker"] = poker_card_t{joker1_offset};
     }
 
 } // namespace
@@ -401,7 +406,7 @@ void poker_deck::init(const std::string& params) noexcept {
                 size_t source_idx = this->card_sources.size();
                 this->card_sources.push_back(name);
                 utils::repeat(count, [this, iter, source_idx](size_t) {
-                    this->deck.push_back(&this->card_sources[source_idx]);
+                    this->deck.push_back(user_defined_card_t{source_idx});
                 });
             }
         }
@@ -452,6 +457,148 @@ void poker_deck::clear() noexcept {
     this->drawer.clear();
 }
 
+size_t get_card_value(const card_item_t& item) noexcept {
+    if(std::holds_alternative<poker_card_t>(item)){
+        return std::get<poker_card_t>(item).value;
+    }
+    else if (std::holds_alternative<major_arcana_card_t>(item)){
+        return std::get<major_arcana_card_t>(item).value;
+    }
+    else if (std::holds_alternative<minor_arcana_card_t>(item)){
+        return std::get<minor_arcana_card_t>(item).value;
+    }
+    else if (std::holds_alternative<user_defined_card_t>(item)){
+        return std::get<user_defined_card_t>(item).value;
+    }
+    return (size_t)-1;
+}
+
+card_item_t card_from_value(size_t id, size_t value) {
+    switch (id)
+    {
+    case 0:
+        return decltype(std::get<0>(card_item_t{})){value};
+    case 1:
+        return decltype(std::get<1>(card_item_t{})){value};
+    case 2:
+        return decltype(std::get<2>(card_item_t{})){value};
+    case 3:
+        return decltype(std::get<3>(card_item_t{})){value};
+    default:
+        throw std::bad_variant_access();
+    }
+}
+
 std::string poker_deck::render_name(const card_item_t& item) const noexcept {
-    return *item;
+    if(std::holds_alternative<poker_card_t>(item)){
+        auto v = std::get<poker_card_t>(item).value;
+        if(v < poker_full_len)
+            return poker_name[v];
+    }
+    else if (std::holds_alternative<major_arcana_card_t>(item)){
+        auto v = std::get<major_arcana_card_t>(item).value;
+        if(v < major_len)
+            return major_arcana_card_names[v];
+    }
+    else if (std::holds_alternative<minor_arcana_card_t>(item)){
+        auto v = std::get<minor_arcana_card_t>(item).value;
+        if(v < minor_len)
+            return minor_arcana_card_names[v];
+    }
+    else if (std::holds_alternative<user_defined_card_t>(item)){
+        auto v = std::get<user_defined_card_t>(item).value;
+        if(v < this->card_sources.size())
+            return this->card_sources[v];
+    }
+    return "";
+}
+
+std::string poker_deck::pack_definition() const noexcept {
+    if(this->card_sources.empty()) return "";
+    std::ostringstream out;
+
+    std::deque<unsigned int> out_buff;
+    out_buff.push_back(this->card_sources.size());
+    for (const auto & i : this->card_sources)
+    {
+        out_buff.push_back(i.length());
+        for(const auto c : i){
+            out_buff.push_back(static_cast<unsigned char>(c));
+        }
+    }
+    auto outs = utils::integers_2_utf8_bytes(out_buff.begin(),out_buff.end());
+    return base64_encode(outs.data(), outs.size());
+}
+
+auto unpack_definitions(const std::string& in){
+    poker_deck::sources_t ret;
+    if(in.empty()) return ret;
+    auto ins = base64_decode(in);
+    auto in_ints = utils::utf8_bytes_2_integers(ins.begin(),ins.end());
+    auto iter = in_ints.begin();
+    size_t full_len = *(iter++);
+    
+    while(full_len--){
+        size_t this_len = *(iter++);
+        std::string v(this_len,' ');
+        auto pt = reinterpret_cast<unsigned char*>(v.data());
+        while(this_len--){
+            if(iter == in_ints.end()) return poker_deck::sources_t();
+            *pt = static_cast<unsigned char>(*iter);
+            pt++; iter++;
+        }
+        ret.push_back(std::move(v));
+    }
+    return ret;
+}
+
+std::string pack_deck_t(const poker_deck::deck_t& deck) noexcept{
+    if(deck.empty()) return "";
+    std::ostringstream oss;
+    
+    std::deque<unsigned int> out_buff;
+    out_buff.push_back(deck.size());
+    for (const auto & i : deck)
+    {
+        out_buff.push_back(i.index());
+        out_buff.push_back(get_card_value(i));
+    }
+    auto outs = utils::integers_2_utf8_bytes(out_buff.begin(),out_buff.end());
+    return base64_encode(outs.data(), outs.size());
+}
+
+auto unpack_deck_t(const std::string& in) noexcept{
+    poker_deck::deck_t ret;
+    if(in.empty()) return ret;
+
+    auto ins = base64_decode(in);
+    auto in_ints = utils::utf8_bytes_2_integers(ins.begin(),ins.end());
+    if(in_ints.empty()) return ret;
+
+    auto iter = in_ints.begin();
+    size_t full_len = *(iter++);
+    while(full_len--){
+        size_t id = *(iter++);
+        size_t value = *(iter++);
+        try{
+            card_item_t c = card_from_value(id, value);
+            ret.push_back(std::move(c));
+        }
+        catch(std::bad_variant_access&){}
+    }
+    return ret;
+}
+
+std::string poker_deck::pack_drawn() const noexcept {
+    return pack_deck_t(this->drawer);
+}
+
+std::string poker_deck::pack_deck() const noexcept {
+    return pack_deck_t(this->deck);
+}
+
+void poker_deck::load_pack(const std::string & definition,const std::string & drawn,const std::string & deck) noexcept {
+    this->card_sources = unpack_definitions(definition);
+    this->drawer = unpack_deck_t(drawn);
+    this->deck = unpack_deck_t(deck);
 }

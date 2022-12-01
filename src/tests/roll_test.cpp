@@ -284,7 +284,7 @@ namespace dicebot::test {
 
         std::vector<int> result;
         generate_roll_result(result, sample_sum, max_val, min_val, [](dicebot::roll::dice_roll& dr) {
-            dicebot::roll::roll_wod(dr, 5, 8, 11, true);
+            dicebot::roll::roll_wod(dr, 5, 8, 11, 0, true);
         });
 
         std::vector<int> compare;

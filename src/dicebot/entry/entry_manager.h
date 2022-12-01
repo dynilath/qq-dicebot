@@ -20,7 +20,7 @@ namespace dicebot {
         void register_dice(p_entry entry) noexcept;
         void finish_initialization() noexcept;
         p_entry const get_entry(std::string command) const;
-        std::regex const* get_regex_command() const;
+        std::regex const& get_regex_command() const;
     };
 } // namespace dicebot
 

@@ -94,24 +94,43 @@ std::string dice_roll::detail_coc() noexcept {
     return ost.str();
 }
 
-void dice_roll::finish_wod(bool const failing) noexcept {
+void dice_roll::finish_wod(int const adjust, bool const failing) noexcept {
+    this->summary = adjust;
     if (failing) {
-        int penalty = 0;
-        utils::repeat(this->results.size(), [this, &penalty](size_t a) {
+        utils::repeat(this->results.size(), [this](size_t a) {
             if (this->flags[a])
                 this->summary++;
             else if (this->results[a] == 1)
-                penalty++;
+                this->summary--;
         });
-        if (this->summary > penalty)
-            this->summary -= penalty;
-        else
+        if (this->summary < 0)
             this->summary = 0;
     } else {
         std::for_each(this->flags.begin(), this->flags.end(), [this](bool a) {
             if (a) this->summary++;
         });
     }
+}
+
+std::string dice_roll::detail_wod(int const adjust) noexcept{
+    std::ostringstream ost;
+    ost << "[";
+    if (this->flags.empty()) {
+        std::for_each(this->results.begin(), this->results.end() - 1, [&ost](int a) { ost << a << " + "; });
+        ost << this->results.back();
+    } else {
+        utils::repeat(this->results.size() - 1, [&ost, this](size_t pos) {
+            put_result(ost, this->results[pos], this->flags[pos]);
+            ost << " + ";
+        });
+        put_result(ost, this->results.back(), this->flags.back());
+    }
+    ost << "]";
+    if(adjust > 0)
+        ost << " + " << adjust;
+    else if(adjust < 0)
+        ost << " - " << -adjust;
+    return ost.str();
 }
 
 std::string dice_roll::detail_fate() noexcept {
@@ -223,7 +242,7 @@ void roll::roll_coc(dice_roll& dice, int const i_bp) {
     dice.finish_coc();
 }
 
-void roll::roll_wod(dice_roll& dice, int const i_val, int const i_diffculty, int const i_bonus, bool failing) {
+void roll::roll_wod(dice_roll& dice, int const i_val, int const i_diffculty, int const i_bonus, int const adjust, bool failing) {
     dice.clear();
 
     auto distr = random::create_distribution(1, 10);
@@ -244,7 +263,7 @@ void roll::roll_wod(dice_roll& dice, int const i_val, int const i_diffculty, int
         dice.flags.push_back(single_result >= i_diffculty);
         if (dice.results.size() > MAX_DICE_NUM) break;
     }
-    dice.finish_wod(failing);
+    dice.finish_wod(adjust, failing);
 }
 
 void roll::roll_fate(dice_roll& dice, int const i_val) {

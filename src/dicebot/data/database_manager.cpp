@@ -1,11 +1,15 @@
 #include "./database_manager.h"
 
+#include <filesystem>
+
 #ifdef _DEBUG
 #include "../utils/logger.h"
 #endif
 
 using namespace dicebot;
 using namespace dicebot::database;
+
+std::shared_mutex dicebot::database::database_mutex;
 
 constexpr char cstr_file_db[] = "com.dynilath.coolqdicebot.db";
 
@@ -27,10 +31,15 @@ void database_manager::destroy_instance() noexcept {
 database_manager* database_manager::get_instance() noexcept { return instance.get(); }
 
 database_manager::database_manager(const char* str_app_dir) {
-    std::string str_db_path = str_app_dir;
-    str_db_path.append(cstr_file_db);
+    std::filesystem::path data_dir = str_app_dir;
+
+    if(!std::filesystem::exists(data_dir)){
+        std::filesystem::create_directories(data_dir);
+    }
+
+    auto db_dir = data_dir / cstr_file_db;
     is_ready = false;
-    int i_ret_code = sqlite3_open(str_db_path.c_str(), &database);
+    int i_ret_code = sqlite3_open(db_dir.string().c_str(), &database);
     if (i_ret_code != SQLITE_OK) {
         is_no_sql_mode = true;
     }

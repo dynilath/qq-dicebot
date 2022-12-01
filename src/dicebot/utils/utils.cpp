@@ -16,6 +16,22 @@ void utils::remove_blank(std::string& source) {
     source.assign(container.data());
 }
 
+bool utils::basic_event_filter(const utils::string_view& message) noexcept {
+    for (char a : message) {
+        switch (a)
+        {
+        case ' ':
+            continue;
+        case '.':
+            return true;
+        default:
+            return false;
+        }
+    }
+    return false;
+}
+
+
 bool utils::basic_event_filter(const std::string& message) noexcept{
     for(char a:message){
         switch (a)

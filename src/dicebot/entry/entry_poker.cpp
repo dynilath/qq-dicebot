@@ -20,36 +20,38 @@ static bool init_poker (const std::string &suffix, const event_info &event,
     if (suffix.empty())
         return false;
 
-    auto p_deck =
-        poker::poker_manager::get_instance()->get_deck(event.group_id);
+    auto& deck =
+        poker::poker_manager::get_instance()->get_deck(event);
 
-    p_deck->init(suffix);
+    deck.init(suffix);
+
+    poker::poker_manager::get_instance()->sync_database(event);
 
     output_constructor oc(event.nickname);
-    oc << u8"已初始化牌库，总计" << p_deck->size() << u8"张牌";
+    oc << u8"已初始化牌库，总计" << deck.size() << u8"张牌";
     response = oc;
     return true;
 }
 
 static bool draw_poker(const std::string &suffix, const event_info &event,
                        std::string &response) noexcept {
-    auto p_deck =
-        poker::poker_manager::get_instance()->get_deck(event.group_id);
+    auto& deck =
+        poker::poker_manager::get_instance()->get_deck(event);
 
-    auto show_drawer = [p_deck](output_constructor &oc, bool detailed) {
+    auto show_drawer = [&deck](output_constructor &oc, bool detailed) {
         if (detailed) {
-            oc << u8" | 牌堆剩余" << p_deck->size() << u8"张，已经抽出了: ";
+            oc << u8" | 牌堆剩余" << deck.size() << u8"张，已经抽出了: ";
             bool is_first = true;
-            for (const auto &item : p_deck->drawer) {
+            for (const auto &item : deck.drawer) {
                 if (is_first) {
                     is_first = false;
-                    oc << p_deck->render_name(item);
+                    oc << deck.render_name(item);
                 } else {
-                    oc << std::string(", ") + p_deck->render_name(item);
+                    oc << std::string(", ") + deck.render_name(item);
                 }
             }
         } else {
-            oc << u8" | 牌堆剩余" << p_deck->size() << u8"张";
+            oc << u8" | 牌堆剩余" << deck.size() << u8"张";
         }
     };
 
@@ -60,12 +62,12 @@ static bool draw_poker(const std::string &suffix, const event_info &event,
             draw_count = std::stoul(suffix, &tail_start);
             if (draw_count == 0)
                 return false;
-            if (draw_count > p_deck->size())
-                draw_count = p_deck->size();
+            if (draw_count > deck.size())
+                draw_count = deck.size();
         }
     } catch (std::invalid_argument &) {
     } catch (std::out_of_range &) {
-        draw_count = p_deck->size();
+        draw_count = deck.size();
     }
 
     auto pfm = profile::profile_manager::get_instance();
@@ -73,18 +75,19 @@ static bool draw_poker(const std::string &suffix, const event_info &event,
         pfm->get_profile(event.user_id)->sys_vars[profile::sys_var_type::rs_on];
     bool detailed_roll = static_cast<bool>(var.second);
 
-    if (p_deck->draw(draw_count)) {
+    if (deck.draw(draw_count)) {
+        poker::poker_manager::get_instance()->sync_database_draw(event);
         output_constructor oc(event.nickname);
         oc << u8"抽出了 ";
         bool is_first = true;
-        for (size_t i = p_deck->drawer.size() - draw_count;
-             i < p_deck->drawer.size();
+        for (size_t i = deck.drawer.size() - draw_count;
+             i < deck.drawer.size();
              i++) {
             if (is_first)
                 is_first = false;
             else
                 oc << ", ";
-            oc << p_deck->render_name(p_deck->drawer.at(i));
+            oc << deck.render_name(deck.drawer.at(i));
         }
         show_drawer(oc, detailed_roll);
         response = oc;
@@ -102,9 +105,10 @@ static bool draw_poker(const std::string &suffix, const event_info &event,
 static auto shuffle_poker = [](const std::string &suffix,
                                const event_info &event,
                                std::string &response) noexcept -> bool {
-    auto p_deck =
-        poker::poker_manager::get_instance()->get_deck(event.group_id);
-    p_deck->shuffle();
+    auto& deck =
+        poker::poker_manager::get_instance()->get_deck(event);
+    deck.shuffle();
+    poker::poker_manager::get_instance()->sync_database_draw(event);
 
     output_constructor oc(event.nickname);
     oc << u8"已将牌堆重新切洗";

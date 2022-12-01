@@ -1,10 +1,16 @@
 #pragma once
 #include <sqlite3.h>
 #include <memory>
+#include <mutex>
+#include <shared_mutex>
 #include <string>
 
 namespace dicebot::database {
+
+    extern std::shared_mutex database_mutex;
+
     static int sqlite3_exec_noquery(sqlite3 *database, const char *sql) {
+        std::unique_lock<std::shared_mutex> db_lock(database_mutex);
         char *pchar_err_message = nullptr;
         return sqlite3_exec(database,
                             sql,
@@ -69,7 +75,10 @@ namespace dicebot::database {
         void column(Args &... args) {
             this->column_recur(0, std::forward<decltype(args)>(args)...);
         }
-        int step() { return sqlite3_step(stmt); }
+        int step() { 
+            std::shared_lock<std::shared_mutex> db_lock(database_mutex);
+            return sqlite3_step(stmt); 
+        }
 
         sqlstmt_binder(sqlite3_stmt *para) { stmt = para; };
         sqlstmt_binder(const sqlstmt_binder &) = delete;

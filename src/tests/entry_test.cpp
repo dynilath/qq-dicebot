@@ -10,6 +10,8 @@
 #define DB_FOLDER ""
 #endif
 
+auto ret_def_name = []()->::std::string{return "default";};
+
 class entry_test : public ::testing::Test {
 protected:
     entry_test() { dicebot::initialize(DB_FOLDER); }
@@ -19,23 +21,23 @@ public:
     bool test_call(::event_info &ei, const std::string &source,
                    const std::regex &reg_test) {
         std::string output;
-        dicebot::try_fill_nickname(ei);
-        dicebot::message_pipeline(source, ei, output);
+        //dicebot::try_fill_nickname(ei);
+        dicebot::message_pipeline(source, ei, ret_def_name,output);
         return std::regex_search(output, reg_test);
     }
 
     bool test_call(::event_info &ei, const std::string &source,
                    const std::string &reg_test) {
         std::string output;
-        dicebot::try_fill_nickname(ei);
-        dicebot::message_pipeline(source, ei, output);
+        //dicebot::try_fill_nickname(ei);
+        dicebot::message_pipeline(source, ei, ret_def_name, output);
         return output == reg_test;
     }
 
     std::string base_call(::event_info &ei, const std::string &source) {
         std::string output;
-        dicebot::try_fill_nickname(ei);
-        dicebot::message_pipeline(source, ei, output);
+        //dicebot::try_fill_nickname(ei);
+        dicebot::message_pipeline(source, ei, ret_def_name, output);
         return output;
     }
 };
@@ -137,7 +139,6 @@ TEST_F(entry_test, roll_brace_calculus) {
 
 TEST_F(entry_test, name) {
     ::event_info ei(123456, 10000, ::event_type::group);
-    ei.nickname = "dynilath";
 
     ei.group_id = 10001;
     ASSERT_TRUE(this->test_call(
@@ -166,16 +167,20 @@ TEST_F(entry_test, name) {
         u8"^ \\* dice2 掷骰: 2d20 \\+ 4 = \\[\\d{1,2} \\+ \\d{1,2}\\] \\+ 4 = "
         u8"\\d{1,2}$");
 
+    ei.nickname.clear();
     ei.group_id = 10001;
     ASSERT_TRUE(this->test_call(ei, ".rs2d20+4", result_reg_r1));
 
+    ei.nickname.clear();
     ei.group_id = 10002;
     ASSERT_TRUE(this->test_call(ei, ".rs2d20+4", result_reg_r2));
 
+    ei.nickname.clear();
     ei.group_id = 10001;
     ASSERT_TRUE(this->test_call(
         ei, ".ndice", std::regex(u8"^ \\* dice1 的新名字是 dice$")));
 
+    ei.nickname.clear();
     ei.group_id = 10002;
     ASSERT_TRUE(this->test_call(
         ei, ".ndice", std::regex(u8"^ \\* dice2 的新名字是 dice$")));
@@ -316,6 +321,16 @@ TEST_F(entry_test, roll_wod) {
     std::regex reg_wodn6_msg(
         u8"^ \\* dice test 掷骰: nWoD = \\[((?:\\d{1,2}|(?:\\d\\*){1,2}) \\+ "
         u8"){5,}(?:\\d{1,2}|(?:\\d\\*){1,2})\\] = \\d");
+        
+    std::regex reg_wodo6_adj(
+        u8"^ \\* dice 掷骰: oWoD = \\[((\\d{1,2}|(\\d){1,2}\\*) \\+ "
+        u8"){5}(\\d{1,2}|(\\d){1,2}\\*)\\] \\+ 4 = "
+        u8"\\d");
+    std::regex reg_wodn6_adj(
+        u8"^ \\* dice 掷骰: nWoD = \\[((\\d{1,2}|(\\d){1,2}\\*) \\+ "
+        u8"){5,}(\\d{1,2}|(\\d){1,2}\\*)\\] \\+ 4 = "
+        u8"\\d");
+
     this->base_call(ei, ".ndice");
     ASSERT_TRUE(this->test_call(ei, ".wodo6", reg_wodo6));
     ASSERT_TRUE(this->test_call(ei, ".wodn6", reg_wodn6));
@@ -325,6 +340,8 @@ TEST_F(entry_test, roll_wod) {
     ASSERT_TRUE(this->test_call(ei, ".wodn6test", reg_wodn6_msg));
     ASSERT_TRUE(this->test_call(ei, ".wo6 test", reg_wodo6_msg));
     ASSERT_TRUE(this->test_call(ei, ".wn6test", reg_wodn6_msg));
+    ASSERT_TRUE(this->test_call(ei, ".wo6+4", reg_wodo6_adj));
+    ASSERT_TRUE(this->test_call(ei, ".wn6+4", reg_wodn6_adj));
 }
 
 TEST_F(entry_test, roll_fate) {
@@ -334,24 +351,28 @@ TEST_F(entry_test, roll_fate) {
     std::regex reg_fate(
         u8"^ \\* dice 掷骰: FATE = \\[([o+\\-] ){3}[o+\\-]\\] = -?\\d");
     std::regex reg_fate1(
-        u8"^ \\* dice 掷骰: FATE \\+1 = \\[([o+\\-] ){3}[o+\\-]\\] \\+ 1 = "
+        u8"^ \\* dice 掷骰: FATE \\+ 1 = \\[([o+\\-] ){3}[o+\\-]\\] \\+ 1 = "
         u8"-?\\d");
     std::regex reg_fate_msg(
         u8"^ \\* dice test 掷骰: FATE = \\[([o+\\-] ){3}[o+\\-]\\] = -?\\d");
     std::regex reg_fate1_msg(
-        u8"^ \\* dice test 掷骰: FATE \\+1 = \\[([o+\\-] ){3}[o+\\-]\\] \\+ 1 "
+        u8"^ \\* dice test 掷骰: FATE \\+ 1 = \\[([o+\\-] ){3}[o+\\-]\\] \\+ 1 "
         u8"= "
         u8"-?\\d");
 
     this->base_call(ei, ".ndice");
     ASSERT_TRUE(this->test_call(ei, ".f", reg_fate));
     ASSERT_TRUE(this->test_call(ei, ".f+1", reg_fate1));
+    ASSERT_TRUE(this->test_call(ei, ".f + 1", reg_fate1));
     ASSERT_TRUE(this->test_call(ei, ".fate", reg_fate));
     ASSERT_TRUE(this->test_call(ei, ".fate+1", reg_fate1));
+    ASSERT_TRUE(this->test_call(ei, ".fate + 1", reg_fate1));
     ASSERT_TRUE(this->test_call(ei, ".ftest", reg_fate_msg));
     ASSERT_TRUE(this->test_call(ei, ".f+1test", reg_fate1_msg));
+    ASSERT_TRUE(this->test_call(ei, ".f + 1test", reg_fate1_msg));
     ASSERT_TRUE(this->test_call(ei, ".fate test", reg_fate_msg));
     ASSERT_TRUE(this->test_call(ei, ".fate+1 test", reg_fate1_msg));
+    ASSERT_TRUE(this->test_call(ei, ".fate + 1 test", reg_fate1_msg));
 }
 
 TEST_F(entry_test, manual_dice) {

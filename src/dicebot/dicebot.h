@@ -26,9 +26,10 @@
 #include "./utils/string_utils.h"
 
 namespace dicebot {
+    using nick_fill_call = ::std::function<::std::string()>;
     void initialize(const char*);
     void salvage();
     void set_logger(std::function<void(std::string, std::string)>);
-    bool try_fill_nickname(event_info&);
-    bool message_pipeline(std::string const&, event_info&, std::string&);
+    // bool try_fill_nickname(event_info&);
+    bool message_pipeline(std::string const&, event_info&, nick_fill_call, std::string&);
 } // namespace dicebot

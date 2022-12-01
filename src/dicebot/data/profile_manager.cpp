@@ -86,6 +86,7 @@ static bool write_database(user_profile const &profile, int64_t const user_id) {
 using profile_pair = std::pair<int64_t, user_profile>;
 
 std::unique_ptr<profile_manager> profile_manager::instance = nullptr;
+std::shared_mutex profile_mutex;
 
 profile_manager *profile_manager::create_instance() noexcept {
     db_manager::get_instance()->register_table(PROFILE_TABLE_NAME, PROFILE_TABLE_DEFINE);
@@ -105,6 +106,7 @@ profile_manager *profile_manager::get_instance() noexcept { return instance.get(
 void profile_manager::destroy_instance() noexcept { profile_manager::instance = nullptr; }
 
 bool profile_manager::force_update(int64_t const user_id) const {
+    std::shared_lock lock(profile_mutex);
     if (database::is_no_sql_mode) return false;
 
     auto iter = this->profiles.find(user_id);
@@ -117,6 +119,7 @@ bool profile_manager::force_update(int64_t const user_id) const {
 }
 
 sptr_user_profile profile_manager::get_profile(int64_t const user_id) {
+    std::unique_lock lock(profile_mutex);
     auto iter = this->profiles.find(user_id);
     if (iter != this->profiles.end()) {
         return &iter->second;

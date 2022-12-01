@@ -28,7 +28,8 @@ namespace dicebot::roll {
         std::string detail();
         void finish_coc() noexcept;
         std::string detail_coc() noexcept;
-        void finish_wod(bool const failing) noexcept;
+        void finish_wod(int const adjust, bool const failing) noexcept;
+        std::string detail_wod(int const adjust) noexcept;
         std::string detail_fate() noexcept;
     };
 
@@ -41,7 +42,7 @@ namespace dicebot::roll {
     void roll_coc(dice_roll& dice, int const i_bp);
 
     void roll_wod(dice_roll& dice, int const i_val, int const i_d,
-                  int const i_bonus, bool failing);
+                  int const i_bonus, int const adjust, bool failing);
 
     void roll_fate(dice_roll& dice, int const i_val);
 } // namespace dicebot::roll

@@ -11,7 +11,7 @@ using namespace dicebot::entry;
 
 #pragma region wod
 
-static const std::regex wod_full_dice("^(\\d+)(?:d(\\d+))?(?:b(\\d+))? *", std::regex_constants::icase);
+static const std::regex wod_full_dice("^(\\d+)(?:d(\\d+))?(?:b(\\d+))? *(?:([+-]) *(\\d+))?", std::regex_constants::icase);
 
 static const std::regex wod_filter_command("^(n|o) *", std::regex_constants::icase);
 
@@ -38,10 +38,17 @@ static bool roll_owod(std::string const& message, const event_info& event, std::
                 strs << " B" << bonus;
             }
 
+            int adjust = 0;
+            if (command_match[5].matched) {
+                adjust = stoi(command_match[5]);
+                if(*(command_match[4].first) == '-')
+                    adjust = -adjust;
+            }
+
             roll::dice_roll dr;
-            roll::roll_wod(dr, dice, difficulty, bonus, true);
+            roll::roll_wod(dr, dice, difficulty, bonus, adjust, true);
             output_constructor oc(event.nickname, command_match.suffix());
-            oc.append_roll(strs.str(), dr.detail(), dr.summary);
+            oc.append_roll(strs.str(), dr.detail_wod(adjust), dr.summary);
             response = oc;
             return true;
         } catch (std::invalid_argument&) {
@@ -76,10 +83,17 @@ static bool roll_nwod(std::string const& message, const event_info& event, std::
                 strs << " B" << bonus;
             }
 
+            int adjust = 0;
+            if (command_match[5].matched) {
+                adjust = stoi(command_match[5]);
+                if(*(command_match[4].first) == '-')
+                    adjust = -adjust;
+            }
+
             roll::dice_roll dr;
-            roll::roll_wod(dr, dice, difficulty, bonus, false);
+            roll::roll_wod(dr, dice, difficulty, bonus, adjust, false);
             output_constructor oc(event.nickname, command_match.suffix());
-            oc.append_roll(strs.str(), dr.detail(), dr.summary);
+            oc.append_roll(strs.str(), dr.detail_wod(adjust), dr.summary);
             response = oc;
             return true;
         } catch (std::invalid_argument&) {
@@ -240,7 +254,7 @@ entry_fate_dice::entry_fate_dice() noexcept {
         u8"指令.f+4：指定+4修正";
 }
 
-static const std::regex fate_full_dice("^([\\+\\-]\\d+) *");
+static const std::regex fate_full_dice("^(?:([+-]) *(\\d+)) *");
 
 bool entry_fate_dice::resolve_request(std::string const& message, event_info& event, std::string& response) noexcept {
     std::string::const_iterator work_point = message.begin();
@@ -255,8 +269,10 @@ bool entry_fate_dice::resolve_request(std::string const& message, event_info& ev
     roll_source << "FATE";
     try {
         if (!roll_match.empty()) {
-            roll_source << " " << roll_match[1];
-            i_modifier = stoi(roll_match[1]);
+            roll_source << " " << roll_match[1] <<" " << roll_match[2];
+            i_modifier = stoi(roll_match[2]);
+            if(*(roll_match[1].first) == '-')
+                i_modifier = -i_modifier;
             is_modifier_exist = true;
         }
     } catch (const std::invalid_argument&) {

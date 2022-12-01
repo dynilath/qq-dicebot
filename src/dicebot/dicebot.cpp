@@ -64,40 +64,56 @@ void dicebot::salvage() {
 
 void dicebot::set_logger(std::function<void(std::string, std::string)> varlog) { logger::_log = varlog; }
 
-bool dicebot::try_fill_nickname(event_info& event) {
-    return nickname::nickname_manager::instance->get_nickname(event, event.nickname);
-}
+// bool dicebot::try_fill_nickname(event_info& event) {
+//     return nickname::nickname_manager::instance->get_nickname(event, event.nickname);
+// }
 
-bool dicebot::message_pipeline(std::string const& source, event_info& event, std::string& output) {
-    //std::list<utils::string_part> source_parts;
-    //utils::split_line_part(source, source_parts);
-    auto lines = utils::split_line(source);
+bool dicebot::message_pipeline(std::string const& source, event_info& event, nick_fill_call fill_nick, std::string& output) {
+    auto lines = utils::split_line_corn(source);
 
     std::ostringstream ot;
 
+    bool ignore_stand_alone = false;
     bool is_output_available = false;
+
+    ::std::list<::std::string> responses;
+
+    ::std::string extern_nick;
 
     for (auto& item : lines) {
         if (!utils::jump_to_front_of_point(item)) continue;
         if (!utils::trim(item)) continue;
 
         std::smatch match_cmd;
-        std::regex_search(item.begin(), item.end(), match_cmd, *(dice_ptcs->get_regex_command()));
+        std::regex_search(item.begin(), item.end(), match_cmd, dice_ptcs->get_regex_command());
         if (!match_cmd[1].matched) continue;
+
+        if(event.nickname.empty()){
+            if(!nickname::nickname_manager::instance->get_nickname(event, event.nickname)){
+                if(extern_nick.empty()){
+                    extern_nick = event.nickname = fill_nick();
+                    if(extern_nick.empty()) extern_nick = event.nickname = ::std::to_string(event.user_id);
+                }
+                else event.nickname = extern_nick;
+            }
+        }
 
         auto target_entry = dice_ptcs->get_entry(match_cmd[1]);
 
         utils::string_view suffix = match_cmd.suffix();
         if (target_entry->is_stand_alone) {
-            if (target_entry->resolve_request(suffix, event, output)) {
+            if (ignore_stand_alone) continue;
+
+            if(target_entry->resolve_request(suffix, event, output)) {
                 return is_output_available = true;
             }
-        } else {
+        }else {
             std::string response;
             if (target_entry->resolve_request(suffix, event, response)) {
                 if (is_output_available) ot << std::endl;
                 ot << response;
                 is_output_available = true;
+                ignore_stand_alone = true;
                 continue;
             }
         }
