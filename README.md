@@ -25,7 +25,7 @@ Just a simple dicebot for coolq in development.
 1. 克隆本仓库，找到你希望部署的位置，打开控制台，输入`git clone https://github.com/dynilath/qq-dicebot.git`
 2. 在控制台输入`cd qq-dicebot`，进入仓库目录。
 3. 在控制台输入`npm install`，等待依赖安装完成。
-4. 在控制台输入`npm build`，等待构建完成。
+4. 在控制台输入`npm run build`，等待构建完成。
 5. 在控制台输入`npm run test`，输入账户、密码、主管账户。这会生成一个`config.json`文件，里面保存了你的用户信息。
 6. 现在你已经可以使用骰子了。
 
