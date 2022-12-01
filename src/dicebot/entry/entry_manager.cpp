@@ -66,7 +66,7 @@ entry_help::entry_help() noexcept {
         u8"更多指令：name set list delete manual poker\n"
         u8"使用 .help [指令名称] 来获得对应指令的帮助\n"
         u8"\n"
-        u8"访问项目主页http://github.com/dynilath/coolq-dicebot\n"
+        u8"访问项目主页http://github.com/dynilath/qq-dicebot\n"
         u8"获得使用说明以及了解更多内容。\n"
         u8"如果在使用中遇到了bug，或者有什么功能建议，欢迎在项目主页通过issue反"
         u8"馈，感谢您的帮助。";
