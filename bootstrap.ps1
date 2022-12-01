@@ -2,6 +2,11 @@ $config_type = $args[0]
 
 $start_location = Resolve-Path .
 
+If (Test-Path ".\dicebot.dll") {
+    Write-Host "Found built dicebot.dll"
+    exit
+}
+
 if ($null -eq $config_type) {
     Write-Warning "No configuration specified, using Debug as default, if you want release, use `"bootstrap.ps1 Release`" instead."
     $config_type = "Debug"

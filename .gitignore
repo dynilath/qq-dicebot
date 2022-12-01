@@ -9,3 +9,6 @@ tmp
 CMakeSettings.json
 node_modules
 *.lock
+data
+dicebot_db
+config.json
