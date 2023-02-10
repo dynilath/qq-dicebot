@@ -12,3 +12,7 @@ node_modules
 data
 dicebot_db
 config.json
+invite_controller.js
+.gitignore
+configure.js
+index.js

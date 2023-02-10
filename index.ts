@@ -31,7 +31,7 @@ let dicebot = ffi.Library('./dicebot.dll', {
 
 load_config().then((config) => {
 
-    const bot = createClient(config.user_id, config.general);
+    const bot = createClient(config.user_id);
 
     let pmsg_function = ffi.Callback('void', [i64, cstr], (uid: number, msg: string) => { bot.sendPrivateMsg(uid, msg); });
     let gmsg_function = ffi.Callback('void', [i64, cstr], (gid: number, msg: string) => {
@@ -62,11 +62,18 @@ load_config().then((config) => {
     controller.set_master_id(config.master_id);
     controller.set_profile(app_dir);
 
-    bot.on("system.login.slider", (data) => {
-        process.stdin.once("data", (input) => {
-            bot.submitSlider(input.toString());
-        });
-    });
+    bot.on("system.login.qrcode", function (e) {
+        //扫码后按回车登录
+        process.stdin.once("data", () => {
+            this.login()
+        })
+    }).login()
+
+    // bot.on("system.login.slider", (data) => {
+    //     process.stdin.once("data", (input) => {
+    //         bot.submitSlider(input.toString());
+    //     });
+    // });
 
     bot.on("system.login.device", () => {
         process.stdin.once("data", () => {
@@ -116,6 +123,6 @@ load_config().then((config) => {
         });
     });
 
-    bot.login(config.password);
+    //bot.login(config.password);
 });
 
