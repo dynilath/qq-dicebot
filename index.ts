@@ -1,5 +1,5 @@
 //let { createClient } = require("oicq");
-import { createClient } from "oicq";
+import { createClient } from "icqq";
 let ref = require("ref-napi");
 let ffi = require("ffi-napi");
 import fs from "fs";
@@ -31,7 +31,7 @@ let dicebot = ffi.Library('./dicebot.dll', {
 
 load_config().then((config) => {
 
-    const bot = createClient(config.user_id);
+    const bot = createClient(config.general);
 
     let pmsg_function = ffi.Callback('void', [i64, cstr], (uid: number, msg: string) => { bot.sendPrivateMsg(uid, msg); });
     let gmsg_function = ffi.Callback('void', [i64, cstr], (gid: number, msg: string) => {
@@ -65,15 +65,15 @@ load_config().then((config) => {
     bot.on("system.login.qrcode", function (e) {
         //扫码后按回车登录
         process.stdin.once("data", () => {
-            this.login()
+            bot.login()
         })
     }).login()
 
-    // bot.on("system.login.slider", (data) => {
-    //     process.stdin.once("data", (input) => {
-    //         bot.submitSlider(input.toString());
-    //     });
-    // });
+    bot.on("system.login.slider", (data) => {
+        process.stdin.once("data", (input) => {
+            bot.submitSlider(input.toString());
+        });
+    });
 
     bot.on("system.login.device", () => {
         process.stdin.once("data", () => {
@@ -123,6 +123,6 @@ load_config().then((config) => {
         });
     });
 
-    //bot.login(config.password);
+    bot.login(config.user_id, config.password);
 });
 

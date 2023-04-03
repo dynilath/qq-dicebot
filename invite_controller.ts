@@ -1,4 +1,4 @@
-import { Client, GroupInfo } from "oicq";
+import { Client, GroupInfo } from "icqq";
 
 import fs from "fs";
 import path from "path";
@@ -83,7 +83,7 @@ async function set_profile(prf_dir: string) {
         })
 
         fs.writeFileSync(path_to_prf, JSON.stringify({ "burden_counter": burden_counter_cp, "burden_list": burden_list }), { encoding: 'utf-8' });
-        bot?.logger.debug("Burden data saved.")
+        bot?.logger?.debug("Burden data saved.")
     }, 10000);
 }
 

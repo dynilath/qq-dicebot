@@ -14,8 +14,7 @@
   "dependencies": {
     "@types/node": "^18.11.10",
     "ffi-napi": "^4.0.3",
-    "icqq": "^0.0.12-7",
-    "oicq": "^2.3.1",
+    "icqq": "^0.0.37",
     "ref-napi": "^3.0.3",
     "typescript": "^4.9.3"
   },
